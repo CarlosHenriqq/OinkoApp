@@ -1,6 +1,7 @@
+import { router } from "expo-router";
 import { Dimensions, ScrollView, StyleSheet, Text, View } from "react-native";
 import { PieChart } from 'react-native-gifted-charts';
-import { Alimentacao, Divida } from '../../../assets/iconsCategorias';
+import { Alimentacao } from '../../../assets/iconsCategorias';
 import Cabeca from "../../../assets/images/cabeca.svg";
 import Moeda from "../../../assets/images/moeda.svg";
 import { Button } from "../../../components/botao";
@@ -47,21 +48,24 @@ export default function UserDash() {
             </View>
 
             <View style={{ marginTop: 20, justifyContent: 'center', alignItems: 'center' }}>
-                <Button title='Registrar Gasto' />
+                <Button title='Registrar Gasto' onPress={()=>router.replace("/profile/profile")}/>
             </View>
-            <View style={{marginTop:20, marginLeft:25}}>
+            <View style={{marginTop:20, marginLeft:20}}>
                 <Text style={{fontFamily:'manrope', fontSize:20, fontWeight:'600', color:'#4a4a4a'}}> Gastos atuais por categoria</Text>
             </View>
             <View style={{
     marginTop: 10,
-    marginLeft: 25,
+    alignItems: 'center',
     backgroundColor: '#ffffff',
-    width: 362,
+    width: '90%',
     height: 922,
     borderRadius: 20,
-    
-    alignItems: 'center',
+    alignSelf: 'center',
     padding: 20,
+            shadowColor: '#000000',
+            shadowOffset: { width: 0, height: 3 },
+            shadowOpacity: 0.1,
+            shadowRadius: 3, 
 }}>
     <PieChart 
         data={gastosFicticios}
@@ -85,18 +89,15 @@ export default function UserDash() {
             );
         }}
     />
-    <View style={{marginTop: 30}}><GastoCategoria 
-        titulo="Dívidas"
-        subtitulo="Total da categoria"
-        valor="R$325,00"
-        Imagem={Alimentacao} // coloque a imagem real aqui
-      />
-      <GastoCategoria
-        titulo="Dívidas"
-        subtitulo="Total da categoria"
-        valor="R$325,00"
-        Imagem={Divida} // coloque a imagem real aqui
-      /></View>
+    <View style={{marginTop: 30}}>
+        <GastoCategoria 
+            titulo="Dívidas"
+            subtitulo="Total da categoria"
+            valor="R$325,00"
+            Imagem={Alimentacao} // coloque a imagem real aqui  
+        />
+    
+        </View>
 </View>
 
 

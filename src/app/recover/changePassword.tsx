@@ -4,7 +4,7 @@ import { Button } from "../../../components/botao";
 import Input from "../../../components/input";
 
 
-export default function ChangePassword(){
+export default function profile(){
     return(
         <View style={styles.container}>
             <View style={styles.textoSenha}>

@@ -21,10 +21,10 @@ const styles = StyleSheet.create({
         borderRadius:20,
         alignItems:'center',
         justifyContent:'center',
-        shadowColor: '#000000',         // cor da sombra
-shadowOffset: { width: 0, height: 2 },  // x e y do Figma
-shadowOpacity: 0.4,          // 10% = 0.1
-shadowRadius: 2,  
+            shadowColor: '#000000',         // cor da sombra
+            shadowOffset: { width: 0, height: 2 },  // x e y do Figma
+            shadowOpacity: 0.4,          // 10% = 0.1
+            shadowRadius: 2,  
     
     },
     text:{
