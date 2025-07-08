@@ -80,7 +80,7 @@ export default function RegisterFinance() {
                 />
                    </View>
                 <View style={styles.container}>
-                    <View style={{ marginBottom: 25, marginTop:50}} >
+                    <View style={{ marginBottom: 25, marginTop:24}} >
                         <Text style={{ color: '#4A4A4A', fontSize: 34, fontFamily: 'Manrope', fontWeight: "bold", maxWidth: 230, textAlign: 'center' }}>Informações Financeiras</Text>
                     </View>
                     <View>

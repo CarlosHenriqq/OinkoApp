@@ -78,7 +78,7 @@ export default function Register() {
                     <Text style={{ color: '#4A4A4A', fontFamily: 'Manrope', fontSize: 16 }}>
                         Já possui uma conta?
                     </Text>
-                    <TouchableOpacity onPress={() => {/* navegar para tela de cadastro */ }}>
+                    <TouchableOpacity onPress={()=>router.replace("/auth/login")}>
                         <Text style={{ textDecorationLine: 'underline', color: '#4A4A4A', fontFamily: 'Manrope', fontSize: 16 }}>
                             Clique aqui
                         </Text>

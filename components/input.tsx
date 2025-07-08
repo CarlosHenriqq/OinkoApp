@@ -23,7 +23,7 @@ export default function Input({ placeholder, icon, isPassword, ...rest }: InputP
             {isPassword && (
                 <TouchableOpacity onPress={() => setShowPassword(!showPassword)} style={styles.iconRight}>
                     <Ionicons
-                        name={showPassword ? 'eye-off-outline' : 'eye-outline'}
+                        name={showPassword ?'eye-outline' : 'eye-off-outline'}
                         size={24}
                         color={'#A3C0AC'}
                     />
