@@ -31,7 +31,7 @@ export default function Login() {
                     <Google />
                 </TouchableOpacity>
            
-                <TouchableOpacity onPress={() => {/* navegar para tela de cadastro */ }}>
+                <TouchableOpacity onPress={()=>router.replace("/recover/forgetPassword")}>
                     <Text style={{ textDecorationLine: 'underline', color: '#4A4A4A', fontFamily: 'Manrope', fontSize: 16, }}>
                         Esqueceu sua senha? 
                     </Text>
@@ -40,7 +40,7 @@ export default function Login() {
                 <Text style={{ color: '#4A4A4A', fontFamily: 'Manrope', fontSize: 16 }}>
                     Não possui uma conta?
                 </Text>
-                <TouchableOpacity onPress={() => {/* navegar para tela de cadastro */ }}>
+                <TouchableOpacity onPress={()=>router.replace("/auth")}>
                     <Text style={{ textDecorationLine: 'underline', color: '#4A4A4A', fontFamily: 'Manrope', fontSize: 16 }}>
                         Clique aqui
                     </Text>
