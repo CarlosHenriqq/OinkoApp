@@ -5,7 +5,7 @@ interface ButtonProps extends TouchableOpacityProps {
 
 }
 
-export  function Button ({title, ...rest}){
+export  function ButtonMenor ({title, ...rest}){
     return (
         <TouchableOpacity style={styles.button}{...rest}>
             <Text style={styles.text}>{title}</Text>
@@ -15,9 +15,9 @@ export  function Button ({title, ...rest}){
 
 const styles = StyleSheet.create({
     button:{
-        width:200,
-        height:40,
-        backgroundColor:'#7a8c99',
+        width:115,
+        height:30,
+        backgroundColor:'#526471',
         borderRadius:20,
         alignItems:'center',
         justifyContent:'center',

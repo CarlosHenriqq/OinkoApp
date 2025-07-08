@@ -1,10 +1,11 @@
 import { Dimensions, ScrollView, StyleSheet, Text, View } from "react-native";
 import { PieChart } from 'react-native-gifted-charts';
+import { Alimentacao, Divida } from '../../../assets/iconsCategorias';
 import Cabeca from "../../../assets/images/cabeca.svg";
 import Moeda from "../../../assets/images/moeda.svg";
 import { Button } from "../../../components/botao";
+import GastoCategoria from "../../../components/gastoCategoria";
 import Header from "../../../components/header";
-
 
 const { width } = Dimensions.get('window');
 
@@ -62,7 +63,7 @@ export default function UserDash() {
     alignItems: 'center',
     padding: 20,
 }}>
-    <PieChart
+    <PieChart 
         data={gastosFicticios}
         donut
         showText
@@ -73,7 +74,7 @@ export default function UserDash() {
         centerLabelComponent={() => {
             const total = gastosFicticios.reduce((sum, item) => sum + item.value, 0);
             return (
-                <View style={{ alignItems: 'center' }}>
+                <View style={{ alignItems: 'center'}}>
                     <Text style={{ fontSize: 22, fontFamily: 'Manrope', fontWeight: 'bold' }}>
                         Total
                     </Text>
@@ -84,6 +85,18 @@ export default function UserDash() {
             );
         }}
     />
+    <View style={{marginTop: 30}}><GastoCategoria 
+        titulo="Dívidas"
+        subtitulo="Total da categoria"
+        valor="R$325,00"
+        Imagem={Alimentacao} // coloque a imagem real aqui
+      />
+      <GastoCategoria
+        titulo="Dívidas"
+        subtitulo="Total da categoria"
+        valor="R$325,00"
+        Imagem={Divida} // coloque a imagem real aqui
+      /></View>
 </View>
 
 
