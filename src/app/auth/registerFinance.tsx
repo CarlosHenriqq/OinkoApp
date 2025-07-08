@@ -1,3 +1,4 @@
+import axios from "axios";
 import { router } from "expo-router";
 import { useState } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
@@ -66,6 +67,24 @@ export default function RegisterFinance() {
             }
         }
     }
+
+    const [renda, setRenda] = useState('');
+    async function handleRegisterFinance() {
+
+    try {
+        const response = await axios.post('http://192.168.1.109:3000/auth/registerFinance', {
+            renda
+ 
+        });
+        console.log(response.data);
+        alert('Informações gravadas com sucesso!');
+        router.push('/pages/userDash');
+    } catch (error) {
+        console.error(error);
+        alert('Erro ao salvar informações. Tente novamente.');
+    }
+}
+
     return (
         <View style={{ backgroundColor: '#E0E8F9', flex: 1 }}>
             <View style={{
@@ -84,7 +103,7 @@ export default function RegisterFinance() {
                         <Text style={{ color: '#4A4A4A', fontSize: 34, fontFamily: 'Manrope', fontWeight: "bold", maxWidth: 230, textAlign: 'center' }}>Informações Financeiras</Text>
                     </View>
                     <View>
-                        <Input placeholder="Quanto é a sua renda?" icon="cash-outline" />
+                        <Input placeholder="Quanto é a sua renda?" icon="cash-outline" value={renda} onChangeText={setRenda} />
                     </View>
                     <View style={{ marginBottom: 25 }}>
                         <Text style={{ color: '#4A4A4A', fontSize: 20, fontFamily: 'Manrope', fontWeight: "600", maxWidth: 336, textAlign: 'center' }}>Quais dessas categorias fazem parte do seu mês? <Text style={{ fontWeight: 'bold' }}>Escolha até 7   </Text></Text>
@@ -113,7 +132,7 @@ export default function RegisterFinance() {
                         ))}
                     </View>
                         <View style={{ marginTop:25, marginBottom:25}}>
-                    <Button title='Finalizar' onPress={()=> router.push('/pages/userDash')} />
+                    <Button title='Finalizar' onPress={handleRegisterFinance} />
                     </View>
                 </View>
             

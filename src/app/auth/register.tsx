@@ -1,3 +1,4 @@
+import axios from 'axios';
 import Checkbox from 'expo-checkbox';
 import { router } from 'expo-router';
 import { useState } from "react";
@@ -5,6 +6,7 @@ import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import StepIndicator from 'react-native-step-indicator';
 import { Button } from '../../../components/botao';
 import Input from "../../../components/input";
+
 export default function Register() {
     const label = ["Dados pessoais", "Dados Financeiros"];
     const customStyles = {
@@ -30,8 +32,36 @@ export default function Register() {
         labelSize: 13,
         currentStepLabelColor: '#A3C0AC'
     };
-
     const [isChecked, setIsChecked] = useState(false);
+    const [name, setName] = useState('');
+    const [birthDate, setBirthDate] = useState('');
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+
+    async function handleRegister() {
+        if (!isChecked) {
+            alert('Você precisa aceitar os Termos de Uso.');
+            return;
+        }
+
+        try {
+            const response = await axios.post('http://192.168.1.109:3000/auth/register', {
+                nome: name,
+                data_nascimento: birthDate,
+                email: email,
+                senha: password,
+            });
+
+            console.log(response.data);
+            alert('Cadastro realizado com sucesso!');
+            router.push('/auth/registerFinance');
+        } catch (error) {
+            console.error(error);
+            alert('Erro ao cadastrar. Tente novamente.');
+        }
+    }
+
+
 
     return (
         <View style={{ backgroundColor: '#E0E8F9', flex: 1 }}>
@@ -50,10 +80,10 @@ export default function Register() {
                     <Text style={{ color: '#4A4A4A', fontSize: 34, fontFamily: 'Manrope', fontWeight: "bold", maxWidth: 230, textAlign: 'center' }}>Informações Pessoais</Text>
                 </View>
                 <View >
-                    <Input placeholder="Como devo te chamar?" icon="person-circle-outline" />
-                    <Input placeholder="Data de nascimento" icon="calendar-outline" keyboardType="numeric" />
-                    <Input placeholder="Digite seu e-mail" icon="mail-outline" />
-                    <Input placeholder="Senha" icon="lock-closed-outline" isPassword />
+                    <Input placeholder="Como devo te chamar?" icon="person-circle-outline" value={name} onChangeText={setName} />
+                    <Input placeholder="Data de nascimento" icon="calendar-outline" keyboardType="numeric" value={birthDate} onChangeText={setBirthDate} />
+                    <Input placeholder="Digite seu e-mail" icon="mail-outline" value={email} onChangeText={setEmail} />
+                    <Input placeholder="Senha" icon="lock-closed-outline" isPassword value={password} onChangeText={setPassword} />
 
                 </View>
                 <View style={{ flexDirection: 'row', gap: 1, marginLeft: -5, marginTop: 5 }}>
@@ -62,7 +92,7 @@ export default function Register() {
                             value={isChecked}
                             onValueChange={setIsChecked}
                             color={isChecked ? '#A3C0AC' : '#4a4a4a'}
-                            style={{ alignItems: 'center', justifyContent: 'center', borderRadius:3 }} />
+                            style={{ alignItems: 'center', justifyContent: 'center', borderRadius: 3 }} />
 
                     </View>
                     <View style={{ marginLeft: 12 }}>
@@ -72,13 +102,13 @@ export default function Register() {
 
                 </View>
                 <View style={{ marginTop: 60, marginBottom: 60 }}>
-                    <Button title="Avançar" onPress={() => router.push('/auth/registerFinance')} />
+                    <Button title="Avançar" onPress={handleRegister} />
                 </View>
-                <View style={{  alignItems: 'center', flexDirection: 'row', gap: 2, marginBottom: 40 }}>
+                <View style={{ alignItems: 'center', flexDirection: 'row', gap: 2, marginBottom: 40 }}>
                     <Text style={{ color: '#4A4A4A', fontFamily: 'Manrope', fontSize: 16 }}>
                         Já possui uma conta?
                     </Text>
-                    <TouchableOpacity onPress={()=>router.replace("/auth/login")}>
+                    <TouchableOpacity onPress={() => router.replace("/auth/login")}>
                         <Text style={{ textDecorationLine: 'underline', color: '#4A4A4A', fontFamily: 'Manrope', fontSize: 16 }}>
                             Clique aqui
                         </Text>
