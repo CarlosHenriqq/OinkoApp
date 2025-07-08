@@ -113,7 +113,7 @@ export default function RegisterFinance() {
                         ))}
                     </View>
                         <View style={{ marginTop:25, marginBottom:25}}>
-                    <Button title='Finalizar' />
+                    <Button title='Finalizar' onPress={()=> router.push('/pages/userDash')} />
                     </View>
                 </View>
             
