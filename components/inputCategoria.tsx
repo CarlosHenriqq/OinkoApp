@@ -5,30 +5,46 @@ interface InputCategoriaProps {
     width: number;
     isSelected: boolean;
     onPress: () => void;
+    backgroundColorSelect: string;
+    backgroundColorUnSelect: string;
+    borderColorSelect: string;
+    borderColorUnSelect: string;
+    textUnselect: string;
 }
 
-export default function InputCategoria({ title, width, isSelected, onPress }: InputCategoriaProps) {
+const InputCategoria = ({
+    title,
+    width,
+    isSelected,
+    onPress,
+    backgroundColorSelect,
+    backgroundColorUnSelect,
+    borderColorSelect,
+    borderColorUnSelect,
+    textUnselect,
+}: InputCategoriaProps) => {
     return (
         <Pressable
             onPress={onPress}
             style={[
                 styles.input,
                 { width },
-                { backgroundColor: isSelected ? '#A3C0AC' : '#ffffff' },
-                { borderColor: isSelected ? '#7A8C99' : '#A3C0AC' },
+                isSelected
+                    ? { backgroundColor: backgroundColorSelect, borderColor: borderColorSelect }
+                    : { backgroundColor: backgroundColorUnSelect, borderColor: borderColorUnSelect }
             ]}
         >
-            <Text style={{ color: isSelected ? '#ffffff' : '#A3C0AC', fontFamily: 'Manrope', fontWeight: '700', fontSize: 16 }}>
+            <Text style={{ color: isSelected ? '#ffffff' : textUnselect, fontFamily: 'Manrope', fontWeight: '700', fontSize: 16 }}>
                 {title}
             </Text>
         </Pressable>
     );
-}
+};
 
 const styles = StyleSheet.create({
     input: {
         height: 30,
-        borderWidth: 2,
+        borderWidth: 3,
         borderRadius: 20,
         justifyContent: 'center',
         alignItems: 'center',
@@ -36,3 +52,5 @@ const styles = StyleSheet.create({
         marginBottom: 8,
     },
 });
+
+export default InputCategoria;
