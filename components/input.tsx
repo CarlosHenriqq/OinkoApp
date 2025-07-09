@@ -46,7 +46,11 @@ const styles = StyleSheet.create({
         width:300,
         height:50,
         marginBottom:20,
-        gap:15
+        gap:15,
+        shadowColor: '#000000',         // cor da sombra
+                shadowOffset: { width: 0, height: 2 },  // x e y do Figma
+                shadowOpacity: 0.4,          // 10% = 0.1
+                shadowRadius: 2,  
     
     },
     icon: {
@@ -59,7 +63,7 @@ const styles = StyleSheet.create({
     input: {
         flex: 1,
         fontSize: 18,
-        color: '#7a8c99',
+        color: '#4A4A4A',
         fontFamily: 'Manrope',
         fontWeight:800
        

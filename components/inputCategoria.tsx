@@ -34,7 +34,7 @@ const InputCategoria = ({
                     : { backgroundColor: backgroundColorUnSelect, borderColor: borderColorUnSelect }
             ]}
         >
-            <Text style={{ color: isSelected ? '#ffffff' : textUnselect, fontFamily: 'Manrope', fontWeight: '700', fontSize: 16 }}>
+            <Text style={{ color: isSelected ? '#ffffff' : textUnselect, fontFamily: 'Manrope', fontWeight: '800', fontSize: 18 }}>
                 {title}
             </Text>
         </Pressable>
@@ -50,6 +50,10 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         paddingHorizontal: 10,
         marginBottom: 8,
+        shadowColor: '#000000',         // cor da sombra
+                shadowOffset: { width: 0, height: 2 },  // x e y do Figma
+                shadowOpacity: 0.4,          // 10% = 0.1
+                shadowRadius: 2,  
     },
 });
 

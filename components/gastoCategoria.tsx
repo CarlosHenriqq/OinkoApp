@@ -38,6 +38,7 @@ const styles = StyleSheet.create({
     maxHeight:50,
     alignSelf: 'center',
     marginBottom: 20,
+    
   },
   imagemContainer: {
     width: 50,
