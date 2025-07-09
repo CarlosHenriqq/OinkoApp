@@ -1,8 +1,10 @@
-import { router } from 'expo-router';
-import { useState } from 'react';
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import axios from "axios";
+import { router } from "expo-router";
+import { useEffect, useState } from 'react';
 import { Dimensions, ScrollView, StyleSheet, Text, View } from "react-native";
 import { PieChart } from 'react-native-gifted-charts';
-import { Alimentacao } from '../../../assets/iconsCategorias';
+import { Alimentacao } from "../../../assets/iconsCategorias";
 import Cabeca from "../../../assets/images/cabeca.svg";
 import Moeda from "../../../assets/images/moeda.svg";
 import { Button } from "../../../components/botao";
@@ -13,17 +15,53 @@ import Newgasto from "../../../components/NewGasto";
 
 const { width } = Dimensions.get('window');
 
+
+
 export default function UserDash() {
+    const [primeiroNome, setPrimeiroNome] = useState('');
+    const [gasto, setGasto] = useState(0)
+    useEffect(() => {
+        async function carregarNome() {
+            const nomeCompleto = await AsyncStorage.getItem('userName');
+            if (nomeCompleto) {
+                // Pega apenas o primeiro nome:
+                const primeiro = nomeCompleto.split(' ')[0];
+                setPrimeiroNome(primeiro);
+            }
+        }
+        carregarNome();
+
+async function buscarGasto() {
+    const userId = await AsyncStorage.getItem('userId');
+    try {
+        const response = await axios.get('http://192.168.1.109:3000/expenses/gastos/total',{
+            headers:{
+                usuario_id: userId
+            }
+        });
+        setGasto(response.data.total);
+        console.log(response.data.total)
+       
+    } catch (error) {
+        console.error(error);
+    }
+}   
+buscarGasto()
+
+    }, []);
+    const gastosFicticios = [
+    {value: 325, color: '#B65C5C',focused:true,},
+    {value: 195, color: '#5C7F8A',focused:false,},
+    {value: 65, color: '#C8AD94',focused:false, },
+    {value: 260, color: '#6DA97A',focused:false, },
+    {value: 0, color: '#AAAAAA', text: 'Outros'}, // exemplo valor zero para teste
+];
+
+
+
   const [popupVisible, setPopupVisible] = useState(false);
 
-  const gastosFicticios = [
-    { value: 325, color: '#B65C5C', focused: true },
-    { value: 195, color: '#5C7F8A', focused: false },
-    { value: 65, color: '#C8AD94', focused: false },
-    { value: 260, color: '#6DA97A', focused: false },
-    { value: 0, color: '#AAAAAA', text: 'Outros' },
-  ];
-
+  
   function handleSalvarGasto(Dados) {
     console.log('Gasto salvo:', Dados);
     // aqui futuramente você pode adicionar lógica real de envio

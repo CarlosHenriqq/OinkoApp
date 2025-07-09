@@ -1,5 +1,5 @@
 import { useRouter } from 'expo-router';
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { StatusBar, StyleSheet, View } from 'react-native';
 import Oinko1 from '../../assets/images/oinko1.svg';
 export default function First() {
