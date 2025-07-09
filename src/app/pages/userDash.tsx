@@ -1,16 +1,49 @@
-import { router } from "expo-router";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import axios from "axios";
+import { useEffect, useState } from "react";
 import { Dimensions, ScrollView, StyleSheet, Text, View } from "react-native";
 import { PieChart } from 'react-native-gifted-charts';
-import { Alimentacao } from '../../../assets/iconsCategorias';
 import Cabeca from "../../../assets/images/cabeca.svg";
 import Moeda from "../../../assets/images/moeda.svg";
 import { Button } from "../../../components/botao";
-import GastoCategoria from "../../../components/gastoCategoria";
 import Header from "../../../components/header";
 
 const { width } = Dimensions.get('window');
 
+
+
 export default function UserDash() {
+    const [primeiroNome, setPrimeiroNome] = useState('');
+    const [gasto, setGasto] = useState(0)
+    useEffect(() => {
+        async function carregarNome() {
+            const nomeCompleto = await AsyncStorage.getItem('userName');
+            if (nomeCompleto) {
+                // Pega apenas o primeiro nome:
+                const primeiro = nomeCompleto.split(' ')[0];
+                setPrimeiroNome(primeiro);
+            }
+        }
+        carregarNome();
+
+async function buscarGasto() {
+    const userId = await AsyncStorage.getItem('userId');
+    try {
+        const response = await axios.get('http://192.168.1.109:3000/expenses/gastos/total',{
+            headers:{
+                usuario_id: userId
+            }
+        });
+        setGasto(response.data.total);
+        console.log(response.data.total)
+       
+    } catch (error) {
+        console.error(error);
+    }
+}   
+buscarGasto()
+
+    }, []);
     const gastosFicticios = [
     {value: 325, color: '#B65C5C',focused:true,},
     {value: 195, color: '#5C7F8A',focused:false,},
@@ -18,6 +51,7 @@ export default function UserDash() {
     {value: 260, color: '#6DA97A',focused:false, },
     {value: 0, color: '#AAAAAA', text: 'Outros'}, // exemplo valor zero para teste
 ];
+
 
 
 
@@ -32,7 +66,7 @@ export default function UserDash() {
                             Como vai você,
                         </Text>
                         <Text style={styles.userNameText}>
-                            Carlos?
+                            {primeiroNome}?
                         </Text>
                     </View>
                 </View>
@@ -40,7 +74,7 @@ export default function UserDash() {
             <View style={styles.expenseContainer}>
                 <View>
                 <Text style={styles.expenseLabel}>Você gastou:</Text>
-                <Text style={styles.expenseValue}>R$845,00</Text>
+                <Text style={styles.expenseValue}>R${gasto}</Text>
                 </View>
                 <View>
                     <Moeda />
@@ -48,7 +82,7 @@ export default function UserDash() {
             </View>
 
             <View style={{ marginTop: 20, justifyContent: 'center', alignItems: 'center' }}>
-                <Button title='Registrar Gasto' onPress={()=>router.replace("/profile/profile")}/>
+                <Button title='Registrar Gasto' onPress={{}}/>
             </View>
             <View style={{marginTop:20, marginLeft:20}}>
                 <Text style={{fontFamily:'manrope', fontSize:20, fontWeight:'600', color:'#4a4a4a'}}> Gastos atuais por categoria</Text>
@@ -90,12 +124,7 @@ export default function UserDash() {
         }}
     />
     <View style={{marginTop: 30}}>
-        <GastoCategoria 
-            titulo="Dívidas"
-            subtitulo="Total da categoria"
-            valor="R$325,00"
-            Imagem={Alimentacao} // coloque a imagem real aqui  
-        />
+        
     
         </View>
 </View>

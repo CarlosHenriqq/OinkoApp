@@ -1,3 +1,5 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
 import { router } from "expo-router";
 import { useState } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
@@ -66,8 +68,28 @@ export default function RegisterFinance() {
             }
         }
     }
-
     const [renda, setRenda] = useState('');
+
+
+    async function handleRegisterFinance() {
+    const userIdStr = await AsyncStorage.getItem('userId');
+    const userId = userIdStr ? Number(userIdStr) : null; // se for número
+    try {
+        const response = await axios.post('http://192.168.1.109:3000/auth/registerFinance', {
+    usuario_id: userId,
+    renda,
+    categorias: selectedCategories
+});
+
+        console.log(response.data);
+        alert('Informações gravadas com sucesso!');
+        router.push('/auth/login');
+    } catch (error) {
+        console.error(error);
+        alert('Erro ao salvar informações. Tente novamente.');
+    }
+}
+
     
 
     return (
@@ -123,7 +145,7 @@ export default function RegisterFinance() {
                             ))}
                         </View>
                         <View style={{ marginTop:25, marginBottom:25}}>
-                    <Button title='Finalizar' onPress={()=> router.replace('/pages/userDash')} />
+                    <Button title='Finalizar' onPress={handleRegisterFinance} />
                     </View>
                 </View>
             

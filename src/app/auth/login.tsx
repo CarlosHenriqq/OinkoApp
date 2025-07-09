@@ -1,11 +1,40 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import axios from "axios";
 import { useRouter } from "expo-router";
-import { KeyboardAvoidingView, Platform, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { useState } from "react";
+import { Alert, KeyboardAvoidingView, Platform, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import Google from '../../../assets/images/google.svg';
 import Logo from '../../../assets/images/logo.svg';
 import { Button } from "../../../components/botao";
 import Input from '../../../components/input';
 export default function Login() {
     const router = useRouter()
+    const [email, setEmail] = useState('');
+    const [senha, setSenha] = useState('');
+
+    async function handleLogin() {
+        try {
+            const response = await axios.post('http://192.168.1.109:3000/auth/login', {
+                email,
+                senha
+            });
+            const userName = response.data.usuario.nome;
+             await AsyncStorage.setItem('userName', userName);
+            console.log(response.data);
+            Alert.alert('Sucesso', 'Login realizado com sucesso!');
+
+            // salvar token no asyncstorage se for usar persistência
+            await AsyncStorage.setItem('token', response.data.token);
+
+            // redirecionar para o dashboard
+            router.replace('/pages/userDash');
+
+        } catch (error) {
+         
+            console.error(error);
+            Alert.alert('Erro', 'Email ou senha inválidos.');
+        }
+    }
     return (
         <KeyboardAvoidingView style={styles.container}
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'} >
@@ -15,12 +44,12 @@ export default function Login() {
                 <Text style={{ fontSize: 34, fontFamily: 'Manrope', fontWeight: 'bold', color: '#4A4A4A', marginTop: 40 }}>Faça seu login</Text>
 
                 <View style={{ marginTop: 30}}>
-                    <Input placeholder="E-mail" icon="mail-outline" />
-                    <Input placeholder="Senha" icon="lock-closed-outline" isPassword />
+                    <Input placeholder="E-mail" icon="mail-outline" value={email} onChangeText={setEmail} />
+                    <Input placeholder="Senha" icon="lock-closed-outline" isPassword value={senha} onChangeText={setSenha} />
 
                 </View>
                 <View style={{ marginTop: 20, marginBottom:20}}>
-                    <Button title="Acessar" onPress ={() => router.push('/auth/register')} />
+                    <Button title="Acessar" onPress ={handleLogin} />
                 </View>
                 <View style={styles.separatorContainer}>
                     <View style={styles.line} />
@@ -40,7 +69,7 @@ export default function Login() {
                 <Text style={{ color: '#4A4A4A', fontFamily: 'Manrope', fontSize: 16 }}>
                     Não possui uma conta?
                 </Text>
-                <TouchableOpacity onPress={()=>router.replace("/auth")}>
+                <TouchableOpacity onPress={()=>router.replace("/auth/register")}>
                     <Text style={{ textDecorationLine: 'underline', color: '#4A4A4A', fontFamily: 'Manrope', fontSize: 16 }}>
                         Clique aqui
                     </Text>

@@ -1,3 +1,5 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
 import Checkbox from 'expo-checkbox';
 import { router } from 'expo-router';
 import { useState } from "react";
@@ -36,6 +38,33 @@ export default function Register() {
     const [birthDate, setBirthDate] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+
+    async function handleRegister() {
+        if (!isChecked) {
+            alert('Você precisa aceitar os Termos de Uso.');
+            return;
+        }
+
+        try {
+            const response = await axios.post('http://192.168.1.109:3000/auth/register', {
+                nome: name,
+                data_nascimento: birthDate,
+                email: email,
+                senha: password,
+            });
+            const userId = response.data.id;
+            
+          await AsyncStorage.setItem('userId', userId.toString());
+       
+
+            console.log(response.data);
+            alert('Cadastro realizado com sucesso!');
+            router.replace('/auth/registerFinance');
+        } catch (error) {
+            console.error(error);
+            alert('Erro ao cadastrar. Tente novamente.');
+        }
+    }
 
 
 
@@ -78,7 +107,7 @@ export default function Register() {
 
                 </View>
                 <View style={{ marginTop: 60, marginBottom: 60 }}>
-                    <Button title="Avançar" onPress={()=> router.replace('/auth/registerFinance')} />
+                    <Button title="Avançar" onPress={handleRegister} />
                 </View>
                 <View style={{ alignItems: 'center', flexDirection: 'row', gap: 2, marginBottom: 40 }}>
                     <Text style={{ color: '#4A4A4A', fontFamily: 'Manrope', fontSize: 16 }}>
