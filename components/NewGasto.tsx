@@ -1,19 +1,28 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useEffect, useState } from 'react';
 import {
-    Modal,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  Modal,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from 'react-native';
+import DropDownPicker from 'react-native-dropdown-picker';
 
 export default function Newgasto({ visible, onClose, onSave }) {
   const [descricao, setDescricao] = useState('');
   const [valor, setValor] = useState('');
   const [data, setData] = useState('');
   const [categoria, setCategoria] = useState('');
+  const [open, setOpen] = useState(false);
+  const [value, setValue] = useState(null);
+  const [items, setItems] = useState([
+    {label: 'Apple', value: 'aple'},
+    {label: 'Apple', value: 'pple'},
+    {label: 'Apple', value: 'aple'},
+    {label: 'Apple', value: 'apple'},
+    {label: 'Banana', value: 'banana'}]);
 
   function formatMoney(text) {
     let cleanText = text.replace(/\D/g, '');
@@ -80,6 +89,7 @@ function handleSalvar() {
 
           <TextInput
             placeholder="Descrição do gasto"
+            placeholderTextColor={'#A3C0AC'}
             style={styles.input}
             value={descricao}
             onChangeText={setDescricao}
@@ -103,12 +113,52 @@ function handleSalvar() {
             />
           </View>
 
-          <TextInput
+          <DropDownPicker            
+            open={open}
+            value={value}
+            items={items}
+            setOpen={setOpen}
+            setValue={setValue}
+            setItems={setItems}
             placeholder="Selecione a categoria"
-            style={styles.input}
-            value={categoria}
-            onChangeText={setCategoria}
+
+            style={{
+              backgroundColor: "#ffff", // fundo bem claro (quase branco com leve tom azulado, se quiser ajustar mais)
+              borderWidth: 3,
+              borderColor: "#A3C0AC",
+              borderRadius: 15,
+              height: 40,
+              paddingHorizontal: 10,
+              marginBottom:30,
+            }}
+
+            textStyle={{
+              color: "#A3C0AC",
+              fontWeight: "bold",
+              fontSize: 18,
+            }}
+
+            placeholderStyle={{
+              color: "#A3C0AC",
+              fontWeight: "bold",
+            }}
+
+            dropDownContainerStyle={{
+              borderColor: "#A3C0AC",
+              borderRadius: 15,
+              borderTopWidth: '1',
+              borderWidth:3,
+            }}
+
+            arrowIconStyle={{
+              tintColor: "#A3C0AC", // funciona para ícones padrão no iOS/Android
+              height: 25,
+            }}
+
+            showArrowIcon={true}
+            
           />
+
 
           <TouchableOpacity style={styles.saveButton} onPress={handleSalvar}>
             <Text style={styles.saveButtonText}>Salvar gasto</Text>
@@ -178,4 +228,6 @@ const styles = StyleSheet.create({
     fontFamily: 'Manrope',
     fontSize: 18,
   },
+
+  
 });

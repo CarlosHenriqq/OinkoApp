@@ -11,15 +11,16 @@ export default function Initial() {
 
     }
     return (
+        <View style={styles.Background}>
         <View style={styles.container}>
-            <Text style={{ fontFamily: 'Manrope', fontSize: 34, color: '#4A4A4A', fontWeight: 'bold', textAlign: 'center', maxWidth: '80%', marginBottom:40,lineHeight: 35 }}>O controle da sua
+            <Text style={{ fontFamily: 'Manrope', fontSize: 34, color: '#4A4A4A', fontWeight: 'bold', textAlign: 'center', maxWidth: '80%', marginBottom:40, marginTop:28, lineHeight: 35 }}>O controle da sua
                 <Text style={{ fontWeight: '800', textAlign: 'justify' }}> grana </Text>começa aqui</Text>
 
-            <Oinko style={{marginBottom:61}}/>
+            <Oinko width={293.95} height={450.61} style={{ marginBottom: 50 }} />
             <View>
                 <Button title='Login' onPress={handlePressLogin}/>
             </View>
-            <View style={{ marginTop:5, alignItems: 'center', flexDirection: 'row', gap: 2, marginBottom:40 }}>
+            <View style={{ marginTop:15 , alignItems: 'center', flexDirection: 'row', gap: 2, marginBottom:40 }}>
                 <Text style={{ color: '#4A4A4A', fontFamily: 'Manrope', fontSize: 16 }}>
                     Não possui uma conta?
                 </Text>
@@ -31,22 +32,27 @@ export default function Initial() {
             </View>
 
         </View>
+        </View>
     )
 }
 const styles = StyleSheet.create({
 
     container: {
-        flex: 1,
+        
         backgroundColor: '#E0E8F9',
         justifyContent: 'center',
         alignItems: 'center',
-        marginTop: 40,  
+        marginTop: 65,  
         
     },
     image: {
         width: 293.95,
-        height: 477.61,
+        height: 430,
         marginBottom: 60
 
     },
+    Background: {
+        flex:1,
+        backgroundColor:'#E0E8F9',
+    }
 });

@@ -18,8 +18,8 @@ export default function Profile() {
   ];
 
   const categoriasWidth = {
-    "Dívidas": 93,
-    "Transporte": 115,
+    "Dívidas": 91,
+    "Transporte": 123,
     "Pets": 68,
     "Saúde": 84,
     "Cuidados Pessoais": 197,
@@ -89,7 +89,7 @@ export default function Profile() {
           <ButtonMenor
             title="Editar"
             icon="create-outline"
-            onPress={() => router.replace("/profile/profileEdit")}
+            onPress={() => router.replace("/profileEdit")}
           />
         </View>
 
@@ -137,7 +137,7 @@ export default function Profile() {
                   flexDirection: "row",
                   justifyContent: "space-between",
                   gap: 13,
-                  maxWidth: 302,
+                  maxWidth: 310,
                 }}
               >
                 {row.map((cat) => (
@@ -158,10 +158,10 @@ export default function Profile() {
             ))}
           </View>
 
-          <Button title="Salvar alterações" onPress={() => router.replace("/profile/profile")} />
+          <Button title="Salvar alterações" onPress={() => router.replace("/pages/profile")} />
         </View>
 
-        <View style={{ height: 90 }}></View>
+        <View style={{ height: 30 }}></View>
       </View>
     </ScrollView>
   );

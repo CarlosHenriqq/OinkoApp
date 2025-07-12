@@ -7,7 +7,7 @@ export default function BotaoComConfirmacao() {
 
   function handleConfirmar() {
     setModalVisible(false);
-    router.replace("/profile/profile");
+    router.replace("/pages/profile");
   }
 
   return (

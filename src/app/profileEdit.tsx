@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { Image, ScrollView, StyleSheet, Text, View } from "react-native";
-import BotaoComConfirmacao from '../../../components/buttonConfirm';
-import HeaderProfile from "../../../components/headerProfile";
-import InputRenda from "../../../components/inputRenda";
+import BotaoComConfirmacao from '../../components/buttonConfirm';
+import HeaderProfile from "../../components/headerProfile";
+import InputRenda from "../../components/inputRenda";
 
 export default function ProfileEdit() {
   const [dataNascimento, setDataNascimento] = useState('');
@@ -26,7 +26,7 @@ export default function ProfileEdit() {
       overScrollMode="never"
     >
       <View style={styles.Background}>
-        <HeaderProfile />
+        <HeaderProfile showBackButton/>
         <View style={styles.PhotoContainer}>
           <Image
             source={{
@@ -37,6 +37,8 @@ export default function ProfileEdit() {
         </View>
 
         <View style={styles.Card}>
+          
+          
           <Text style={[styles.Label, { paddingBottom: 20 }]}>Informações pessoais</Text>
 
           <InputRenda
@@ -89,7 +91,7 @@ export default function ProfileEdit() {
           <BotaoComConfirmacao />
         </View>
 
-        <View style={{ height: 90 }}></View>
+        <View style={{ height: 30 }}></View>
       </View>
     </ScrollView>
   );

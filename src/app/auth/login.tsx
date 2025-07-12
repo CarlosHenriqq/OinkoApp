@@ -14,7 +14,7 @@ export default function Login() {
 
     async function handleLogin() {
         try {
-            const response = await axios.post('http://192.168.1.109:3000/auth/login', {
+            const response = await axios.post('http://192.168.1.104:3000/auth/login', {
                 email,
                 senha
             });
@@ -40,8 +40,8 @@ export default function Login() {
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'} >
 
             
-                <Logo style={{marginTop:30}} />
-                <Text style={{ fontSize: 34, fontFamily: 'Manrope', fontWeight: 'bold', color: '#4A4A4A', marginTop: 40 }}>Faça seu login</Text>
+                <Logo width={280} style={{marginTop:60}} />
+                <Text style={{ fontSize: 34, fontFamily: 'Manrope', fontWeight: 'bold', color: '#4A4A4A', marginTop: 10 }}>Faça seu login</Text>
 
                 <View style={{ marginTop: 30}}>
                     <Input placeholder="E-mail" icon="mail-outline" value={email} onChangeText={setEmail} />

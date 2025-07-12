@@ -60,7 +60,7 @@ export default function RegisterFinance() {
     };
 
     const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
-    const [renda, setRenda] = useState('');
+    
 
     function formatCurrency(value: string) {
         const cleanValue = value.replace(/\D/g, '');
@@ -92,7 +92,7 @@ export default function RegisterFinance() {
     const userIdStr = await AsyncStorage.getItem('userId');
     const userId = userIdStr ? Number(userIdStr) : null; // se for número
     try {
-        const response = await axios.post('http://192.168.1.109:3000/auth/registerFinance', {
+        const response = await axios.post('http://192.168.1.104:3000/auth/registerFinance', {
     usuario_id: userId,
     renda,
     categorias: selectedCategories
@@ -107,7 +107,6 @@ export default function RegisterFinance() {
     }
 }
 
-    
 
     return (
         <View style={{ backgroundColor: '#E0E8F9', flex: 1 }}>
@@ -161,76 +160,6 @@ export default function RegisterFinance() {
                         <View style={{ marginTop:25, marginBottom:25}}>
                     <Button title='Finalizar' onPress={handleRegisterFinance} />
                     </View>
-            </View>
-
-            <View style={styles.container}>
-                <View style={{ marginBottom: 25, marginTop: 24 }}>
-                    <Text style={{
-                        color: '#4A4A4A',
-                        fontSize: 34,
-                        fontFamily: 'Manrope',
-                        fontWeight: "bold",
-                        maxWidth: 230,
-                        textAlign: 'center'
-                    }}>
-                        Informações Financeiras
-                    </Text>
-                </View>
-
-                <View>
-                    <Input
-                        placeholder="Quanto é a sua renda?"
-                        icon="cash-outline"
-                        value={renda}
-                        onChangeText={handleChangeRenda}
-                        keyboardType="numeric"
-                    />
-                </View>
-
-                <View style={{ marginBottom: 25 }}>
-                    <Text style={{
-                        color: '#4A4A4A',
-                        fontSize: 20,
-                        fontFamily: 'Manrope',
-                        fontWeight: "600",
-                        maxWidth: 336,
-                        textAlign: 'center'
-                    }}>
-                        Quais dessas categorias fazem parte do seu mês? <Text style={{ fontWeight: 'bold' }}>Escolha até 7</Text>
-                    </Text>
-                </View>
-
-                <View style={{ paddingBottom: 20 }}>
-                    {categorias.map((row, idx) => (
-                        <View
-                            key={idx}
-                            style={{
-                                flexDirection: 'row',
-                                justifyContent: 'space-between',
-                                gap: 13,
-                            }}
-                        >
-                            {row.map((cat) => (
-                                <InputCategoria
-                                    key={cat}
-                                    title={cat}
-                                    width={categoriasWidth[cat]}
-                                    isSelected={selectedCategories.includes(cat)}
-                                    onPress={() => handleToggleCategory(cat)}
-                                    backgroundColorSelect='#A3C0AC'
-                                    backgroundColorUnSelect='#ffff'
-                                    borderColorSelect='#A3C0AC'
-                                    borderColorUnSelect='#A3C0AC'
-                                    textUnselect='#A3C0AC'
-                                />
-                            ))}
-                        </View>
-                    ))}
-                </View>
-
-                <View style={{ marginTop: 25, marginBottom: 25 }}>
-                    <Button title='Finalizar' onPress={() => router.replace('/pages/userDash')} />
-                </View>
             </View>
 
             <TouchableOpacity onPress={() => router.push('/auth/register')}>

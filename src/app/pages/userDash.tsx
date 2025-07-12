@@ -1,6 +1,5 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
-import { router } from "expo-router";
 import { useEffect, useState } from 'react';
 import { Dimensions, ScrollView, StyleSheet, Text, View } from "react-native";
 import { PieChart } from 'react-native-gifted-charts';
@@ -11,15 +10,14 @@ import { Button } from "../../../components/botao";
 import GastoCategoria from "../../../components/gastoCategoria";
 import Header from "../../../components/header";
 import Newgasto from "../../../components/NewGasto";
-
-
 const { width } = Dimensions.get('window');
+
 
 
 
 export default function UserDash() {
     const [primeiroNome, setPrimeiroNome] = useState('');
-    const [gasto, setGasto] = useState(0)
+    const [gasto, setGasto] = useState('0,00')
     useEffect(() => {
         async function carregarNome() {
             const nomeCompleto = await AsyncStorage.getItem('userName');
@@ -34,7 +32,7 @@ export default function UserDash() {
 async function buscarGasto() {
     const userId = await AsyncStorage.getItem('userId');
     try {
-        const response = await axios.get('http://192.168.1.109:3000/expenses/gastos/total',{
+        const response = await axios.get('http://192.168.1.106:3000/expenses/gastos/total',{
             headers:{
                 usuario_id: userId
             }
@@ -68,6 +66,7 @@ buscarGasto()
   }
 
   return (
+    
     <ScrollView style={styles.container}>
       <Header />
       <View style={{ alignItems: 'center', marginTop: 35 }}>
@@ -75,7 +74,7 @@ buscarGasto()
           <Cabeca />
           <View style={{ marginTop: 25 }}>
             <Text style={styles.greetingText}>Como vai você,</Text>
-            <Text style={styles.userNameText}>Carlos?</Text>
+            <Text style={styles.userNameText}>{primeiroNome}?</Text>
           </View>
         </View>
       </View>
@@ -83,14 +82,13 @@ buscarGasto()
       <View style={styles.expenseContainer}>
         <View>
           <Text style={styles.expenseLabel}>Você gastou:</Text>
-          <Text style={styles.expenseValue}>R$845,00</Text>
+          <Text style={styles.expenseValue}>R${gasto}</Text>
         </View>
         <Moeda />
       </View>
 
       <View style={{ marginTop: 20, justifyContent: 'center', alignItems: 'center' }}>
         <Button title='Registrar Gasto' onPress={() => setPopupVisible(true)} />
-        <Button title='Registrar Gasto' onPress={() => router.replace('/profile/profile')}/>
       </View>
 
       <View style={{ marginTop: 20, marginLeft: 20 }}>
@@ -121,6 +119,8 @@ buscarGasto()
             );
           }}
         />
+
+
 
         <View style={{ marginTop: 30 }}>
           <GastoCategoria
