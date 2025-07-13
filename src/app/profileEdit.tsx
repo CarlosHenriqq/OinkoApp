@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { Image, ScrollView, StyleSheet, Text, View } from "react-native";
+import { ScrollView, StyleSheet, Text, View } from "react-native";
 import BotaoComConfirmacao from '../../components/buttonConfirm';
+import EditarFotoPerfil from '../../components/EditPhoto';
 import HeaderProfile from "../../components/headerProfile";
 import InputRenda from "../../components/inputRenda";
 
@@ -27,18 +28,13 @@ export default function ProfileEdit() {
     >
       <View style={styles.Background}>
         <HeaderProfile showBackButton/>
-        <View style={styles.PhotoContainer}>
-          <Image
-            source={{
-              uri: 'https://media-gru2-1.cdn.whatsapp.net/v/t61.24694-24/487493204_1226577862439581_6063975574272192493_n.jpg?ccb=11-4&oh=01_Q5Aa1wFy-tCiXLpgO2Dmhi_4oEJnYi8Lwj_OVNdmwWTsU719uA&oe=687A7C45&_nc_sid=5e03e0&_nc_cat=104'
-            }}
-            style={styles.Photo}
-          />
+
+        {/* Wrapper para a foto, com position absolute para flutuar */}
+        <View style={styles.fotoWrapper}>
+          <EditarFotoPerfil />
         </View>
 
         <View style={styles.Card}>
-          
-          
           <Text style={[styles.Label, { paddingBottom: 20 }]}>Informações pessoais</Text>
 
           <InputRenda
@@ -55,8 +51,7 @@ export default function ProfileEdit() {
             value={dataNascimento}
             onChangeText={handleChangeData}
             isEditable={true}
-            />
-
+          />
 
           <InputRenda
             placeholder="carloslindo@gmail.com"
@@ -68,15 +63,13 @@ export default function ProfileEdit() {
         <View style={{ marginTop: 20, marginBottom: 10, width: '90%', alignItems: 'flex-start' }}>
           <Text
             style={{
-              fontFamily: 'manrope',
+              fontFamily: 'Manrope',
               fontSize: 20,
               fontWeight: '600',
               color: '#4a4a4a',
               textAlign: 'left',
             }}
-          >
-            Informações de segurança
-          </Text>
+          >Informações de segurança</Text>
         </View>
 
         <View style={[styles.Card, { paddingTop: 30 }]}>
@@ -105,25 +98,14 @@ const styles = StyleSheet.create({
     paddingTop: 135,
   },
 
-  PhotoContainer: {
+  fotoWrapper: {
+    position: 'absolute',
+    top: 125, // ajusta a distância do topo pra posicionar sobre o card
+    zIndex: 100,
     width: 120,
     height: 120,
-    borderRadius: 60,
-    backgroundColor: '#FACFBC',
-    overflow: 'hidden',
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 3,
-    borderColor: '#fff',
-    position: 'absolute',
-    top: 65,
-    zIndex: 2,
-  },
+    alignSelf: 'center', // centraliza horizontalmente
 
-  Photo: {
-    width: '100%',
-    height: '100%',
-    resizeMode: 'cover',
   },
 
   Card: {
@@ -131,7 +113,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     borderRadius: 20,
     alignItems: 'center',
-    paddingTop: 60,
+    paddingTop: 80, // aumentei pra dar espaço para a foto sobreposta
     paddingBottom: 30,
     shadowColor: '#000000',
     shadowOffset: { width: 0, height: 3 },
@@ -145,6 +127,7 @@ const styles = StyleSheet.create({
     fontFamily: 'Manrope',
     marginBottom: 1,
     fontWeight: 'bold',
+    marginTop:-20,
   },
 
   TextProfile: {

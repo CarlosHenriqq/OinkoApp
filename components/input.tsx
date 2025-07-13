@@ -51,6 +51,7 @@ const styles = StyleSheet.create({
                 shadowOffset: { width: 0, height: 2 },  // x e y do Figma
                 shadowOpacity: 0.4,          // 10% = 0.1
                 shadowRadius: 2,  
+                elevation: 3,
     
     },
     icon: {

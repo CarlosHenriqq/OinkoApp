@@ -26,6 +26,7 @@ export default function HeaderProfile({ children, showBackButton = false }: Head
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.4,
         shadowRadius: 2,
+        elevation: 3,
         justifyContent: 'center',
       }}
     >

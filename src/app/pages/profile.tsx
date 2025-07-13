@@ -1,5 +1,6 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from "expo-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Image, ScrollView, StyleSheet, Text, View } from "react-native";
 import { Button } from "../../../components/botao";
 import { ButtonMenor } from "../../../components/botaoMenor";
@@ -35,6 +36,15 @@ export default function Profile() {
 
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [renda, setRenda] = useState("130000"); // valor em centavos para facilitar formatação
+  const [fotoUri, setFotoUri] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function carregarFoto() {
+      const uri = await AsyncStorage.getItem("fotoPerfil");
+      if (uri) setFotoUri(uri);
+    }
+    carregarFoto();
+  }, []);
 
   function handleToggleCategory(category: string) {
     if (selectedCategories.includes(category)) {
@@ -59,7 +69,6 @@ export default function Profile() {
 
   // Função para tratar mudança do input mantendo só números
   function handleChangeRenda(text: string) {
-    // Remove tudo que não for dígito
     const clean = text.replace(/\D/g, "");
     setRenda(clean);
   }
@@ -72,11 +81,14 @@ export default function Profile() {
     >
       <View style={styles.Background}>
         <HeaderProfile />
+        
         <View style={styles.PhotoContainer}>
           <Image
-            source={{
-              uri: "https://media-gru2-1.cdn.whatsapp.net/v/t61.24694-24/487493204_1226577862439581_6063975574272192493_n.jpg?ccb=11-4&oh=01_Q5Aa1wFy-tCiXLpgO2Dmhi_4oEJnYi8Lwj_OVNdmwWTsU719uA&oe=687A7C45&_nc_sid=5e03e0&_nc_cat=104",
-            }}
+            source={
+              fotoUri
+                ? { uri: fotoUri }
+                : require("../../../assets/images/perfil.png") // ajuste o caminho conforme seu projeto
+            }
             style={styles.Photo}
           />
         </View>
@@ -121,11 +133,10 @@ export default function Profile() {
             value={formatMoney(renda)}
             onChangeText={handleChangeRenda}
             isEditable={false}
-            />
-
+          />
 
           <Text style={[styles.TextProfile]}>
-            Deseja mudar suas categorias?
+            Deseja mudar suas categorias?{" "}
             <Text style={{ fontWeight: "bold" }}>Selecione até 7</Text>
           </Text>
 
@@ -207,6 +218,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.1,
     shadowRadius: 3,
+    elevation: 3,
   },
 
   Label: {

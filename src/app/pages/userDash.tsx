@@ -184,7 +184,7 @@ const styles = StyleSheet.create({
         fontFamily: 'Manrope',
         fontSize: 18,
         fontWeight: '600',
-        color: '#4a4a4a',
+        color: '#526471',
     },
     gastosCard: {
         marginTop: 10,
@@ -199,5 +199,6 @@ const styles = StyleSheet.create({
         shadowOffset: { width: 0, height: 3 },
         shadowOpacity: 0.1,
         shadowRadius: 3,
+        elevation: 3,
     },
 });

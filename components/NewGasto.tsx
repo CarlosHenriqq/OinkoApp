@@ -93,6 +93,7 @@ function handleSalvar() {
             style={styles.input}
             value={descricao}
             onChangeText={setDescricao}
+            
           />
 
           <View style={styles.row}>
@@ -102,6 +103,7 @@ function handleSalvar() {
               value={valor}
               onChangeText={handleChangeValor}
               keyboardType="numeric"
+              
             />
             <TextInput
               placeholder="01/01/2025"
@@ -130,9 +132,15 @@ function handleSalvar() {
               height: 40,
               paddingHorizontal: 10,
               marginBottom:30,
+              shadowColor: '#000000',
+              shadowOffset: { width: 0, height: 2 },
+              shadowOpacity: 0.4,
+              shadowRadius: 2,
+              elevation: 3,
             }}
 
             textStyle={{
+              fontFamily: 'Manrope',
               color: "#A3C0AC",
               fontWeight: "bold",
               fontSize: 18,
@@ -183,6 +191,10 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     elevation: 4,
     position: 'relative',
+    shadowOffset: { width: 0, height: 2 },
+              shadowOpacity: 0.4,
+              shadowRadius: 2,
+              elevation: 3,
   },
   closeButton: {
     position: 'absolute',
@@ -196,6 +208,7 @@ const styles = StyleSheet.create({
     color: '#4A4A4A',
     marginBottom: 15,
     textAlign: 'center',
+    fontFamily: 'Manrope',
   },
   input: {
     backgroundColor: '#fff',
@@ -206,11 +219,17 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     marginBottom: 12,
     fontSize: 18,
+    fontFamily: 'Manrope',
     fontWeight: '600',
     color: '#4A4A4A',
+    shadowOffset: { width: 0, height: 2 },
+              shadowOpacity: 0.4,
+              shadowRadius: 2,
+              elevation: 3,
   },
   row: {
     flexDirection: 'row',
+    
   },
   saveButton: {
     backgroundColor: '#4A4A4A',
@@ -221,6 +240,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginTop: 8,
     alignSelf: 'center',
+    shadowOffset: { width: 0, height: 2 },
+              shadowOpacity: 0.4,
+              shadowRadius: 2,
+              elevation: 3,
   },
   saveButtonText: {
     fontWeight: 'bold',

@@ -25,6 +25,7 @@ export default function TabLayout() {
           shadowOpacity: 0.1,
           shadowOffset: { width: 0, height: 5 },
           shadowRadius: 10,
+          elevation: 3,
         },
       }}
     >
