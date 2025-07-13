@@ -161,7 +161,7 @@ export default function Profile() {
           <Button title="Salvar alterações" onPress={() => router.replace("/pages/profile")} />
         </View>
 
-        <View style={{ height: 30 }}></View>
+        <View style={{ height: 20 }}></View>
       </View>
     </ScrollView>
   );

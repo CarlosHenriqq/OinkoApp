@@ -32,7 +32,7 @@ export default function UserDash() {
 async function buscarGasto() {
     const userId = await AsyncStorage.getItem('userId');
     try {
-        const response = await axios.get('http://192.168.1.106:3000/expenses/gastos/total',{
+        const response = await axios.get('http://192.168.1.104:3000/expenses/gastos/total',{
             headers:{
                 usuario_id: userId
             }
@@ -67,7 +67,10 @@ buscarGasto()
 
   return (
     
-    <ScrollView style={styles.container}>
+      <ScrollView
+      contentContainerStyle={{ flexGrow: 1 }}
+      bounces={false}
+      overScrollMode="never">
       <Header />
       <View style={{ alignItems: 'center', marginTop: 35 }}>
         <View style={styles.greetingContainer}>
@@ -137,6 +140,7 @@ buscarGasto()
         onClose={() => setPopupVisible(false)}
         onSave={handleSalvarGasto}
       />
+      <View style={{ height: 20 }}></View>
     </ScrollView>
   );
 }
