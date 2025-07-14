@@ -3,7 +3,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect } from '@react-navigation/native';
 import axios from "axios";
-import { router } from "expo-router";
 import { useCallback, useEffect, useState } from 'react';
 import { Dimensions, ScrollView, StyleSheet, Text, View } from "react-native";
 import { PieChart } from 'react-native-gifted-charts';
@@ -81,15 +80,6 @@ export default function UserDash() {
         }, 500);
     }
 
-    async function handleLogout() {
-        try {
-            await AsyncStorage.removeItem('token');
-            router.replace('/auth/login');
-        } catch (error) {
-            console.error(error);
-            alert('Erro ao fazer logout.');
-        }
-    }
 
     const gastosFicticios = [
         { value: 325, color: '#B65C5C', focused: true },

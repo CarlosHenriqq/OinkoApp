@@ -80,7 +80,7 @@ export default function Profile() {
       overScrollMode="never"
     >
       <View style={styles.Background}>
-        <HeaderProfile />
+        <HeaderProfile showLogoutButton/>
         
         <View style={styles.PhotoContainer}>
           <Image

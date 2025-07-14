@@ -120,7 +120,9 @@ export default function Register() {
                     </View>
                     <View style={{ marginLeft: 12 }}>
                         <Text style={{ color: '#4A4A4A', fontFamily: 'Manrope', fontSize: 14 }}>Declaro que li e concordo com:</Text>
+                        <TouchableOpacity onPress={() => router.replace("/terms/terms")}>
                         <Text style={{ textDecorationLine: 'underline', color: '#4A4A4A', fontFamily: 'Manrope', fontSize: 14, fontWeight: '600' }}>Termo de uso e Política de Privacidade</Text>
+                        </TouchableOpacity>
                     </View>
                 </View>
                 <View style={{ marginTop: 60, marginBottom: 60 }}>
