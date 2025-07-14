@@ -12,9 +12,9 @@ export default function First() {
 
     async function checkLogin() {
       try {
-        const token = await AsyncStorage.getItem('userToken');
+        const token = await AsyncStorage.getItem('token');
         if (token) {
-          router.replace('/home');
+          router.replace('/pages/userDash');
         } else {
           setTimeout(() => {
             router.replace('/auth/initial');
