@@ -1,4 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
 import { useEffect, useState } from 'react';
 import {
   Modal,
@@ -11,18 +13,44 @@ import {
 import DropDownPicker from 'react-native-dropdown-picker';
 
 export default function Newgasto({ visible, onClose, onSave }) {
+
   const [descricao, setDescricao] = useState('');
   const [valor, setValor] = useState('');
   const [data, setData] = useState('');
   const [categoria, setCategoria] = useState('');
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState(null);
-  const [items, setItems] = useState([
-    {label: 'Apple', value: 'aple'},
-    {label: 'Apple', value: 'pple'},
-    {label: 'Apple', value: 'aple'},
-    {label: 'Apple', value: 'apple'},
-    {label: 'Banana', value: 'banana'}]);
+  const [items, setItems] = useState([])
+
+useEffect(() => {
+    async function buscarCategorias() {
+        const userIdStr = await AsyncStorage.getItem('userId');
+        const userId = userIdStr ? Number(userIdStr) : null;
+        try {
+            const response = await axios.get('http://192.168.1.107:3000/categoriaUser/categoriasSelecionadas', {
+                headers: { usuario_id: userId }
+            });
+            const categoriasFormatadas = response.data.map(categoria => ({
+                label: categoria.nome,
+                value: categoria.id
+            }));
+            setItems(categoriasFormatadas);
+            console.log('UserId carregado:', userId);
+        } catch (error) {
+            console.error('Erro ao buscar categorias:', error.message);
+            if (error.response) {
+                console.error('Resposta do servidor:', error.response.data);
+            }
+        }
+    }
+
+    if (visible) {
+        buscarCategorias();
+    }
+}, [visible]);
+
+
+  
 
   function formatMoney(text) {
     let cleanText = text.replace(/\D/g, '');
@@ -46,9 +74,9 @@ export default function Newgasto({ visible, onClose, onSave }) {
 
     // Formata dd/mm/yyyy enquanto digita
     if (cleanText.length >= 5) {
-      return `${cleanText.slice(0,2)}/${cleanText.slice(2,4)}/${cleanText.slice(4)}`;
+      return `${cleanText.slice(0, 2)}/${cleanText.slice(2, 4)}/${cleanText.slice(4)}`;
     } else if (cleanText.length >= 3) {
-      return `${cleanText.slice(0,2)}/${cleanText.slice(2)}`;
+      return `${cleanText.slice(0, 2)}/${cleanText.slice(2)}`;
     } else {
       return cleanText;
     }
@@ -60,22 +88,53 @@ export default function Newgasto({ visible, onClose, onSave }) {
   }
 
   useEffect(() => {
-  if (visible) {
-    setDescricao('');
-    setValor('');
-    setData('');
-    setCategoria('');
-  }
-}, [visible]);
+    if (visible) {
+      setDescricao('');
+      setValor('');
+      setData('');
+      setCategoria('');
+    }
+  }, [visible]);
 
-function handleSalvar() {
-  onSave({ descricao, valor, data, categoria });
-  setDescricao('');
-  setValor('');
-  setData('');
-  setCategoria('');
-  onClose();
+  async function handleSalvar() {
+    try {
+      const userIdStr = await AsyncStorage.getItem('userId');
+      const userId = userIdStr ? Number(userIdStr) : null;
+       const valorNumerico = Number(valor.replace(/\D/g, '')) / 100;
+
+      const gastoPayload = {
+        categoria_id: value,
+        valor: valorNumerico,
+        data: data,
+        descricao: descricao
+      };
+
+      const response = await axios.post('http://192.168.1.107:3000/expenses/gastos',
+        gastoPayload,
+        {
+          headers: {
+            usuario_id: userId
+          }
+        }
+      );
+
+      // Aqui você envia o gasto salvo de volta para o componente pai:
+      onSave(response.data);
+
+      // Limpa os campos:
+      setDescricao('');
+      setValor('');
+      setData('');
+      setValue(null);
+      onClose();
+      console.log(userId)
+    } catch (error) {
+      console.error('Erro ao salvar gasto:', error);
+      alert('Erro ao salvar gasto.');
+    }
   }
+
+
 
   return (
     <Modal transparent visible={visible} animationType="fade">
@@ -99,6 +158,7 @@ function handleSalvar() {
           <View style={styles.row}>
             <TextInput
               placeholder="R$0,00"
+              placeholderTextColor={'#A3C0AC'}
               style={[styles.input, { flex: 1, marginRight: 8 }]}
               value={valor}
               onChangeText={handleChangeValor}
@@ -107,6 +167,7 @@ function handleSalvar() {
             />
             <TextInput
               placeholder="01/01/2025"
+              placeholderTextColor={'#A3C0AC'}
               style={[styles.input, { flex: 1 }]}
               value={data}
               onChangeText={handleChangeData}
@@ -115,7 +176,7 @@ function handleSalvar() {
             />
           </View>
 
-          <DropDownPicker            
+          <DropDownPicker
             open={open}
             value={value}
             items={items}
@@ -154,17 +215,17 @@ function handleSalvar() {
             dropDownContainerStyle={{
               borderColor: "#A3C0AC",
               borderRadius: 15,
-              borderTopWidth: '1',
-              borderWidth:3,
+              borderTopWidth: 1,
+              borderWidth: 3,
             }}
 
             arrowIconStyle={{
-              tintColor: "#A3C0AC", // funciona para ícones padrão no iOS/Android
+              // funciona para ícones padrão no iOS/Android
               height: 25,
             }}
 
             showArrowIcon={true}
-            
+
           />
 
 
@@ -252,5 +313,5 @@ const styles = StyleSheet.create({
     fontSize: 18,
   },
 
-  
+
 });

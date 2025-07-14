@@ -31,7 +31,7 @@ export default function RegisterFinance() {
         stepIndicatorLabelUnFinishedColor: '#aaaaaa',
         labelColor: '#999999',
         labelSize: 13,
-        currentStepLabelColor: '#A3C0AC'
+        currentStepLabelColor: '#A3C0AC'    
     };
 
     const categorias = [
@@ -92,13 +92,15 @@ export default function RegisterFinance() {
     const userIdStr = await AsyncStorage.getItem('userId');
     const userId = userIdStr ? Number(userIdStr) : null; // se for número
     try {
-        const response = await axios.post('http://192.168.1.104:3000/auth/registerFinance', {
+        const response = await axios.post('http://192.168.1.107:3000/auth/registerFinance', {
     usuario_id: userId,
     renda,
     categorias: selectedCategories
 });
 
         console.log(response.data);
+        const rendaUser = response.data.renda
+         AsyncStorage.setItem('renda',rendaUser)
         alert('Informações gravadas com sucesso!');
         router.push('/auth/login');
     } catch (error) {

@@ -1,6 +1,10 @@
+// UserDash atualizado com useFocusEffect para atualizar o total de gastos
+
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useFocusEffect } from '@react-navigation/native';
 import axios from "axios";
-import { useEffect, useState } from 'react';
+import { router } from "expo-router";
+import { useCallback, useEffect, useState } from 'react';
 import { Dimensions, ScrollView, StyleSheet, Text, View } from "react-native";
 import { PieChart } from 'react-native-gifted-charts';
 import { Alimentacao } from "../../../assets/iconsCategorias";
@@ -17,6 +21,25 @@ export default function UserDash() {
     const [primeiroNome, setPrimeiroNome] = useState('');
     const [gasto, setGasto] = useState('0,00');
     const [popupVisible, setPopupVisible] = useState(false);
+    const [renda, setRenda] = useState('');
+
+    async function buscarGasto() {
+        const userId = await AsyncStorage.getItem('userId');
+        console.log('UserDash buscando gasto para userId:', userId);
+        try {
+            const response = await axios.get('http://192.168.1.107:3000/expenses/gastos/total', {
+                headers: { usuario_id: userId }
+            });
+            if (response.data?.total != null) {
+                const valorFormatado = Number(response.data.total).toFixed(2).replace('.', ',');
+                setGasto(valorFormatado);
+            } else {
+                setGasto('0,00');
+            }
+        } catch (error) {
+            console.error('Erro ao buscar gastos:', error);
+        }
+    }
 
     useEffect(() => {
         async function carregarNome() {
@@ -26,39 +49,45 @@ export default function UserDash() {
                 setPrimeiroNome(primeiro);
             }
         }
-
-        async function buscarGasto() {
+        async function buscarUserInfo() {
             const userId = await AsyncStorage.getItem('userId');
+
             try {
-                const response = await axios.get('http://192.168.1.104:3000/expenses/gastos/total', {
+                const response = await axios.get('http://192.168.1.107:3000/auth/userInfo', {
                     headers: { usuario_id: userId }
                 });
-
-                // Supondo que o backend retorne algo como { total: 1300.5 }
-                if (response.data?.total != null) {
-                    const valorFormatado = Number(response.data.total).toFixed(2).replace('.', ',');
-                    setGasto(valorFormatado);
-                }
+                console.log(response.data); // contém id, nome, email, renda
+                setRenda(response.data.renda)
             } catch (error) {
-                console.error('Erro ao buscar gastos:', error);
+                console.error('Erro ao buscar user info:', error);
             }
         }
 
+        buscarUserInfo();
         carregarNome();
         buscarGasto();
     }, []);
 
-    async function handleSalvarGasto() {
-        const userIdStr = await AsyncStorage.getItem('userId');
-        const userId = userIdStr ? Number(userIdStr) : null;
+    useFocusEffect(
+        useCallback(() => {
+            buscarGasto();
+        }, [])
+    );
 
+    async function handleSalvarGasto(gastoSalvo) {
+        console.log('Gasto salvo no backend:', gastoSalvo);
+        setTimeout(() => {
+            buscarGasto();
+        }, 500);
+    }
+
+    async function handleLogout() {
         try {
-            const response = await axios.post('http://192.168.1.104:3000/expenses/gastos', {
-                usuario_id: userId,
-            });
-            // Atualizar os dados após salvar, se necessário
+            await AsyncStorage.removeItem('token');
+            router.replace('/auth/login');
         } catch (error) {
-            console.error('Erro ao salvar gasto:', error);
+            console.error(error);
+            alert('Erro ao fazer logout.');
         }
     }
 
@@ -94,6 +123,7 @@ export default function UserDash() {
             <View style={{ marginTop: 20, justifyContent: 'center', alignItems: 'center' }}>
                 <Button title='Registrar Gasto' onPress={() => setPopupVisible(true)} />
             </View>
+            <Button title="Sair" onPress={handleLogout} />
 
             <View style={{ marginTop: 20, marginLeft: 20 }}>
                 <Text style={{ fontFamily: 'manrope', fontSize: 20, fontWeight: '600', color: '#4a4a4a' }}>
@@ -113,7 +143,7 @@ export default function UserDash() {
                     centerLabelComponent={() => (
                         <View style={{ alignItems: 'center' }}>
                             <Text style={{ fontSize: 22, fontFamily: 'Manrope', fontWeight: 'bold' }}>Total</Text>
-                            <Text style={{ fontSize: 18, fontFamily: 'Manrope' }}>R$1300,00</Text>
+                            <Text style={{ fontSize: 18, fontFamily: 'Manrope' }}>R${renda}</Text>
                         </View>
                     )}
                 />
@@ -139,10 +169,6 @@ export default function UserDash() {
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#E0E8F9',
-    },
     greetingContainer: {
         flexDirection: 'row',
         alignItems: 'center',
