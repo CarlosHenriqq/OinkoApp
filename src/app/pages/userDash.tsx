@@ -113,7 +113,6 @@ export default function UserDash() {
             <View style={{ marginTop: 20, justifyContent: 'center', alignItems: 'center' }}>
                 <Button title='Registrar Gasto' onPress={() => setPopupVisible(true)} />
             </View>
-            <Button title="Sair" onPress={handleLogout} />
 
             <View style={{ marginTop: 20, marginLeft: 20 }}>
                 <Text style={{ fontFamily: 'manrope', fontSize: 20, fontWeight: '600', color: '#4a4a4a' }}>
