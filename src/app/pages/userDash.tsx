@@ -1,7 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect } from '@react-navigation/native';
 import axios from "axios";
-import { router } from "expo-router";
 import { useCallback, useEffect, useState } from 'react';
 import { Dimensions, ScrollView, StyleSheet, Text, View } from "react-native";
 import { PieChart } from 'react-native-gifted-charts';
@@ -125,15 +124,6 @@ function alteraCor() {
         }, 100);
     }
 
-    async function handleLogout() {
-        try {
-            await AsyncStorage.removeItem('token');
-            router.replace('/auth/login');
-        } catch (error) {
-            console.error(error);
-            alert('Erro ao fazer logout.');
-        }
-    }
 
     const gastosFicticios = [
         { value: 325, color: '#B65C5C', focused: true },
@@ -167,7 +157,6 @@ function alteraCor() {
             <View style={{ marginTop: 20, justifyContent: 'center', alignItems: 'center' }}>
                 <Button title='Registrar Gasto' onPress={() => setPopupVisible(true)} />
             </View>
-            <Button title="Sair" onPress={handleLogout} />
 
             <View style={{ marginTop: 20, marginLeft: 20 }}>
                 <Text style={{ fontFamily: 'manrope', fontSize: 20, fontWeight: '600', color: '#4a4a4a' }}>

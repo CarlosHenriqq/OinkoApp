@@ -1,4 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation } from "@react-navigation/native";
 import { router } from "expo-router";
 import { TouchableOpacity, View } from "react-native";
@@ -6,10 +7,21 @@ import { TouchableOpacity, View } from "react-native";
 interface HeaderProfileProps {
   children?: React.ReactNode;
   showBackButton?: boolean;
+  showLogoutButton?: boolean;
 }
 
-export default function HeaderProfile({ children, showBackButton = false }: HeaderProfileProps) {
+export default function HeaderProfile({ children, showBackButton = false, showLogoutButton = false }: HeaderProfileProps) {
   const navigation = useNavigation();
+
+  async function handleLogout() {
+        try {
+            await AsyncStorage.removeItem('token');
+            router.replace('/auth/login');
+        } catch (error) {
+            console.error(error);
+            alert('Erro ao fazer logout.');
+        }
+    }
 
   return (
     <View
@@ -42,6 +54,21 @@ export default function HeaderProfile({ children, showBackButton = false }: Head
           }}
         >
           <Ionicons name="chevron-back-outline" size={30} color="#526471" />
+        </TouchableOpacity>
+      )}
+
+      {showLogoutButton && (
+        <TouchableOpacity
+          onPress={handleLogout}
+          style={{
+            position: 'absolute',
+            top: 50,
+            right: 20,
+            padding: 8,
+            zIndex: 10,
+          }}
+        >
+          <Ionicons name="log-out-outline" size={30} color="#526471" />
         </TouchableOpacity>
       )}
 
