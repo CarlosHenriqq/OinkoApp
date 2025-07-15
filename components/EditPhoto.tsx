@@ -43,7 +43,7 @@ export default function EditPhoto() {
           source={
             imagem
               ? { uri: imagem }
-              : require('../../OinkoApp/assets/images/perfil.png') // ajuste o caminho conforme sua estrutura
+              : require('../assets/images/perfil.png') // ajuste o caminho conforme sua estrutura
           }
           style={styles.foto}
         />

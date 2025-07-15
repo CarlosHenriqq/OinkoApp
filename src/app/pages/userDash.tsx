@@ -1,5 +1,3 @@
-// UserDash atualizado com useFocusEffect para atualizar o total de gastos
-
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect } from '@react-navigation/native';
 import axios from "axios";
@@ -7,7 +5,7 @@ import { router } from "expo-router";
 import { useCallback, useEffect, useState } from 'react';
 import { Dimensions, ScrollView, StyleSheet, Text, View } from "react-native";
 import { PieChart } from 'react-native-gifted-charts';
-import { Alimentacao } from "../../../assets/iconsCategorias";
+import { Alimentacao, Assinaturas, Cartao, Contas, Cuidados, Divida, Educacao, Entretenimento, Moradia, Outros, Pets, Saude, Transporte } from '../../../assets/iconsCategorias';
 import Cabeca from "../../../assets/images/cabeca.svg";
 import Moeda from "../../../assets/images/moeda.svg";
 import { Button } from "../../../components/botao";
@@ -22,6 +20,38 @@ export default function UserDash() {
     const [gasto, setGasto] = useState('0,00');
     const [popupVisible, setPopupVisible] = useState(false);
     const [renda, setRenda] = useState('');
+    const [gastosPorCategoria, setGastosPorCategoria] = useState([]);
+    
+
+
+    const iconMap = {
+    'Alimentação': Alimentacao,
+    'Pets': Pets,
+    'Dívidas': Divida,
+    'Transporte': Transporte,
+    'Educação': Educacao,
+    'Saúde': Saude,
+    'Entretenimento': Entretenimento,
+    'Moradia': Moradia,
+    'Contas': Contas,
+    'Cartão de crédito': Cartao,
+    'Cuidados': Cuidados,
+    'Outros': Outros,
+    'Assinatura': Assinaturas
+};
+
+function alteraCor() {
+    const rendaNum = parseFloat(
+        typeof renda === 'string' ? renda.replace(',', '.') : renda ?? 0
+    );
+    const gastoNum = parseFloat(
+        typeof gasto === 'string' ? gasto.replace(',', '.') : gasto ?? 0
+    );
+    return rendaNum < gastoNum ? 'red' : '#526471';
+}
+
+
+
 
     async function buscarGasto() {
         const userId = await AsyncStorage.getItem('userId');
@@ -33,6 +63,7 @@ export default function UserDash() {
             if (response.data?.total != null) {
                 const valorFormatado = Number(response.data.total).toFixed(2).replace('.', ',');
                 setGasto(valorFormatado);
+                
             } else {
                 setGasto('0,00');
             }
@@ -40,37 +71,49 @@ export default function UserDash() {
             console.error('Erro ao buscar gastos:', error);
         }
     }
+    async function buscarGastosPorCategoria() {
+    const userId = await AsyncStorage.getItem('userId');
+    try {
+        const response = await axios.get('http://192.168.1.107:3000/expenses/gastos/totalPCategoria', {
+            headers: { usuario_id: userId }
+        });
+        setGastosPorCategoria(response.data);
+    } catch (error) {
+        console.error('Erro ao buscar gastos por categoria:', error);
+    }
+}
 
+    async function buscarUserInfo() {
+        const userId = await AsyncStorage.getItem('userId');
+
+        try {
+            const response = await axios.get('http://192.168.1.107:3000/auth/userInfo', {
+                headers: { usuario_id: userId }
+            });
+            console.log(response.data); // contém id, nome, email, renda
+            setRenda(response.data.renda)
+        } catch (error) {
+            console.error('Erro ao buscar user info:', error);
+        }
+    }
+    async function carregarNome() {
+        const nomeCompleto = await AsyncStorage.getItem('userName');
+        if (nomeCompleto) {
+            const primeiro = nomeCompleto.split(' ')[0];
+            setPrimeiroNome(primeiro);
+        }
+    }
     useEffect(() => {
-        async function carregarNome() {
-            const nomeCompleto = await AsyncStorage.getItem('userName');
-            if (nomeCompleto) {
-                const primeiro = nomeCompleto.split(' ')[0];
-                setPrimeiroNome(primeiro);
-            }
-        }
-        async function buscarUserInfo() {
-            const userId = await AsyncStorage.getItem('userId');
-
-            try {
-                const response = await axios.get('http://192.168.1.107:3000/auth/userInfo', {
-                    headers: { usuario_id: userId }
-                });
-                console.log(response.data); // contém id, nome, email, renda
-                setRenda(response.data.renda)
-            } catch (error) {
-                console.error('Erro ao buscar user info:', error);
-            }
-        }
-
         buscarUserInfo();
         carregarNome();
         buscarGasto();
+        buscarGastosPorCategoria();
     }, []);
 
     useFocusEffect(
         useCallback(() => {
             buscarGasto();
+             buscarGastosPorCategoria();
         }, [])
     );
 
@@ -78,7 +121,8 @@ export default function UserDash() {
         console.log('Gasto salvo no backend:', gastoSalvo);
         setTimeout(() => {
             buscarGasto();
-        }, 500);
+            buscarGastosPorCategoria();
+        }, 100);
     }
 
     async function handleLogout() {
@@ -115,7 +159,7 @@ export default function UserDash() {
             <View style={styles.expenseContainer}>
                 <View>
                     <Text style={styles.expenseLabel}>Você gastou:</Text>
-                    <Text style={styles.expenseValue}>R${gasto}</Text>
+                    <Text style={[styles.expenseValue, { color: alteraCor() }]}>R${gasto}</Text>
                 </View>
                 <Moeda />
             </View>
@@ -149,12 +193,18 @@ export default function UserDash() {
                 />
 
                 <View style={{ marginTop: 30 }}>
-                    <GastoCategoria
-                        titulo="Dívidas"
-                        subtitulo="Total da categoria"
-                        valor="R$325,00"
-                        Imagem={Alimentacao}
-                    />
+                    {gastosPorCategoria.map((gasto, index) => {
+                const Imagem = iconMap[gasto.nome] || Outros; // Usa ícone 'Outros' como fallback
+        return (
+            <GastoCategoria
+                key={index}
+                titulo={gasto.nome}
+                subtitulo="Total da categoria"
+                valor={`R$${Number(gasto.total).toFixed(2).replace('.', ',')}`}
+                Imagem={Imagem}
+            />
+        );
+    })}
                 </View>
             </View>
 

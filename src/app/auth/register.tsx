@@ -1,4 +1,3 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import Checkbox from 'expo-checkbox';
 import { router } from 'expo-router';
@@ -9,7 +8,6 @@ import { Button } from '../../../components/botao';
 import Input from "../../../components/input";
 
 export default function Register() {
-    const label = ["Dados pessoais", "Dados Financeiros"];
     const customStyles = {
         stepIndicatorSize: 20,
         currentStepIndicatorSize: 24,
@@ -46,17 +44,22 @@ export default function Register() {
             return;
         }
 
+        const dataNascimentoSemBarra = birthDate.replace(/\D/g, '');
+
+        console.log('Enviando data_nascimento:', dataNascimentoSemBarra);
+
+        if (dataNascimentoSemBarra.length !== 8) {
+            alert('Data de nascimento inválida. Use o formato dd/mm/yyyy.');
+            return;
+        }
+
         try {
             const response = await axios.post('http://192.168.1.107:3000/auth/register', {
                 nome: name,
-                data_nascimento: birthDate,
+                data_nascimento: dataNascimentoSemBarra,
                 email: email,
                 senha: password,
             });
-            const userId = response.data.id;
-            
-          await AsyncStorage.setItem('userId', userId.toString());
-       
 
             console.log(response.data);
             alert('Cadastro realizado com sucesso!');
@@ -67,8 +70,7 @@ export default function Register() {
         }
     }
 
-    // Função para formatar a data no formato dd/mm/yyyy
-    function formatDate(text: string) {
+    function formatDate(text) {
         let cleanText = text.replace(/\D/g, '');
         if (cleanText.length > 8) cleanText = cleanText.slice(0, 8);
         if (cleanText.length >= 5) return `${cleanText.slice(0, 2)}/${cleanText.slice(2, 4)}/${cleanText.slice(4)}`;
@@ -76,16 +78,13 @@ export default function Register() {
         return cleanText;
     }
 
-    // Atualiza o estado com a máscara
-    function handleChangeBirthDate(text: string) {
+    function handleChangeBirthDate(text) {
         setBirthDate(formatDate(text));
     }
 
     return (
         <View style={{ backgroundColor: '#E0E8F9', flex: 1 }}>
-            <View style={{
-                marginTop: 60
-            }}>
+            <View style={{ marginTop: 60 }}>
                 <StepIndicator
                     customStyles={customStyles}
                     currentPosition={0}
@@ -93,52 +92,42 @@ export default function Register() {
                     stepCount={2}
                 />
             </View>
-            <View style={styles.container} >
-                <View style={{ marginBottom: 50 }} >
-                    <Text style={{ color: '#4A4A4A', fontSize: 34, fontFamily: 'Manrope', fontWeight: "bold", maxWidth: 230, textAlign: 'center' }}>Informações Pessoais</Text>
+
+            <View style={styles.container}>
+                <View style={{ marginBottom: 50 }}>
+                    <Text style={styles.title}>Informações Pessoais</Text>
                 </View>
-                <View >
-                    <Input placeholder="Como devo te chamar?" icon="person-circle-outline" value={name} onChangeText={setName} />
-                    <Input 
-                        placeholder="Data de nascimento" 
-                        icon="calendar-outline" 
-                        keyboardType="numeric" 
-                        value={birthDate} 
-                        onChangeText={handleChangeBirthDate} 
-                        maxLength={10} // para limitar dd/mm/yyyy
+                <Input placeholder="Como devo te chamar?" icon="person-circle-outline" value={name} onChangeText={setName} />
+                <Input placeholder="Data de nascimento" icon="calendar-outline" keyboardType="numeric" value={birthDate} onChangeText={handleChangeBirthDate} maxLength={10} />
+                <Input placeholder="Digite seu e-mail" icon="mail-outline" value={email} onChangeText={setEmail} />
+                <Input placeholder="Senha" icon="lock-closed-outline" isPassword value={password} onChangeText={setPassword} />
+
+                <View style={styles.checkboxContainer}>
+                    <Checkbox
+                        value={isChecked}
+                        onValueChange={setIsChecked}
+                        color={isChecked ? '#A3C0AC' : '#4a4a4a'}
+                        style={styles.checkbox}
                     />
-                    <Input placeholder="Digite seu e-mail" icon="mail-outline" value={email} onChangeText={setEmail} />
-                    <Input placeholder="Senha" icon="lock-closed-outline" isPassword value={password} onChangeText={setPassword} />
-                </View>
-                <View style={{ flexDirection: 'row', gap: 1, marginLeft: -5, marginTop: 5 }}>
-                    <View style={{ marginTop: 10 }}>
-                        <Checkbox
-                            value={isChecked}
-                            onValueChange={setIsChecked}
-                            color={isChecked ? '#A3C0AC' : '#4a4a4a'}
-                            style={{ alignItems: 'center', justifyContent: 'center', borderRadius: 3 }} />
-                    </View>
                     <View style={{ marginLeft: 12 }}>
-                        <Text style={{ color: '#4A4A4A', fontFamily: 'Manrope', fontSize: 14 }}>Declaro que li e concordo com:</Text>
-                        <Text style={{ textDecorationLine: 'underline', color: '#4A4A4A', fontFamily: 'Manrope', fontSize: 14, fontWeight: '600' }}>Termo de uso e Política de Privacidade</Text>
+                        <Text style={styles.checkboxText}>Declaro que li e concordo com:</Text>
+                        <Text style={styles.checkboxLink}>Termo de uso e Política de Privacidade</Text>
                     </View>
                 </View>
+
                 <View style={{ marginTop: 60, marginBottom: 60 }}>
                     <Button title="Avançar" onPress={handleRegister} />
                 </View>
-                <View style={{ alignItems: 'center', flexDirection: 'row', gap: 2, marginBottom: 40 }}>
-                    <Text style={{ color: '#4A4A4A', fontFamily: 'Manrope', fontSize: 16 }}>
-                        Já possui uma conta?
-                    </Text>
+
+                <View style={styles.loginContainer}>
+                    <Text style={styles.loginText}>Já possui uma conta?</Text>
                     <TouchableOpacity onPress={() => router.replace("/auth/login")}>
-                        <Text style={{ textDecorationLine: 'underline', color: '#4A4A4A', fontFamily: 'Manrope', fontSize: 16 }}>
-                            Clique aqui
-                        </Text>
+                        <Text style={styles.loginLink}>Clique aqui</Text>
                     </TouchableOpacity>
                 </View>
             </View>
         </View>
-    )
+    );
 }
 
 const styles = StyleSheet.create({
@@ -147,5 +136,51 @@ const styles = StyleSheet.create({
         backgroundColor: '#E0E8F9',
         justifyContent: 'center',
         alignItems: 'center',
+    },
+    title: {
+        color: '#4A4A4A',
+        fontSize: 34,
+        fontFamily: 'Manrope',
+        fontWeight: 'bold',
+        maxWidth: 230,
+        textAlign: 'center',
+    },
+    checkboxContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginTop: 5,
+    },
+    checkbox: {
+        marginTop: 10,
+        borderRadius: 3,
+    },
+    checkboxText: {
+        color: '#4A4A4A',
+        fontFamily: 'Manrope',
+        fontSize: 14,
+    },
+    checkboxLink: {
+        textDecorationLine: 'underline',
+        color: '#4A4A4A',
+        fontFamily: 'Manrope',
+        fontSize: 14,
+        fontWeight: '600',
+    },
+    loginContainer: {
+        alignItems: 'center',
+        flexDirection: 'row',
+        gap: 2,
+        marginBottom: 40,
+    },
+    loginText: {
+        color: '#4A4A4A',
+        fontFamily: 'Manrope',
+        fontSize: 16,
+    },
+    loginLink: {
+        textDecorationLine: 'underline',
+        color: '#4A4A4A',
+        fontFamily: 'Manrope',
+        fontSize: 16,
     },
 });

@@ -1,4 +1,5 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import axios from "axios";
 import { router } from "expo-router";
 import { useEffect, useState } from "react";
 import { Image, ScrollView, StyleSheet, Text, View } from "react-native";
@@ -35,8 +36,11 @@ export default function Profile() {
   };
 
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
-  const [renda, setRenda] = useState("130000"); // valor em centavos para facilitar formatação
+  const [renda, setRenda] = useState(""); // valor em centavos para facilitar formatação
   const [fotoUri, setFotoUri] = useState<string | null>(null);
+  const [nomeUser, setNomeUser] = useState('');
+  const [email, setEmail] = useState('');
+  
 
   useEffect(() => {
     async function carregarFoto() {
@@ -44,6 +48,7 @@ export default function Profile() {
       if (uri) setFotoUri(uri);
     }
     carregarFoto();
+    carregarUsuario();
   }, []);
 
   function handleToggleCategory(category: string) {
@@ -57,7 +62,7 @@ export default function Profile() {
   }
 
   // Função para formatar valor em centavos para moeda BRL
-  function formatMoney(value: string) {
+ function formatMoney(value: string) {
     const numericValue = value.replace(/\D/g, "");
     const number = Number(numericValue) / 100;
     if (isNaN(number)) return "";
@@ -65,13 +70,37 @@ export default function Profile() {
       style: "currency",
       currency: "BRL",
     });
-  }
+}
 
-  // Função para tratar mudança do input mantendo só números
-  function handleChangeRenda(text: string) {
-    const clean = text.replace(/\D/g, "");
-    setRenda(clean);
-  }
+function handleChangeRenda(text: string) {
+    const clean = text.replace(/\D/g, '');
+    const formatted = formatMoney(clean);
+    setRenda(formatted);
+}
+
+async function carregarUsuario() {
+    try {
+        const userId = await AsyncStorage.getItem('userId');
+        if (userId) {
+            const response = await axios.get('http://192.168.1.107:3000/auth/userInfo', {
+                headers: { usuario_id: userId }
+            });
+            const { nome, email, renda } = response.data;
+            setNomeUser(nome);
+            setEmail(email);
+            if (renda !== null && renda !== undefined) {
+                const rendaFormatada = formatMoney((renda * 100).toString());
+                setRenda(rendaFormatada);
+            } else {
+                setRenda('');
+            }
+        }
+    } catch (error) {
+        console.error('Erro ao carregar usuário no perfil:', error);
+    }
+}
+
+
 
   return (
     <ScrollView
@@ -81,7 +110,7 @@ export default function Profile() {
     >
       <View style={styles.Background}>
         <HeaderProfile />
-        
+
         <View style={styles.PhotoContainer}>
           <Image
             source={
@@ -95,8 +124,8 @@ export default function Profile() {
 
         <View style={styles.Card}>
           <Text style={styles.Label}>Informações pessoais</Text>
-          <Text style={styles.Name}>Carlos Henrique</Text>
-          <Text style={styles.Mail}>carloslindo@gmail.com</Text>
+          <Text style={styles.Name}>{nomeUser}</Text>
+          <Text style={styles.Mail}>{email}</Text>
 
           <ButtonMenor
             title="Editar"
