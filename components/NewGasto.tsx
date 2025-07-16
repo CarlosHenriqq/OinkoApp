@@ -13,44 +13,39 @@ import {
 import DropDownPicker from 'react-native-dropdown-picker';
 
 export default function Newgasto({ visible, onClose, onSave }) {
-
   const [descricao, setDescricao] = useState('');
   const [valor, setValor] = useState('');
   const [data, setData] = useState('');
   const [categoria, setCategoria] = useState('');
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState(null);
-  const [items, setItems] = useState([])
+  const [items, setItems] = useState([]);
 
-useEffect(() => {
+  useEffect(() => {
     async function buscarCategorias() {
-        const userIdStr = await AsyncStorage.getItem('userId');
-        const userId = userIdStr ? Number(userIdStr) : null;
-        try {
-            const response = await axios.get('http://192.168.1.107:3000/auth/categoriasSelecionadas', {
-                headers: { usuario_id: userId }
-            });
-            const categoriasFormatadas = response.data.map(categoria => ({
-                label: categoria.nome,
-                value: categoria.id
-            }));
-            setItems(categoriasFormatadas);
-            console.log('UserId carregado:', userId);
-        } catch (error) {
-            console.error('Erro ao buscar categorias:', error.message);
-            if (error.response) {
-                console.error('Resposta do servidor:', error.response.data);
-            }
+      const userIdStr = await AsyncStorage.getItem('userId');
+      const userId = userIdStr ? Number(userIdStr) : null;
+      try {
+        const response = await axios.get('http://192.168.1.110:3000/auth/categoriasSelecionadas', {
+          headers: { usuario_id: userId },
+        });
+        const categoriasFormatadas = response.data.map((categoria) => ({
+          label: categoria.nome,
+          value: categoria.id,
+        }));
+        setItems(categoriasFormatadas);
+      } catch (error) {
+        console.error('Erro ao buscar categorias:', error.message);
+        if (error.response) {
+          console.error('Resposta do servidor:', error.response.data);
         }
+      }
     }
 
     if (visible) {
-        buscarCategorias();
+      buscarCategorias();
     }
-}, [visible]);
-
-
-  
+  }, [visible]);
 
   function formatMoney(text) {
     let cleanText = text.replace(/\D/g, '');
@@ -87,12 +82,41 @@ useEffect(() => {
     setData(formatted);
   }
 
+  // Função para converter "dd/mm/yyyy" para "yyyy-mm-dd"
+  function formatDateToISO(dateStr) {
+    const [day, month, year] = dateStr.split('/');
+    if (!day || !month || !year) return null;
+
+    // Validação simples para números e tamanho correto
+    if (
+      day.length !== 2 ||
+      month.length !== 2 ||
+      year.length !== 4 ||
+      isNaN(Number(day)) ||
+      isNaN(Number(month)) ||
+      isNaN(Number(year))
+    ) {
+      return null;
+    }
+
+    // Verificar se a data é válida (exemplo básico)
+    const dayNum = Number(day);
+    const monthNum = Number(month);
+    const yearNum = Number(year);
+    if (monthNum < 1 || monthNum > 12) return null;
+    if (dayNum < 1 || dayNum > 31) return null; // Pode melhorar aqui para meses específicos
+
+    // Monta no formato ISO
+    return `${year.padStart(4, '0')}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+  }
+
   useEffect(() => {
     if (visible) {
       setDescricao('');
       setValor('');
       setData('');
       setCategoria('');
+      setValue(null);
     }
   }, [visible]);
 
@@ -100,41 +124,39 @@ useEffect(() => {
     try {
       const userIdStr = await AsyncStorage.getItem('userId');
       const userId = userIdStr ? Number(userIdStr) : null;
-       const valorNumerico = Number(valor.replace(/\D/g, '')) / 100;
+      const valorNumerico = Number(valor.replace(/\D/g, '')) / 100;
+
+      const dataISO = formatDateToISO(data);
+      if (!dataISO) {
+        alert('Data inválida. Use o formato dd/mm/yyyy');
+        return;
+      }
 
       const gastoPayload = {
         categoria_id: value,
         valor: valorNumerico,
-        data: data,
-        descricao: descricao
+        data: dataISO,
+        descricao: descricao,
       };
 
-      const response = await axios.post('http://192.168.1.107:3000/expenses/gastos',
-        gastoPayload,
-        {
-          headers: {
-            usuario_id: userId
-          }
-        }
-      );
+      const response = await axios.post('http://192.168.1.110:3000/expenses/gastos', gastoPayload, {
+        headers: {
+          usuario_id: userId,
+        },
+      });
 
-      // Aqui você envia o gasto salvo de volta para o componente pai:
       onSave(response.data);
 
-      // Limpa os campos:
       setDescricao('');
       setValor('');
       setData('');
       setValue(null);
       onClose();
-      console.log(userId)
     } catch (error) {
       console.error('Erro ao salvar gasto:', error);
       alert('Erro ao salvar gasto.');
     }
   }
-
-
 
   return (
     <Modal transparent visible={visible} animationType="fade">
@@ -152,7 +174,6 @@ useEffect(() => {
             style={styles.input}
             value={descricao}
             onChangeText={setDescricao}
-            
           />
 
           <View style={styles.row}>
@@ -163,7 +184,6 @@ useEffect(() => {
               value={valor}
               onChangeText={handleChangeValor}
               keyboardType="numeric"
-              
             />
             <TextInput
               placeholder="01/01/2025"
@@ -184,50 +204,41 @@ useEffect(() => {
             setValue={setValue}
             setItems={setItems}
             placeholder="Selecione a categoria"
-
             style={{
-              backgroundColor: "#ffff", // fundo bem claro (quase branco com leve tom azulado, se quiser ajustar mais)
+              backgroundColor: '#ffff',
               borderWidth: 3,
-              borderColor: "#A3C0AC",
+              borderColor: '#A3C0AC',
               borderRadius: 15,
               height: 40,
               paddingHorizontal: 10,
-              marginBottom:30,
+              marginBottom: 30,
               shadowColor: '#000000',
               shadowOffset: { width: 0, height: 2 },
               shadowOpacity: 0.4,
               shadowRadius: 2,
               elevation: 3,
             }}
-
             textStyle={{
               fontFamily: 'Manrope',
-              color: "#A3C0AC",
-              fontWeight: "bold",
+              color: '#A3C0AC',
+              fontWeight: 'bold',
               fontSize: 18,
             }}
-
             placeholderStyle={{
-              color: "#A3C0AC",
-              fontWeight: "bold",
+              color: '#A3C0AC',
+              fontWeight: 'bold',
             }}
-
             dropDownContainerStyle={{
-              borderColor: "#A3C0AC",
+              borderColor: '#A3C0AC',
               borderRadius: 15,
               borderTopWidth: 1,
               borderWidth: 3,
             }}
-
             arrowIconStyle={{
-              // funciona para ícones padrão no iOS/Android
               height: 25,
             }}
-
             showArrowIcon={true}
-
           />
-
 
           <TouchableOpacity style={styles.saveButton} onPress={handleSalvar}>
             <Text style={styles.saveButtonText}>Salvar gasto</Text>
@@ -253,9 +264,9 @@ const styles = StyleSheet.create({
     elevation: 4,
     position: 'relative',
     shadowOffset: { width: 0, height: 2 },
-              shadowOpacity: 0.4,
-              shadowRadius: 2,
-              elevation: 3,
+    shadowOpacity: 0.4,
+    shadowRadius: 2,
+    elevation: 3,
   },
   closeButton: {
     position: 'absolute',
@@ -284,13 +295,12 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#4A4A4A',
     shadowOffset: { width: 0, height: 2 },
-              shadowOpacity: 0.4,
-              shadowRadius: 2,
-              elevation: 3,
+    shadowOpacity: 0.4,
+    shadowRadius: 2,
+    elevation: 3,
   },
   row: {
     flexDirection: 'row',
-    
   },
   saveButton: {
     backgroundColor: '#4A4A4A',
@@ -302,9 +312,9 @@ const styles = StyleSheet.create({
     marginTop: 8,
     alignSelf: 'center',
     shadowOffset: { width: 0, height: 2 },
-              shadowOpacity: 0.4,
-              shadowRadius: 2,
-              elevation: 3,
+    shadowOpacity: 0.4,
+    shadowRadius: 2,
+    elevation: 3,
   },
   saveButtonText: {
     fontWeight: 'bold',
@@ -312,6 +322,4 @@ const styles = StyleSheet.create({
     fontFamily: 'Manrope',
     fontSize: 18,
   },
-
-
 });

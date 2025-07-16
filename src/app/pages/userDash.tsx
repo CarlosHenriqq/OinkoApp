@@ -20,44 +20,44 @@ export default function UserDash() {
     const [popupVisible, setPopupVisible] = useState(false);
     const [renda, setRenda] = useState('');
     const [gastosPorCategoria, setGastosPorCategoria] = useState([]);
-    
+
 
 
     const iconMap = {
-    'Alimentação': Alimentacao,
-    'Pets': Pets,
-    'Dívidas': Divida,
-    'Transporte': Transporte,
-    'Educação': Educacao,
-    'Saúde': Saude,
-    'Entretenimento': Entretenimento,
-    'Moradia': Moradia,
-    'Contas': Contas,
-    'Cartão de crédito': Cartao,
-    'Cuidados Pessoais': Cuidados,
-    'Outros': Outros,
-    'Assinatura': Assinaturas
-};
+        'Alimentação': Alimentacao,
+        'Pets': Pets,
+        'Dívidas': Divida,
+        'Transporte': Transporte,
+        'Educação': Educacao,
+        'Saúde': Saude,
+        'Entretenimento': Entretenimento,
+        'Moradia': Moradia,
+        'Contas do dia a dia': Contas,
+        'Cartão de crédito': Cartao,
+        'Cuidados Pessoais': Cuidados,
+        'Outros': Outros,
+        'Assinatura': Assinaturas
+    };
 
-function alteraCor() {
-    const rendaNum = parseFloat(
-        typeof renda === 'string' ? renda.replace(',', '.') : renda ?? 0
-    );
-    const gastoNum = parseFloat(
-        typeof gasto === 'string' ? gasto.replace(',', '.') : gasto ?? 0
-    );
-    return rendaNum < gastoNum ? 'red' : '#526471';
-}
+    function alteraCor() {
+        const rendaNum = parseFloat(
+            typeof renda === 'string' ? renda.replace(',', '.') : renda ?? 0
+        );
+        const gastoNum = parseFloat(
+            typeof gasto === 'string' ? gasto.replace(',', '.') : gasto ?? 0
+        );
+        return rendaNum < gastoNum ? 'red' : '#526471';
+    }
     async function buscarGasto() {
         const userId = await AsyncStorage.getItem('userId');
         try {
-            const response = await axios.get('http://192.168.1.107:3000/expenses/gastos/total', {
+            const response = await axios.get('http://192.168.1.110:3000/expenses/gastos/total', {
                 headers: { usuario_id: userId }
             });
             if (response.data?.total != null) {
                 const valorFormatado = Number(response.data.total).toFixed(2).replace('.', ',');
                 setGasto(valorFormatado);
-                
+
             } else {
                 setGasto('0,00');
             }
@@ -66,21 +66,21 @@ function alteraCor() {
         }
     }
     async function buscarGastosPorCategoria() {
-    const userId = await AsyncStorage.getItem('userId');
-    try {
-        const response = await axios.get('http://192.168.1.107:3000/expenses/gastos/totalPCategoria', {
-            headers: { usuario_id: userId }
-        });
-        setGastosPorCategoria(response.data);
-    } catch (error) {
-        console.error('Erro ao buscar gastos por categoria:', error);
+        const userId = await AsyncStorage.getItem('userId');
+        try {
+            const response = await axios.get('http://192.168.1.110:3000/expenses/gastos/totalPCategoria', {
+                headers: { usuario_id: userId }
+            });
+            setGastosPorCategoria(response.data);
+        } catch (error) {
+            console.error('Erro ao buscar gastos por categoria:', error);
+        }
     }
-}
     async function buscarUserInfo() {
         const userId = await AsyncStorage.getItem('userId');
 
         try {
-            const response = await axios.get('http://192.168.1.107:3000/auth/userInfo', {
+            const response = await axios.get('http://192.168.1.110:3000/auth/userInfo', {
                 headers: { usuario_id: userId }
             });
             console.log(response.data); // contém id, nome, email, renda
@@ -106,9 +106,9 @@ function alteraCor() {
     useFocusEffect(
         useCallback(() => {
             buscarGasto();
-             buscarGastosPorCategoria();
-             buscarUserInfo();
-             carregarNome();
+            buscarGastosPorCategoria();
+            buscarUserInfo();
+            carregarNome();
         }, [])
     );
 
@@ -179,17 +179,17 @@ function alteraCor() {
 
                 <View style={{ marginTop: 30 }}>
                     {gastosPorCategoria.map((gasto, index) => {
-                const Imagem = iconMap[gasto.nome] || Outros; // Usa ícone 'Outros' como fallback
-        return (
-            <GastoCategoria
-                key={index}
-                titulo={gasto.nome}
-                subtitulo="Total da categoria"
-                valor={`R$${Number(gasto.total).toFixed(2).replace('.', ',')}`}
-                Imagem={Imagem}
-            />
-        );
-    })}
+                        const Imagem = iconMap[gasto.nome] || Outros; // Usa ícone 'Outros' como fallback
+                        return (
+                            <GastoCategoria
+                                key={index}
+                                titulo={gasto.nome}
+                                subtitulo="Total da categoria"
+                                valor={`R$${Number(gasto.total).toFixed(2).replace('.', ',')}`}
+                                Imagem={Imagem}
+                            />
+                        );
+                    })}
                 </View>
             </View>
 

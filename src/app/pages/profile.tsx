@@ -83,7 +83,7 @@ async function carregarUsuario() {
     try {
         const userId = await AsyncStorage.getItem('userId');
         if (userId) {
-            const response = await axios.get('http://192.168.1.107:3000/auth/userInfo', {
+            const response = await axios.get('http://192.168.1.110:3000/auth/userInfo', {
                 headers: { usuario_id: userId }
             });
             const { nome, email, renda } = response.data;
@@ -104,7 +104,7 @@ async function carregarCategoriasSelecionadas() {
     try {
         const userId = await AsyncStorage.getItem('userId');
         if (userId) {
-            const response = await axios.get('http://192.168.1.107:3000/auth/categoriasSelecionadas', {
+            const response = await axios.get('http://192.168.1.110:3000/auth/categoriasSelecionadas', {
                 headers: { usuario_id: userId }
             });
             const categoriasSelecionadas = response.data.map(cat => cat.nome); // deve vir como ['Pets', 'Saúde', ...]
@@ -131,7 +131,7 @@ async function handleSalvarFinanceiro() {
       categorias: selectedCategories, // array de strings
     };
 
-    const response = await axios.post('http://192.168.1.107:3000/auth/registerFinance', data);
+    const response = await axios.post('http://192.168.1.110:3000/auth/registerFinance', data);
 
     alert(response.data.mensagem || 'Atualizado com sucesso!');
   } catch (error) {

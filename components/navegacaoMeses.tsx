@@ -1,5 +1,4 @@
 import { Ionicons } from '@expo/vector-icons';
-import { useState } from 'react';
 import { Dimensions, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 const { width } = Dimensions.get('window');
@@ -10,15 +9,32 @@ const meses = [
   'setembro', 'outubro', 'novembro', 'dezembro'
 ];
 
-export default function NavegacaoMeses() {
-  const [indiceMes, setIndiceMes] = useState(new Date().getMonth());
+export default function NavegacaoMeses({ mesSelecionado, anoSelecionado, setMesSelecionado, setAnoSelecionado }) {
 
   function mesAnterior() {
-    setIndiceMes(prev => (prev === 0 ? 11 : prev - 1));
+    setMesSelecionado(prev => {
+      let novoIndice = prev - 1;
+      let novoAno = anoSelecionado;
+      if (novoIndice < 0) {
+        novoIndice = 11;
+        novoAno = anoSelecionado - 1;
+        setAnoSelecionado(novoAno);
+      }
+      return novoIndice;
+    });
   }
 
   function proximoMes() {
-    setIndiceMes(prev => (prev === 11 ? 0 : prev + 1));
+    setMesSelecionado(prev => {
+      let novoIndice = prev + 1;
+      let novoAno = anoSelecionado;
+      if (novoIndice > 11) {
+        novoIndice = 0;
+        novoAno = anoSelecionado + 1;
+        setAnoSelecionado(novoAno);
+      }
+      return novoIndice;
+    });
   }
 
   return (
@@ -27,7 +43,7 @@ export default function NavegacaoMeses() {
         <Ionicons name="caret-back-outline" size={30} color="#4a4a4a" />
       </TouchableOpacity>
 
-      <Text style={styles.textoMes}>{meses[indiceMes]}</Text>
+      <Text style={styles.textoMes}>{meses[mesSelecionado]} {anoSelecionado}</Text>
 
       <TouchableOpacity onPress={proximoMes} style={styles.botaoDireita}>
         <Ionicons name="caret-forward-outline" size={30} color="#4a4a4a" />
