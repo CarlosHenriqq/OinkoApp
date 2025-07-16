@@ -34,7 +34,7 @@ export default function UserDash() {
     'Moradia': Moradia,
     'Contas': Contas,
     'Cartão de crédito': Cartao,
-    'Cuidados': Cuidados,
+    'Cuidados Pessoais': Cuidados,
     'Outros': Outros,
     'Assinatura': Assinaturas
 };
@@ -48,13 +48,8 @@ function alteraCor() {
     );
     return rendaNum < gastoNum ? 'red' : '#526471';
 }
-
-
-
-
     async function buscarGasto() {
         const userId = await AsyncStorage.getItem('userId');
-        console.log('UserDash buscando gasto para userId:', userId);
         try {
             const response = await axios.get('http://192.168.1.107:3000/expenses/gastos/total', {
                 headers: { usuario_id: userId }
@@ -81,7 +76,6 @@ function alteraCor() {
         console.error('Erro ao buscar gastos por categoria:', error);
     }
 }
-
     async function buscarUserInfo() {
         const userId = await AsyncStorage.getItem('userId');
 
@@ -113,6 +107,8 @@ function alteraCor() {
         useCallback(() => {
             buscarGasto();
              buscarGastosPorCategoria();
+             buscarUserInfo();
+             carregarNome();
         }, [])
     );
 

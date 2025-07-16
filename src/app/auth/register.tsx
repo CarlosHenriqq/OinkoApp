@@ -1,3 +1,4 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import Checkbox from 'expo-checkbox';
 import { router } from 'expo-router';
@@ -62,6 +63,7 @@ export default function Register() {
             });
 
             console.log(response.data);
+            await AsyncStorage.removeItem('fotoPerfil');
             alert('Cadastro realizado com sucesso!');
             router.replace('/auth/registerFinance');
         } catch (error) {

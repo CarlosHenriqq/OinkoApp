@@ -2,11 +2,12 @@ import { router } from 'expo-router';
 import { useState } from 'react';
 import { Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
-export default function BotaoComConfirmacao() {
+export default function BotaoComConfirmacao({onConfirm}) {
   const [modalVisible, setModalVisible] = useState(false);
 
   function handleConfirmar() {
     setModalVisible(false);
+    if(onConfirm) onConfirm();
     router.replace("/pages/profile");
   }
 

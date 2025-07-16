@@ -27,7 +27,7 @@ useEffect(() => {
         const userIdStr = await AsyncStorage.getItem('userId');
         const userId = userIdStr ? Number(userIdStr) : null;
         try {
-            const response = await axios.get('http://192.168.1.107:3000/categoriaUser/categoriasSelecionadas', {
+            const response = await axios.get('http://192.168.1.107:3000/auth/categoriasSelecionadas', {
                 headers: { usuario_id: userId }
             });
             const categoriasFormatadas = response.data.map(categoria => ({

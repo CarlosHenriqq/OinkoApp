@@ -49,6 +49,7 @@ export default function Profile() {
     }
     carregarFoto();
     carregarUsuario();
+    carregarCategoriasSelecionadas();
   }, []);
 
   function handleToggleCategory(category: string) {
@@ -99,6 +100,47 @@ async function carregarUsuario() {
         console.error('Erro ao carregar usuário no perfil:', error);
     }
 }
+async function carregarCategoriasSelecionadas() {
+    try {
+        const userId = await AsyncStorage.getItem('userId');
+        if (userId) {
+            const response = await axios.get('http://192.168.1.107:3000/auth/categoriasSelecionadas', {
+                headers: { usuario_id: userId }
+            });
+            const categoriasSelecionadas = response.data.map(cat => cat.nome); // deve vir como ['Pets', 'Saúde', ...]
+            setSelectedCategories(categoriasSelecionadas);
+            console.log(categoriasSelecionadas)
+        }
+    } catch (error) {
+        console.error('Erro ao carregar categorias selecionadas:', error);
+    }
+    
+}
+async function handleSalvarFinanceiro() {
+  try {
+    const userId = await AsyncStorage.getItem('userId');
+    if (!userId) {
+      alert('Usuário não autenticado');
+      return;
+    }
+
+    // Prepara dados para enviar
+    const data = {
+      usuario_id: userId,
+      renda: renda ? Number(renda.replace(/\D/g, '')) : 0, // considerando renda em centavos como número
+      categorias: selectedCategories, // array de strings
+    };
+
+    const response = await axios.post('http://192.168.1.107:3000/auth/registerFinance', data);
+
+    alert(response.data.mensagem || 'Atualizado com sucesso!');
+  } catch (error) {
+    console.error('Erro ao atualizar financeiro:', error);
+    alert('Erro ao salvar. Tente novamente.');
+  }
+}
+
+
 
 
 
@@ -198,7 +240,7 @@ async function carregarUsuario() {
             ))}
           </View>
 
-          <Button title="Salvar alterações" onPress={() => router.replace("/pages/profile")} />
+          <Button title="Salvar alterações" onPress={handleSalvarFinanceiro} />
         </View>
 
         <View style={{ height: 20 }}></View>
