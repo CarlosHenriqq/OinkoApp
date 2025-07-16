@@ -55,7 +55,7 @@ export default function Register() {
         }
 
         try {
-            const response = await axios.post('http://192.168.1.107:3000/auth/register', {
+            const response = await axios.post('http://192.168.1.110:3000/auth/register', {
                 nome: name,
                 data_nascimento: dataNascimentoSemBarra,
                 email: email,

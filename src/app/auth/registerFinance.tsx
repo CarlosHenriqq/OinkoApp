@@ -92,7 +92,7 @@ export default function RegisterFinance() {
     const userIdStr = await AsyncStorage.getItem('userId');
     const userId = userIdStr ? Number(userIdStr) : null; // se for número
     try {
-        const response = await axios.post('http://192.168.1.107:3000/auth/registerFinance', {
+        const response = await axios.post('http://192.168.1.110:3000/auth/registerFinance', {
     usuario_id: userId,
     renda,
     categorias: selectedCategories

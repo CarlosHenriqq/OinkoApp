@@ -31,7 +31,7 @@ export default function InputRenda({ placeholder, icon, isPassword, isEditable =
       <TextInput
         ref={inputRef}
         placeholder={placeholder}
-        style={styles.input}
+          style={[styles.input, { color: isEditable ? '#526471' : '#526471' }]}
         placeholderTextColor="#526471"
         secureTextEntry={isPassword && !showPassword}
         editable={editable}

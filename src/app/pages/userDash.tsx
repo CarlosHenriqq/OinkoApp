@@ -51,7 +51,7 @@ function alteraCor() {
     async function buscarGasto() {
         const userId = await AsyncStorage.getItem('userId');
         try {
-            const response = await axios.get('http://192.168.1.107:3000/expenses/gastos/total', {
+            const response = await axios.get('http://192.168.1.110:3000/expenses/gastos/total', {
                 headers: { usuario_id: userId }
             });
             if (response.data?.total != null) {
@@ -68,7 +68,7 @@ function alteraCor() {
     async function buscarGastosPorCategoria() {
     const userId = await AsyncStorage.getItem('userId');
     try {
-        const response = await axios.get('http://192.168.1.107:3000/expenses/gastos/totalPCategoria', {
+        const response = await axios.get('http://192.168.1.110:3000/expenses/gastos/totalPCategoria', {
             headers: { usuario_id: userId }
         });
         setGastosPorCategoria(response.data);
@@ -80,7 +80,7 @@ function alteraCor() {
         const userId = await AsyncStorage.getItem('userId');
 
         try {
-            const response = await axios.get('http://192.168.1.107:3000/auth/userInfo', {
+            const response = await axios.get('http://192.168.1.110:3000/auth/userInfo', {
                 headers: { usuario_id: userId }
             });
             console.log(response.data); // contém id, nome, email, renda

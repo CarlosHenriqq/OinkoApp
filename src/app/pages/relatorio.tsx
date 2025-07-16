@@ -4,7 +4,7 @@ import axios from "axios";
 import { useCallback, useEffect, useState } from "react";
 import { Dimensions, ScrollView, StyleSheet, Text, View } from "react-native";
 import { Alimentacao, Assinaturas, Cartao, Contas, Cuidados, Divida, Educacao, Entretenimento, Moradia, Outros, Pets, Saude, Transporte } from '../../../assets/iconsCategorias';
-import GastoCategoriaDescricao from "../../../components/gastoCategoriaDescricao";
+import GastoCategoriaRelatorio from "../../../components/gastoCategoriaRelatorio";
 import Header from "../../../components/header";
 import NavegacaoMeses from "../../../components/navegacaoMeses";
 const { width } = Dimensions.get('window');
@@ -37,7 +37,7 @@ async function extract (){
     try {
         const userId = await AsyncStorage.getItem('userId');
         if (userId) {
-            const response = await axios.get('http://192.168.1.107:3000/expenses/extract/extrato', {
+            const response = await axios.get('http://192.168.1.110:3000/expenses/extract/extrato', {
                 headers: { usuario_id: userId }
             });
             setGastos(response.data); // agora armazena o array completo
@@ -91,18 +91,20 @@ return(
                                 </View>
                         
                                 <View style={[styles.Card, { paddingTop: 30 }]}>
-                                    {gastos.map((gasto, index) => {
-    const Imagem = iconMap[gasto.categoria_nome] || Outros;
-    return (
-        <GastoCategoriaDescricao
-            key={index}
-            data={gasto.data}
-            descricao={gasto.descricao}
-            valor={`R$${Number(gasto.valor).toFixed(2).replace('.', ',')}`}
-            Imagem={Imagem}
-        />
-    );
-})}
+
+                        <GastoCategoriaRelatorio
+                            titulo="Dívidas"
+                            subtituloFechado="Clique para ver os gastos"
+                            subtituloAberto="Clique para fechar os gastos"
+                            valor="R$325,00"
+                            Imagem={Divida}
+                            subgastos={[
+                                { nome: 'Parcela empréstimo da will carro batido ', valor: 'R$130,00', data: '03/07/2025' },
+                                { nome: 'Empréstimo consignado', valor: 'R$90,00', data: '05/07/2025' },
+                                { nome: 'Carnê loja casas bahia', valor: 'R$70,00', data: '10/07/2025' },
+                                { nome: 'Juros cheque especial santander', valor: 'R$35,00', data: '12/07/2025' },
+                            ]}
+                            />
 
                                 </View>
                     <View style={{ height: 20 }}></View>

@@ -47,7 +47,7 @@ export default function ProfileEdit() {
     try {
       const userId = await AsyncStorage.getItem('userId');
       if (userId) {
-        const response = await axios.get('http://192.168.1.107:3000/auth/userInfo', {
+        const response = await axios.get('http://192.168.1.110:3000/auth/userInfo', {
           headers: { usuario_id: userId }
         });
         const { nome, email, dt_nasc } = response.data;
@@ -68,7 +68,7 @@ export default function ProfileEdit() {
       // Remove qualquer caracter que não seja número da data (ex: barras)
       const dataFormatada = dataNascimento.replace(/\D/g, ''); // ddmmaaaa
 
-      await axios.put('http://192.168.1.107:3000/auth/updateUser', {
+      await axios.put('http://192.168.1.110:3000/auth/updateUser', {
         usuario_id: userId,
         nome: nomeUser,
         email,

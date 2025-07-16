@@ -15,12 +15,10 @@ export default function TabLayout() {
         tabBarActiveTintColor: '#A3C0AC',
         tabBarInactiveTintColor: '#4A4A4A',
         tabBarStyle: {
-          width: 350,
+          width: 390,
           alignSelf: 'center',  // aqui é o segredo pra centralizar
           backgroundColor: '#F6F6F6',
-          borderRadius: 20,
           height: 65,
-          elevation: 10,
           shadowColor: '#000',
           shadowOpacity: 0.1,
           shadowOffset: { width: 0, height: 5 },
