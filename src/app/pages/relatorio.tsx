@@ -1,4 +1,5 @@
 import axios from "axios";
+<<<<<<< HEAD
 import { useEffect, useState } from "react";
 import {
     Dimensions,
@@ -23,6 +24,12 @@ import {
     Transporte
 } from "../../../assets/iconsCategorias";
 import GastoCategoriaDescricao from "../../../components/gastoCategoriaDescricao";
+=======
+import { useCallback, useEffect, useState } from "react";
+import { Dimensions, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Alimentacao, Assinaturas, Cartao, Contas, Cuidados, Divida, Educacao, Entretenimento, Moradia, Outros, Pets, Saude, Transporte } from '../../../assets/iconsCategorias';
+import GastoCategoriaRelatorio from "../../../components/gastoCategoriaRelatorio";
+>>>>>>> 82205edc5a2df9e3535d49a03e63adc6c27b6cf3
 import Header from "../../../components/header";
 import NavegacaoMeses from "../../../components/navegacaoMeses";
 
@@ -50,6 +57,7 @@ export default function Relatorio() {
         'Assinatura': Assinaturas
     };
 
+<<<<<<< HEAD
   useEffect(() => {
     // Se você pegar userId do AsyncStorage ou de contexto, carregue aqui
     async function fetchUserId() {
@@ -60,6 +68,38 @@ export default function Relatorio() {
       
       // Para exemplo, deixo fixo:
       setUserId(23);
+=======
+    const iconMap = {
+    'Alimentação': Alimentacao,
+    'Pets': Pets,
+    'Dívidas': Divida,
+    'Transporte': Transporte,
+    'Educação': Educacao,
+    'Saúde': Saude,
+    'Entretenimento': Entretenimento,
+    'Moradia': Moradia,
+    'Contas': Contas,
+    'Cartão de crédito': Cartao,
+    'Cuidados Pessoais': Cuidados,
+    'Outros': Outros,
+    'Assinatura': Assinaturas
+};
+
+
+  
+
+async function extract (){
+    try {
+        const userId = await AsyncStorage.getItem('userId');
+        if (userId) {
+            const response = await axios.get('http://192.168.1.110:3000/expenses/extract/extrato', {
+                headers: { usuario_id: userId }
+            });
+            setGastos(response.data); // agora armazena o array completo
+        }
+    } catch (error) {
+        console.log(error);
+>>>>>>> 82205edc5a2df9e3535d49a03e63adc6c27b6cf3
     }
     fetchUserId();
   }, []);
@@ -93,12 +133,49 @@ export default function Relatorio() {
 
         <Text style={styles.TextTop}>Relatório de gastos mensais</Text>
 
+<<<<<<< HEAD
         <NavegacaoMeses
           mesSelecionado={mesSelecionado}
           anoSelecionado={anoSelecionado}
           setMesSelecionado={setMesSelecionado}
           setAnoSelecionado={setAnoSelecionado}
         />
+=======
+                        <NavegacaoMeses></NavegacaoMeses>
+
+                        <View style={styles.expenseContainer}>
+                            <Text style={{fontSize:16, color: '#4A4A4A', fontFamily: 'Manrope'}}>Nesse mês você gastou:</Text>
+                            <Text style={{fontSize:18, color: '#526471', fontFamily: 'Manrope', fontWeight: 600,}}>R$845,99</Text>  
+                        </View>
+                        <View
+                                style={{ marginTop: 20, marginBottom: 10, width: "90%", alignItems: "flex-start" }}>
+                                <Text
+                                    style={{
+                                    fontFamily: "manrope",
+                                    fontSize: 20,
+                                    fontWeight: "600",
+                                    color: "#4a4a4a",
+                                    textAlign: "left",
+                                    }}
+                                >Resumo total dos gastos</Text>
+                                </View>
+                        
+                                <View style={[styles.Card, { paddingTop: 30 }]}>
+
+                        <GastoCategoriaRelatorio
+                            titulo="Dívidas"
+                            subtituloFechado="Clique para ver os gastos"
+                            subtituloAberto="Clique para fechar os gastos"
+                            valor="R$325,00"
+                            Imagem={Divida}
+                            subgastos={[
+                                { nome: 'Parcela empréstimo da will carro batido ', valor: 'R$130,00', data: '03/07/2025' },
+                                { nome: 'Empréstimo consignado', valor: 'R$90,00', data: '05/07/2025' },
+                                { nome: 'Carnê loja casas bahia', valor: 'R$70,00', data: '10/07/2025' },
+                                { nome: 'Juros cheque especial santander', valor: 'R$35,00', data: '12/07/2025' },
+                            ]}
+                            />
+>>>>>>> 82205edc5a2df9e3535d49a03e63adc6c27b6cf3
 
         <View style={styles.expenseContainer}>
           <Text style={{ fontSize: 16, color: "#4A4A4A", fontFamily: "Manrope" }}>

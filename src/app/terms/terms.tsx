@@ -150,6 +150,7 @@ const styles = StyleSheet.create({
     fontFamily: 'Manrope',
     textAlign: "center",
     maxWidth:200,
+    maxHeight: 30,
     },
     TextTitle: {
     fontSize: 20,
