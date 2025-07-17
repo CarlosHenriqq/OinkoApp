@@ -1,3 +1,4 @@
+import { Ionicons } from '@expo/vector-icons';
 import React, { useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
@@ -49,21 +50,33 @@ const GastoCategoriaRelatorio = ({
           </TouchableOpacity>
         </View>
       </View>
+      {subgastos.map((item, index) => (
+        <View key={index} style={styles.subgastoItem}>
+          <Text style={styles.subgastoNome}>{item.nome}</Text>
 
-      {aberto && (
-        <View style={styles.listaSubgastos}>
-          {subgastos.map((item, index) => (
-            <View key={index} style={styles.subgastoItem}>
-              <Text style={styles.subgastoNome}>{item.nome}</Text>
+          <View style={styles.subgastoValorContainer}>
+            <Text style={styles.subgastoValor}>{item.valor}</Text>
+            <Text style={styles.subgastoData}>{item.data}</Text>
+          </View>
 
-              <View style={styles.subgastoValorContainer}>
-                <Text style={styles.subgastoValor}>{item.valor}</Text>
-                <Text style={styles.subgastoData}>{item.data}</Text>
-              </View>
-            </View>
-          ))}
+          <View style={styles.acoesContainer}>
+            <TouchableOpacity
+              style={styles.botaoAcao}
+              onPress={() => console.log('Editar', item)}
+            >
+              <Ionicons name="pencil-outline" size={20} color="#4A4A4A" />
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.botaoAcao}
+              onPress={() => console.log('Apagar', item)}
+            >
+              <Ionicons name="trash-outline" size={20} color="#cc0000" />
+            </TouchableOpacity>
+          </View>
         </View>
-      )}
+      ))}
+
     </View>
   );
 };
@@ -137,7 +150,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     lineHeight: 18,
     height: 40,
-    marginLeft:0
+    marginLeft: 0
   },
   subgastoValorContainer: {
     position: 'absolute',
@@ -158,4 +171,20 @@ const styles = StyleSheet.create({
     fontFamily: 'Manrope',
     marginTop: -3,
   },
+  acoesContainer: {
+    position: 'absolute',
+    right: 0,
+    top: 0,
+    flexDirection: 'row',
+    gap: 10,
+  },
+
+  botaoAcao: {
+    padding: 4,
+  },
+
+  textoBotao: {
+    fontSize: 16,
+  },
+
 });

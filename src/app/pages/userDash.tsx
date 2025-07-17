@@ -131,10 +131,10 @@ export default function UserDash() {
     'Entretenimento': '#F1997C',
     'Assinaturas': '#8A38F5',
     'Alimentação': '#E6C48C',
-    'Moradia': '#9CA8B5',
-    'Cartão de Crédito': '#D6D0C4',
+    'Moradia': '#8C9E6D',
+    'Cartão de Crédito': '#8A75A0',
     'Contas do Dia a Dia': '#6F6F6F',
-    'Outros': '#E6C48C',
+    'Outros': '#D6D0C4',
 };
 
 
