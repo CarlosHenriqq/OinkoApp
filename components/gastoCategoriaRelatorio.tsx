@@ -137,6 +137,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     lineHeight: 18,
     height: 40,
+    marginLeft:0
   },
   subgastoValorContainer: {
     position: 'absolute',

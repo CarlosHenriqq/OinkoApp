@@ -11,6 +11,7 @@ import { Button } from "../../../components/botao";
 import GastoCategoria from "../../../components/gastoCategoria";
 import Header from "../../../components/header";
 import Newgasto from "../../../components/NewGasto";
+import { API_BASE_URL, ENDPOINTS } from "../../config/api";
 
 const { width } = Dimensions.get('window');
 
@@ -51,7 +52,7 @@ export default function UserDash() {
     async function buscarGasto() {
         const userId = await AsyncStorage.getItem('userId');
         try {
-            const response = await axios.get('http://192.168.1.110:3000/expenses/gastos/total', {
+            const response = await axios.get(`${API_BASE_URL}${ENDPOINTS.GASTOS}/total`, {
                 headers: { usuario_id: userId }
             });
             if (response.data?.total != null) {
@@ -68,7 +69,7 @@ export default function UserDash() {
     async function buscarGastosPorCategoria() {
         const userId = await AsyncStorage.getItem('userId');
         try {
-            const response = await axios.get('http://192.168.1.110:3000/expenses/gastos/totalPCategoria', {
+            const response = await axios.get(`${API_BASE_URL}${ENDPOINTS.GASTOS}/totalPCategoria`, {
                 headers: { usuario_id: userId }
             });
             setGastosPorCategoria(response.data);
@@ -80,7 +81,7 @@ export default function UserDash() {
         const userId = await AsyncStorage.getItem('userId');
 
         try {
-            const response = await axios.get('http://192.168.1.110:3000/auth/userInfo', {
+            const response =  await axios.get(`${API_BASE_URL}${ENDPOINTS.USER_INFO}`, {
                 headers: { usuario_id: userId }
             });
             console.log(response.data); // contém id, nome, email, renda
@@ -120,14 +121,29 @@ export default function UserDash() {
         }, 100);
     }
 
+    const categoriaCores = {
+    'Dívidas': '#B65C5C',
+    'Transporte': '#5C7F8A',
+    'Pets': '#C8AD94',
+    'Saúde': '#6DA97A',
+    'Cuidados Pessoais': '#B9A7C3',
+    'Educação': '#708BD8',
+    'Entretenimento': '#F1997C',
+    'Assinaturas': '#8A38F5',
+    'Alimentação': '#E6C48C',
+    'Moradia': '#9CA8B5',
+    'Cartão de Crédito': '#D6D0C4',
+    'Contas do Dia a Dia': '#6F6F6F',
+    'Outros': '#E6C48C',
+};
 
-    const gastosFicticios = [
-        { value: 325, color: '#B65C5C', focused: true },
-        { value: 195, color: '#5C7F8A', focused: false },
-        { value: 65, color: '#C8AD94', focused: false },
-        { value: 260, color: '#6DA97A', focused: false },
-        { value: 0, color: '#AAAAAA', text: 'Outros' },
-    ];
+
+    const dadosGrafico = gastosPorCategoria.map((gasto) => ({
+    value: parseFloat(gasto.total),
+    color: categoriaCores[gasto.nome],
+    text: gasto.nome,
+}));
+
 
     return (
         <ScrollView contentContainerStyle={{ flexGrow: 1 }} bounces={false} overScrollMode="never">
@@ -162,20 +178,21 @@ export default function UserDash() {
 
             <View style={styles.gastosCard}>
                 <PieChart
-                    data={gastosFicticios}
-                    donut
-                    showText
-                    textColor="white"
-                    radius={150}
-                    innerRadius={90}
-                    sectionAutoFocus={false}
-                    centerLabelComponent={() => (
-                        <View style={{ alignItems: 'center' }}>
-                            <Text style={{ fontSize: 22, fontFamily: 'Manrope', fontWeight: 'bold' }}>Total</Text>
-                            <Text style={{ fontSize: 18, fontFamily: 'Manrope' }}>R${renda}</Text>
-                        </View>
-                    )}
-                />
+    data={dadosGrafico}
+    donut
+    
+    textColor="white"
+    radius={150}
+    innerRadius={90}
+    sectionAutoFocus={false}
+    centerLabelComponent={() => (
+        <View style={{ alignItems: 'center' }}>
+            <Text style={{ fontSize: 22, fontFamily: 'Manrope', fontWeight: 'bold' }}>Total</Text>
+            <Text style={{ fontSize: 18, fontFamily: 'Manrope' }}>R${renda}</Text>
+        </View>
+    )}
+/>
+
 
                 <View style={{ marginTop: 30 }}>
                     {gastosPorCategoria.map((gasto, index) => {

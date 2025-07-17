@@ -8,6 +8,7 @@ import { ButtonMenor } from "../../../components/botaoMenor";
 import HeaderProfile from "../../../components/headerProfile";
 import InputCategoria from "../../../components/inputCategoria";
 import InputRenda from "../../../components/inputRenda";
+import { API_BASE_URL, ENDPOINTS } from "../../config/api";
 
 export default function Profile() {
   const categorias = [
@@ -83,7 +84,7 @@ async function carregarUsuario() {
     try {
         const userId = await AsyncStorage.getItem('userId');
         if (userId) {
-            const response = await axios.get('http://192.168.1.110:3000/auth/userInfo', {
+            const response = await axios.get(`${API_BASE_URL}${ENDPOINTS.USER_INFO}`, {
                 headers: { usuario_id: userId }
             });
             const { nome, email, renda } = response.data;
@@ -104,7 +105,7 @@ async function carregarCategoriasSelecionadas() {
     try {
         const userId = await AsyncStorage.getItem('userId');
         if (userId) {
-            const response = await axios.get('http://192.168.1.110:3000/auth/categoriasSelecionadas', {
+            const response = await axios.get(`${API_BASE_URL}${ENDPOINTS.CATEGORIA_POR_USUARIO}`, {
                 headers: { usuario_id: userId }
             });
             const categoriasSelecionadas = response.data.map(cat => cat.nome); // deve vir como ['Pets', 'Saúde', ...]
@@ -131,7 +132,7 @@ async function handleSalvarFinanceiro() {
       categorias: selectedCategories, // array de strings
     };
 
-    const response = await axios.post('http://192.168.1.110:3000/auth/registerFinance', data);
+    const response = await axios.post(`${API_BASE_URL}${ENDPOINTS.REGISTER_FINANCE}`, data);
 
     alert(response.data.mensagem || 'Atualizado com sucesso!');
   } catch (error) {

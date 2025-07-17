@@ -7,6 +7,7 @@ import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import StepIndicator from 'react-native-step-indicator';
 import { Button } from '../../../components/botao';
 import Input from "../../../components/input";
+import { API_BASE_URL, ENDPOINTS } from '../../config/api';
 
 export default function Register() {
     const customStyles = {
@@ -55,7 +56,7 @@ export default function Register() {
         }
 
         try {
-            const response = await axios.post('http://192.168.1.110:3000/auth/register', {
+            const response = await axios.post(`${API_BASE_URL}${ENDPOINTS.REGISTER}`, {
                 nome: name,
                 data_nascimento: dataNascimentoSemBarra,
                 email: email,

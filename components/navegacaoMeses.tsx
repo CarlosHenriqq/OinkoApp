@@ -4,37 +4,40 @@ import { Dimensions, StyleSheet, Text, TouchableOpacity, View } from 'react-nati
 const { width } = Dimensions.get('window');
 
 const meses = [
-  'janeiro', 'fevereiro', 'março', 'abril',
-  'maio', 'junho', 'julho', 'agosto',
-  'setembro', 'outubro', 'novembro', 'dezembro'
+  'Jan', 'Fev', 'Mar', 'Abr',
+  'Mai', 'Jun', 'Jul', 'Ago',
+  'Set', 'Out', 'Nov', 'Dez'
 ];
 
 export default function NavegacaoMeses({ mesSelecionado, anoSelecionado, setMesSelecionado, setAnoSelecionado }) {
 
+  const anoAtual = new Date().getFullYear();
+
   function mesAnterior() {
-    setMesSelecionado(prev => {
-      let novoIndice = prev - 1;
-      let novoAno = anoSelecionado;
-      if (novoIndice < 0) {
-        novoIndice = 11;
-        novoAno = anoSelecionado - 1;
-        setAnoSelecionado(novoAno);
-      }
-      return novoIndice;
-    });
+    let novoIndice = mesSelecionado - 1;
+    let novoAno = anoSelecionado;
+    if (novoIndice < 0) {
+      novoIndice = 11;
+      novoAno = anoSelecionado - 1;
+    }
+    setMesSelecionado(novoIndice);
+    setAnoSelecionado(novoAno);
   }
 
   function proximoMes() {
-    setMesSelecionado(prev => {
-      let novoIndice = prev + 1;
-      let novoAno = anoSelecionado;
-      if (novoIndice > 11) {
-        novoIndice = 0;
-        novoAno = anoSelecionado + 1;
-        setAnoSelecionado(novoAno);
-      }
-      return novoIndice;
-    });
+    let novoIndice = mesSelecionado + 1;
+    let novoAno = anoSelecionado;
+    if (novoIndice > 11) {
+      novoIndice = 0;
+      novoAno = anoSelecionado + 1;
+    }
+    setMesSelecionado(novoIndice);
+    setAnoSelecionado(novoAno);
+  }
+
+  // Formata o ano para mostrar só os dois últimos dígitos
+  function formatarAno(ano: number) {
+    return ano.toString().slice(-2);
   }
 
   return (
@@ -43,7 +46,10 @@ export default function NavegacaoMeses({ mesSelecionado, anoSelecionado, setMesS
         <Ionicons name="caret-back-outline" size={30} color="#4a4a4a" />
       </TouchableOpacity>
 
-      <Text style={styles.textoMes}>{meses[mesSelecionado]} {anoSelecionado}</Text>
+      <Text style={styles.textoMes}>
+        {meses[mesSelecionado]}
+        {anoSelecionado !== anoAtual ? ` ${formatarAno(anoSelecionado)}` : ''}
+      </Text>
 
       <TouchableOpacity onPress={proximoMes} style={styles.botaoDireita}>
         <Ionicons name="caret-forward-outline" size={30} color="#4a4a4a" />
@@ -70,10 +76,10 @@ const styles = StyleSheet.create({
   },
   botaoEsquerda: {
     position: 'absolute',
-    left: 50,
+    left: 90,
   },
   botaoDireita: {
     position: 'absolute',
-    right: 50,
+    right: 90,
   },
 });

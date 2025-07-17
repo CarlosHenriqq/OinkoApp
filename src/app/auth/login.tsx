@@ -7,6 +7,7 @@ import Google from '../../../assets/images/google.svg';
 import Logo from '../../../assets/images/logo.svg';
 import { Button } from "../../../components/botao";
 import Input from '../../../components/input';
+import { API_BASE_URL, ENDPOINTS } from "../../config/api";
 export default function Login() {
     const router = useRouter()
     const [email, setEmail] = useState('');
@@ -14,10 +15,8 @@ export default function Login() {
    
     async function handleLogin() {
     try {
-        const response = await axios.post('http://192.168.1.110:3000/auth/login', {
-            email,
-            senha
-        });
+        const response = await axios.post(`${API_BASE_URL}${ENDPOINTS.LOGIN}`, { email, senha })
+
 
         const userName = response.data.usuario.nome;
         const userId = response.data.usuario.id;

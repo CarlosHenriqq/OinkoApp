@@ -7,6 +7,7 @@ import StepIndicator from 'react-native-step-indicator';
 import { Button } from "../../../components/botao";
 import Input from "../../../components/input";
 import InputCategoria from "../../../components/inputCategoria";
+import { API_BASE_URL, ENDPOINTS } from '../../config/api';
 
 export default function RegisterFinance() {
     const labels = ["Dados pessoais", "Dados Financeiros"];
@@ -92,7 +93,7 @@ export default function RegisterFinance() {
     const userIdStr = await AsyncStorage.getItem('userId');
     const userId = userIdStr ? Number(userIdStr) : null; // se for número
     try {
-        const response = await axios.post('http://192.168.1.110:3000/auth/registerFinance', {
+        const response = await axios.post(`${API_BASE_URL}${ENDPOINTS.REGISTER_FINANCE}`, {
     usuario_id: userId,
     renda,
     categorias: selectedCategories

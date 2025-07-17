@@ -1,16 +1,20 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 import { useEffect, useState } from "react";
-import { Alert, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Alert, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, View } from "react-native";
 import BotaoComConfirmacao from '../../components/buttonConfirm';
 import EditarFotoPerfil from '../../components/EditPhoto';
 import HeaderProfile from "../../components/headerProfile";
 import InputRenda from "../../components/inputRenda";
+import { API_BASE_URL, ENDPOINTS } from "../config/api";
 
 export default function ProfileEdit() {
   const [dataNascimento, setDataNascimento] = useState('');
   const [nomeUser, setNomeUser] = useState('');
   const [email, setEmail] = useState('');
+  const [senhaAtual, setSenhaAtual] = useState('');
+const [senhaNova, setSenhaNova] = useState('');
+
 
   // Formata data 'yyyy-mm-dd' para 'dd/mm/yyyy'
   function formatDateFromString(dateStr: string) {
@@ -47,7 +51,7 @@ export default function ProfileEdit() {
     try {
       const userId = await AsyncStorage.getItem('userId');
       if (userId) {
-        const response = await axios.get('http://192.168.1.110:3000/auth/userInfo', {
+        const response = await axios.get(`${API_BASE_URL}${ENDPOINTS.USER_INFO}`, {
           headers: { usuario_id: userId }
         });
         const { nome, email, dt_nasc } = response.data;
@@ -62,32 +66,63 @@ export default function ProfileEdit() {
 
   async function handleSalvar() {
     try {
-      const userId = await AsyncStorage.getItem('userId');
-      if (!userId) return;
+        const userId = await AsyncStorage.getItem('userId');
+        if (!userId) return;
 
-      // Remove qualquer caracter que não seja número da data (ex: barras)
-      const dataFormatada = dataNascimento.replace(/\D/g, ''); // ddmmaaaa
+        const dataFormatada = dataNascimento.replace(/\D/g, '');
+console.log('Verificando userId:', userId);
+console.log('Senha Atual:', senhaAtual);
+        // Atualiza nome, email e data
+        await axios.put(`${API_BASE_URL}${ENDPOINTS.UPDATE_USER}`, {
+            usuario_id: userId,
+            nome: nomeUser,
+            email,
+            data_nascimento: dataFormatada,
+        });
 
-      await axios.put('http://192.168.1.110:3000/auth/updateUser', {
-        usuario_id: userId,
-        nome: nomeUser,
-        email,
-        data_nascimento: dataFormatada,
-      });
-      await AsyncStorage.setItem('userName', nomeUser);
+        await AsyncStorage.setItem('userName', nomeUser);
 
-      Alert.alert('Sucesso', 'Perfil atualizado com sucesso!');
+        // Se for alterar senha
+        if (senhaAtual && senhaNova) {
+            // 1️⃣ Verificar se senhaAtual está correta
+            const verifyResponse = await axios.post(`${API_BASE_URL}/auth/verificarSenha`, {
+                usuario_id: userId,
+                senha: senhaAtual,
+            });
+
+            if (!verifyResponse.data.valida) {
+                Alert.alert('Erro', 'Senha atual incorreta.');
+                return;
+            }
+
+            // 2️⃣ Alterar a senha no backend
+            await axios.put(`${API_BASE_URL}/auth/alterarSenha`, {
+                usuario_id: userId,
+                nova_senha: senhaNova,
+            });
+
+            Alert.alert('Sucesso', 'Perfil e senha atualizados com sucesso!');
+        } else {
+            Alert.alert('Sucesso', 'Perfil atualizado com sucesso!');
+        }
     } catch (error) {
-      console.error('Erro ao atualizar perfil:', error);
-      Alert.alert('Erro', 'Erro ao atualizar perfil. Tente novamente.');
+        console.error('Erro ao atualizar perfil:', error);
+        Alert.alert('Erro', 'Erro ao atualizar perfil. Tente novamente.');
     }
-  }
+}
+
+
 
   useEffect(() => {
     carregarUsuario();
   }, []);
 
   return (
+     <KeyboardAvoidingView
+    style={{ flex: 1 }}
+    behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20} // ajuste se necessário
+  >
     <ScrollView
       contentContainerStyle={{ flexGrow: 1 }}
       bounces={false}
@@ -109,6 +144,7 @@ export default function ProfileEdit() {
             icon="person-circle-outline"
            onChangeText={setNomeUser}
             isEditable={true}
+            value={nomeUser}
           />
 
           <InputRenda
@@ -126,6 +162,7 @@ export default function ProfileEdit() {
             icon="mail-outline"
             onChangeText={setEmail}
             isEditable={true}
+            value={email}
           />
         </View>
 
@@ -148,16 +185,31 @@ export default function ProfileEdit() {
             Deseja alterar sua <Text style={{ fontWeight: "bold" }}>senha?</Text>
           </Text>
 
-          <InputRenda placeholder="Senha atual" icon="lock-closed-outline" isPassword isEditable={false} />
+          <InputRenda 
+          placeholder="Senha atual"
+          icon="lock-closed-outline"
+          isPassword
+          value={senhaAtual}
+          onChangeText={setSenhaAtual}
+          />
 
-          <InputRenda placeholder="Senha nova" icon="lock-closed-outline" isPassword isEditable={false} />
+          <InputRenda 
+          placeholder="Senha nova" 
+          icon="lock-closed-outline" 
+          isPassword 
+          isEditable={true} 
+          value={senhaNova}
+          onChangeText={setSenhaNova} />
 
-          <BotaoComConfirmacao onConfirm={handleSalvar} />
+          
         </View>
 
-        <View style={{ height: 30 }}></View>
+        <View style={{ height: 30, marginTop:20}}>
+          <BotaoComConfirmacao onConfirm={handleSalvar} />
+        </View>
       </View>
     </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 

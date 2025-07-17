@@ -11,6 +11,7 @@ import {
   View,
 } from 'react-native';
 import DropDownPicker from 'react-native-dropdown-picker';
+import { API_BASE_URL, ENDPOINTS } from '../src/config/api';
 
 export default function Newgasto({ visible, onClose, onSave }) {
   const [descricao, setDescricao] = useState('');
@@ -26,7 +27,7 @@ export default function Newgasto({ visible, onClose, onSave }) {
       const userIdStr = await AsyncStorage.getItem('userId');
       const userId = userIdStr ? Number(userIdStr) : null;
       try {
-        const response = await axios.get('http://192.168.1.110:3000/auth/categoriasSelecionadas', {
+        const response = await axios.get(`${API_BASE_URL}${ENDPOINTS.CATEGORIA_POR_USUARIO}`, {
           headers: { usuario_id: userId },
         });
         const categoriasFormatadas = response.data.map((categoria) => ({
@@ -139,11 +140,14 @@ export default function Newgasto({ visible, onClose, onSave }) {
         descricao: descricao,
       };
 
-      const response = await axios.post('http://192.168.1.110:3000/expenses/gastos', gastoPayload, {
-        headers: {
-          usuario_id: userId,
-        },
-      });
+      const response = await axios.get( `${API_BASE_URL}${ENDPOINTS.GASTOS}`,
+        {headers: {
+            usuario_id: userId,
+          },
+          params: gastoPayload, // aqui se quiser enviar { ano, mes } como query params
+        }
+      );
+
 
       onSave(response.data);
 

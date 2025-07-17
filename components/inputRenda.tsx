@@ -6,23 +6,25 @@ interface InputProps extends TextInputProps {
   placeholder: string;
   icon: keyof typeof Ionicons.glyphMap;
   isPassword?: boolean;
-  isEditable?: boolean; // começa bloqueado, libera edição ao clicar no lápis
+  isEditable?: boolean; // campos comuns: bloqueia, libera com lápis
 }
 
 export default function InputRenda({ placeholder, icon, isPassword, isEditable = false, ...rest }: InputProps) {
   const [showPassword, setShowPassword] = useState(false);
-  const [editable, setEditable] = useState(isEditable);
+  const [editable, setEditable] = useState(isPassword ? true : isEditable); // senha = sempre editável
   const inputRef = useRef<TextInput>(null);
 
   function handleEditPress() {
     setEditable(true);
     setTimeout(() => {
-      inputRef.current?.focus(); // abre teclado automaticamente
+      inputRef.current?.focus();
     }, 100);
   }
 
   function handleBlur() {
-    setEditable(false);
+    if (!isPassword) {
+      setEditable(false);
+    }
   }
 
   return (
@@ -31,17 +33,16 @@ export default function InputRenda({ placeholder, icon, isPassword, isEditable =
       <TextInput
         ref={inputRef}
         placeholder={placeholder}
-          style={[styles.input, { color: isEditable ? '#526471' : '#526471' }]}
+        style={styles.input}
         placeholderTextColor="#526471"
         secureTextEntry={isPassword && !showPassword}
         editable={editable}
         selectTextOnFocus={editable}
-        pointerEvents={editable ? 'auto' : 'none'}
         onBlur={handleBlur}
         {...rest}
       />
 
-      {isPassword && (
+      {isPassword ? (
         <TouchableOpacity onPress={() => setShowPassword(!showPassword)} style={styles.iconRight}>
           <Ionicons
             name={showPassword ? 'eye-outline' : 'eye-off-outline'}
@@ -49,9 +50,7 @@ export default function InputRenda({ placeholder, icon, isPassword, isEditable =
             color={'#526471'}
           />
         </TouchableOpacity>
-      )}
-
-      {!isPassword && (
+      ) : (
         <TouchableOpacity onPress={handleEditPress} style={styles.iconRight}>
           <Ionicons
             name={'pencil-sharp'}
