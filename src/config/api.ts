@@ -10,5 +10,5 @@ export const ENDPOINTS = {
   USER_INFO: '/auth/userInfo',
   UPDATE_USER: '/auth/updateUser',
   GASTOS: '/expenses/gastos',
-  EXTRATO: '/expenses/extract',
+  EXTRATO: '/expenses/extract/extrato',
 };
