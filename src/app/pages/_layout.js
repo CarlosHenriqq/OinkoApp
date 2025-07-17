@@ -15,8 +15,7 @@ export default function TabLayout() {
         tabBarActiveTintColor: '#A3C0AC',
         tabBarInactiveTintColor: '#4A4A4A',
         tabBarStyle: {
-          width: 390,
-          alignSelf: 'center',  // aqui é o segredo pra centralizar
+          width: '100%',
           backgroundColor: '#F6F6F6',
           height: 65,
           shadowColor: '#000',
@@ -25,6 +24,7 @@ export default function TabLayout() {
           shadowRadius: 10,
           elevation: 3,
         },
+
       }}
     >
       <Tabs.Screen
