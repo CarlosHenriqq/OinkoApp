@@ -136,19 +136,14 @@ export default function UserDash() {
     'Contas do Dia a Dia': '#6F6F6F',
     'Outros': '#D6D0C4',
 };
-
-
-   const rendaNum = parseFloat(typeof renda === 'string' ? renda.replace(',', '.') : renda ?? 0);
-const gastoNum = parseFloat(typeof gasto === 'string' ? gasto.replace(',', '.') : gasto ?? 0);
-const rendaRestante = Math.max(rendaNum - gastoNum, 0);
-
-// Fatias reais de gasto por categoria
-const dadosGrafico = gastosPorCategoria.map((gasto) => ({
-  value: parseFloat(gasto.total),
-  color: categoriaCores[gasto.nome],
-  text: gasto.nome,
+    const rendaNum = parseFloat(typeof renda === 'string' ? renda.replace(',', '.') : renda ?? 0);
+    const gastoNum = parseFloat(typeof gasto === 'string' ? gasto.replace(',', '.') : gasto ?? 0);
+    const rendaRestante = Math.max(rendaNum - gastoNum, 0);
+    const dadosGrafico = gastosPorCategoria.map((gasto) => ({
+    value: parseFloat(gasto.total),
+    color: categoriaCores[gasto.nome],
+    text: gasto.nome,
 }));
-
 // Fatia da renda restante
 if (rendaNum > 0) {
   dadosGrafico.push({
@@ -157,9 +152,6 @@ if (rendaNum > 0) {
     text: 'Disponível',
   });
 }
-
-
-
     return (
         <ScrollView contentContainerStyle={{ flexGrow: 1 }} bounces={false} overScrollMode="never">
             <Header />
