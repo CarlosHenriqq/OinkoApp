@@ -138,11 +138,26 @@ export default function UserDash() {
 };
 
 
-    const dadosGrafico = gastosPorCategoria.map((gasto) => ({
-    value: parseFloat(gasto.total),
-    color: categoriaCores[gasto.nome],
-    text: gasto.nome,
+   const rendaNum = parseFloat(typeof renda === 'string' ? renda.replace(',', '.') : renda ?? 0);
+const gastoNum = parseFloat(typeof gasto === 'string' ? gasto.replace(',', '.') : gasto ?? 0);
+const rendaRestante = Math.max(rendaNum - gastoNum, 0);
+
+// Fatias reais de gasto por categoria
+const dadosGrafico = gastosPorCategoria.map((gasto) => ({
+  value: parseFloat(gasto.total),
+  color: categoriaCores[gasto.nome],
+  text: gasto.nome,
 }));
+
+// Fatia da renda restante
+if (rendaNum > 0) {
+  dadosGrafico.push({
+    value: rendaRestante,
+    color: '#a8a8a8ff',
+    text: 'Disponível',
+  });
+}
+
 
 
     return (
