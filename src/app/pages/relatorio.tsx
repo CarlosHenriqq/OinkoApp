@@ -131,7 +131,7 @@ export default function Relatorio() {
           <Text style={{ fontSize: 16, color: "#4A4A4A", fontFamily: "Manrope" }}>
             Nesse mês você gastou:
           </Text>
-          <Text style={{ fontSize: 18, color: "#526471", fontFamily: "Manrope", fontWeight: "600" }}>
+          <Text style={{ fontSize: 16, color: "#526471", fontFamily: "Manrope", fontWeight: "600" }}>
             R${" "}
             {gastos
               .reduce((acc, g) => acc + Number(g.valor), 0)
