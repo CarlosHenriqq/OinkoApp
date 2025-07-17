@@ -68,5 +68,6 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#4A4A4A',
     fontFamily:'Manrope',
+    marginTop: -15,
   },
 });
