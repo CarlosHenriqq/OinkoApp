@@ -140,6 +140,7 @@ export default function Newgasto({ visible, onClose, onSave }) {
         descricao: descricao,
       };
 
+<<<<<<< HEAD
       const response = await axios.post( `${API_BASE_URL}${ENDPOINTS.GASTOS}`,
          gastoPayload,
       
@@ -147,6 +148,14 @@ export default function Newgasto({ visible, onClose, onSave }) {
             usuario_id: userId,
           },
            // aqui se quiser enviar { ano, mes } como query params
+=======
+      const response = await axios.post( `${API_BASE_URL}${ENDPOINTS.GASTOS}`,{
+        gastoPayload,}, // aqui se quiser enviar { ano, mes } como query params
+        {headers: {
+            usuario_id: userId,
+          },
+         
+>>>>>>> e196751f216a084118c603a1edc9ca9f2bb9b300
         }
       );
 

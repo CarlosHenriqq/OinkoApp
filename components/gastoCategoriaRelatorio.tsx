@@ -1,4 +1,4 @@
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons } from '@expo/vector-icons'; // ícones da interface
 import React, { useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
@@ -50,33 +50,41 @@ const GastoCategoriaRelatorio = ({
           </TouchableOpacity>
         </View>
       </View>
-      {subgastos.map((item, index) => (
-        <View key={index} style={styles.subgastoItem}>
-          <Text style={styles.subgastoNome}>{item.nome}</Text>
 
-          <View style={styles.subgastoValorContainer}>
-            <Text style={styles.subgastoValor}>{item.valor}</Text>
-            <Text style={styles.subgastoData}>{item.data}</Text>
-          </View>
+      {aberto && (
+        <View style={styles.listaSubgastos}>
+          {subgastos.map((item, index) => (
+            <View key={index} style={styles.subgastoItem}>
+              <Text style={styles.subgastoNome}>{item.nome}</Text>
 
-          <View style={styles.acoesContainer}>
-            <TouchableOpacity
-              style={styles.botaoAcao}
-              onPress={() => console.log('Editar', item)}
-            >
-              <Ionicons name="pencil-outline" size={20} color="#4A4A4A" />
-            </TouchableOpacity>
+              <View style={styles.subgastoValorContainer}>
+                <View style={styles.valoresEIcones}>
+                  <View style={styles.valoresContainer}>
+                    <Text style={styles.subgastoValor}>{item.valor}</Text>
+                    <Text style={styles.subgastoData}>{item.data}</Text>
+                  </View>
 
-            <TouchableOpacity
-              style={styles.botaoAcao}
-              onPress={() => console.log('Apagar', item)}
-            >
-              <Ionicons name="trash-outline" size={20} color="#cc0000" />
-            </TouchableOpacity>
-          </View>
+                  <View style={styles.iconesContainer}>
+                    <TouchableOpacity
+                      style={styles.botaoAcao}
+                      onPress={() => console.log('Editar', item)}
+                    >
+                      <Ionicons name="create-outline" size={18} color="#4A4A4A" />
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                      style={styles.botaoAcao}
+                      onPress={() => console.log('Apagar', item)}
+                    >
+                      <Ionicons name="trash-outline" size={18} color="#cc0000" />
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              </View>
+            </View>
+          ))}
         </View>
-      ))}
-
+      )}
     </View>
   );
 };
@@ -138,10 +146,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
   },
   subgastoItem: {
-    position: 'relative',
-    paddingRight: 100,
     marginBottom: 20,
     width: 300,
+    paddingRight: 0,
   },
   subgastoNome: {
     fontSize: 14,
@@ -149,15 +156,21 @@ const styles = StyleSheet.create({
     fontFamily: 'Manrope',
     fontWeight: '600',
     lineHeight: 18,
-    height: 40,
-    marginLeft: 0
+    marginBottom: 4,
   },
   subgastoValorContainer: {
-    position: 'absolute',
-    right: -3,
-    top: 0,
-    alignItems: 'flex-end',
-    width: 90,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  valoresEIcones: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '100%',
+    alignItems: 'center',
+  },
+  valoresContainer: {
+    alignItems: 'flex-start',
   },
   subgastoValor: {
     fontSize: 16,
@@ -171,20 +184,12 @@ const styles = StyleSheet.create({
     fontFamily: 'Manrope',
     marginTop: -3,
   },
-  acoesContainer: {
-    position: 'absolute',
-    right: 0,
-    top: 0,
+  iconesContainer: {
     flexDirection: 'row',
-    gap: 10,
+    alignItems: 'center',
+    gap: 12,
   },
-
   botaoAcao: {
     padding: 4,
   },
-
-  textoBotao: {
-    fontSize: 16,
-  },
-
 });
