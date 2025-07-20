@@ -30,14 +30,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: 12,
-    paddingHorizontal: 16,
+    paddingHorizontal: 10,
     borderRadius: 8,
     justifyContent: 'space-between',
-    marginBottom: 8,
+    marginBottom: 20,
     maxWidth: 312,
     maxHeight:50,
     alignSelf: 'center',
-    marginBottom: 20,
     
   },
   imagemContainer: {
@@ -53,8 +52,8 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   titulo: {
-    fontSize: 14,
-    fontWeight: '500',
+    fontSize: 16,
+    fontWeight: '600',
     color: '#4A4A4A',
     fontFamily:'Manrope',
   },

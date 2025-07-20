@@ -13,11 +13,10 @@ import {
 import DropDownPicker from 'react-native-dropdown-picker';
 import { API_BASE_URL, ENDPOINTS } from '../src/config/api';
 
-export default function Newgasto({ visible, onClose, onSave }) {
+export default function NewGasto({ visible, onClose, onSave, gasto = null }) {
   const [descricao, setDescricao] = useState('');
   const [valor, setValor] = useState('');
   const [data, setData] = useState('');
-  const [categoria, setCategoria] = useState('');
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState(null);
   const [items, setItems] = useState([]);
@@ -37,9 +36,6 @@ export default function Newgasto({ visible, onClose, onSave }) {
         setItems(categoriasFormatadas);
       } catch (error) {
         console.error('Erro ao buscar categorias:', error.message);
-        if (error.response) {
-          console.error('Resposta do servidor:', error.response.data);
-        }
       }
     }
 
@@ -47,6 +43,49 @@ export default function Newgasto({ visible, onClose, onSave }) {
       buscarCategorias();
     }
   }, [visible]);
+
+  function formatarDataParaInput(data) {
+    if (!data) return '';
+    if (data.includes('-')) {
+      const [ano, mes, dia] = data.split('-');
+      return `${dia}/${mes}/${ano}`;
+    } else if (data.includes('/')) {
+      return data;
+    }
+    return '';
+  }
+
+  useEffect(() => {
+    if (visible) {
+      if (gasto) {
+        setDescricao(gasto.descricao || '');
+        setValor(
+          gasto.valor
+            ? gasto.valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
+            : ''
+        );
+        setData(formatarDataParaInput(gasto.data));
+      } else {
+        setDescricao('');
+        setValor('');
+        setData('');
+        setValue(null);
+      }
+    }
+  }, [visible, gasto]);
+
+  useEffect(() => {
+  if (gasto && items.length > 0) {
+    // Se o gasto tem categoria_id e bate com algum item do dropdown, seleciona ele
+    const categoriaExistente = items.find(item => item.value === gasto.categoria_id);
+    if (categoriaExistente) {
+      setValue(categoriaExistente.value);
+    } else {
+      setValue(null);
+    }
+  }
+}, [gasto, items]);
+
 
   function formatMoney(text) {
     let cleanText = text.replace(/\D/g, '');
@@ -61,14 +100,8 @@ export default function Newgasto({ visible, onClose, onSave }) {
   }
 
   function formatDate(text) {
-    // Remove tudo que não for número
     let cleanText = text.replace(/\D/g, '');
-
-    if (cleanText.length > 8) {
-      cleanText = cleanText.slice(0, 8);
-    }
-
-    // Formata dd/mm/yyyy enquanto digita
+    if (cleanText.length > 8) cleanText = cleanText.slice(0, 8);
     if (cleanText.length >= 5) {
       return `${cleanText.slice(0, 2)}/${cleanText.slice(2, 4)}/${cleanText.slice(4)}`;
     } else if (cleanText.length >= 3) {
@@ -78,85 +111,44 @@ export default function Newgasto({ visible, onClose, onSave }) {
     }
   }
 
-  function handleChangeData(Text) {
-    const formatted = formatDate(Text);
+  function handleChangeData(text) {
+    const formatted = formatDate(text);
     setData(formatted);
   }
 
-  // Função para converter "dd/mm/yyyy" para "yyyy-mm-dd"
   function formatDateToISO(dateStr) {
     const [day, month, year] = dateStr.split('/');
     if (!day || !month || !year) return null;
-
-    // Validação simples para números e tamanho correto
-    if (
-      day.length !== 2 ||
-      month.length !== 2 ||
-      year.length !== 4 ||
-      isNaN(Number(day)) ||
-      isNaN(Number(month)) ||
-      isNaN(Number(year))
-    ) {
-      return null;
-    }
-
-    // Verificar se a data é válida (exemplo básico)
-    const dayNum = Number(day);
-    const monthNum = Number(month);
-    const yearNum = Number(year);
-    if (monthNum < 1 || monthNum > 12) return null;
-    if (dayNum < 1 || dayNum > 31) return null; // Pode melhorar aqui para meses específicos
-
-    // Monta no formato ISO
-    return `${year.padStart(4, '0')}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+    if (day.length !== 2 || month.length !== 2 || year.length !== 4) return null;
+    return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
   }
-
-  useEffect(() => {
-    if (visible) {
-      setDescricao('');
-      setValor('');
-      setData('');
-      setCategoria('');
-      setValue(null);
-    }
-  }, [visible]);
 
   async function handleSalvar() {
     try {
       const userIdStr = await AsyncStorage.getItem('userId');
       const userId = userIdStr ? Number(userIdStr) : null;
       const valorNumerico = Number(valor.replace(/\D/g, '')) / 100;
-
       const dataISO = formatDateToISO(data);
       if (!dataISO) {
         alert('Data inválida. Use o formato dd/mm/yyyy');
         return;
       }
-
       const gastoPayload = {
         categoria_id: value,
         valor: valorNumerico,
         data: dataISO,
         descricao: descricao,
       };
-
-      const response = await axios.post( `${API_BASE_URL}${ENDPOINTS.GASTOS}`,
-         gastoPayload,
-      
-        {headers: {
-            usuario_id: userId,
-          },
-           // aqui se quiser enviar { ano, mes } como query params
-        }
-      );
-
-
-      onSave(response.data);
-
-      setDescricao('');
-      setValor('');
-      setData('');
-      setValue(null);
+      if (gasto && gasto.id) {
+        await axios.put(`${API_BASE_URL}${ENDPOINTS.GASTOS_UPDATE}/${gasto.id}`, gastoPayload, {
+          headers: { usuario_id: userId },
+        });
+      } else {
+        await axios.post(`${API_BASE_URL}${ENDPOINTS.GASTOS}`, gastoPayload, {
+          headers: { usuario_id: userId },
+        });
+      }
+      onSave();
       onClose();
     } catch (error) {
       console.error('Erro ao salvar gasto:', error);
@@ -176,7 +168,7 @@ export default function Newgasto({ visible, onClose, onSave }) {
 
           <TextInput
             placeholder="Descrição do gasto"
-            placeholderTextColor={'#A3C0AC'}
+            placeholderTextColor="#A3C0AC"
             style={styles.input}
             value={descricao}
             onChangeText={setDescricao}
@@ -185,7 +177,7 @@ export default function Newgasto({ visible, onClose, onSave }) {
           <View style={styles.row}>
             <TextInput
               placeholder="R$0,00"
-              placeholderTextColor={'#A3C0AC'}
+              placeholderTextColor="#A3C0AC"
               style={[styles.input, { flex: 1, marginRight: 8 }]}
               value={valor}
               onChangeText={handleChangeValor}
@@ -193,7 +185,7 @@ export default function Newgasto({ visible, onClose, onSave }) {
             />
             <TextInput
               placeholder="01/01/2025"
-              placeholderTextColor={'#A3C0AC'}
+              placeholderTextColor="#A3C0AC"
               style={[styles.input, { flex: 1 }]}
               value={data}
               onChangeText={handleChangeData}
@@ -210,40 +202,15 @@ export default function Newgasto({ visible, onClose, onSave }) {
             setValue={setValue}
             setItems={setItems}
             placeholder="Selecione a categoria"
-            style={{
-              backgroundColor: '#ffff',
-              borderWidth: 3,
-              borderColor: '#A3C0AC',
-              borderRadius: 15,
-              height: 40,
-              paddingHorizontal: 10,
-              marginBottom: 30,
-              shadowColor: '#000000',
-              shadowOffset: { width: 0, height: 2 },
-              shadowOpacity: 0.4,
-              shadowRadius: 2,
-              elevation: 3,
-            }}
-            textStyle={{
-              fontFamily: 'Manrope',
-              color: '#A3C0AC',
-              fontWeight: 'bold',
-              fontSize: 18,
-            }}
-            placeholderStyle={{
-              color: '#A3C0AC',
-              fontWeight: 'bold',
-            }}
-            dropDownContainerStyle={{
-              borderColor: '#A3C0AC',
-              borderRadius: 15,
-              borderTopWidth: 1,
-              borderWidth: 3,
-            }}
-            arrowIconStyle={{
-              height: 25,
-            }}
-            showArrowIcon={true}
+            disabled={!!gasto}
+            listMode="SCROLLVIEW"
+            dropDownDirection="BOTTOM"
+            style={styles.dropdown}
+            textStyle={styles.dropdownText}
+            placeholderStyle={styles.dropdownPlaceholder}
+            dropDownContainerStyle={styles.dropdownContainer}
+            arrowIconStyle={{ height: 25 }}
+            showArrowIcon={!gasto}
           />
 
           <TouchableOpacity style={styles.saveButton} onPress={handleSalvar}>
@@ -256,76 +223,16 @@ export default function Newgasto({ visible, onClose, onSave }) {
 }
 
 const styles = StyleSheet.create({
-  overlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.3)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  container: {
-    width: 330,
-    backgroundColor: '#E0E8F9',
-    padding: 20,
-    borderRadius: 20,
-    elevation: 4,
-    position: 'relative',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.4,
-    shadowRadius: 2,
-    elevation: 3,
-  },
-  closeButton: {
-    position: 'absolute',
-    top: 10,
-    right: 10,
-    zIndex: 10,
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: '600',
-    color: '#4A4A4A',
-    marginBottom: 15,
-    textAlign: 'center',
-    fontFamily: 'Manrope',
-  },
-  input: {
-    backgroundColor: '#fff',
-    borderWidth: 3,
-    borderColor: '#A3C0AC',
-    borderRadius: 15,
-    paddingHorizontal: 10,
-    paddingVertical: 8,
-    marginBottom: 12,
-    fontSize: 18,
-    fontFamily: 'Manrope',
-    fontWeight: '600',
-    color: '#4A4A4A',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.4,
-    shadowRadius: 2,
-    elevation: 3,
-  },
-  row: {
-    flexDirection: 'row',
-  },
-  saveButton: {
-    backgroundColor: '#4A4A4A',
-    width: 200,
-    height: 40,
-    borderRadius: 24,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 8,
-    alignSelf: 'center',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.4,
-    shadowRadius: 2,
-    elevation: 3,
-  },
-  saveButtonText: {
-    fontWeight: 'bold',
-    color: '#fff',
-    fontFamily: 'Manrope',
-    fontSize: 18,
-  },
+  overlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.3)', justifyContent: 'center', alignItems: 'center' },
+  container: { width: 330, backgroundColor: '#E0E8F9', padding: 20, borderRadius: 20, elevation: 3, position: 'relative' },
+  closeButton: { position: 'absolute', top: 10, right: 10, zIndex: 10 },
+  title: { fontSize: 20, fontWeight: '600', color: '#4A4A4A', marginBottom: 15, textAlign: 'center', fontFamily: 'Manrope' },
+  input: { backgroundColor: '#fff', borderWidth: 3, borderColor: '#A3C0AC', borderRadius: 15, paddingHorizontal: 10, paddingVertical: 8, marginBottom: 12, fontSize: 18, fontFamily: 'Manrope', fontWeight: '600', color: '#4A4A4A' },
+  row: { flexDirection: 'row' },
+  saveButton: { backgroundColor: '#4A4A4A', width: 200, height: 40, borderRadius: 24, alignItems: 'center', justifyContent: 'center', marginTop: 8, alignSelf: 'center' },
+  saveButtonText: { fontWeight: 'bold', color: '#fff', fontFamily: 'Manrope', fontSize: 18 },
+  dropdown: { backgroundColor: '#fff', borderWidth: 3, borderColor: '#A3C0AC', borderRadius: 15, height: 40, paddingHorizontal: 10, marginBottom: 30 },
+  dropdownText: { fontFamily: 'Manrope', color: '#4A4A4A', fontWeight: 'bold', fontSize: 18 },
+  dropdownPlaceholder: { color: '#A3C0AC', fontWeight: 'bold' },
+  dropdownContainer: { borderColor: '#A3C0AC', borderRadius: 15, borderTopWidth: 1, borderWidth: 3 },
 });

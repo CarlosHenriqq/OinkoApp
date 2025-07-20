@@ -3,9 +3,11 @@ import React, { useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 type Subgasto = {
-  nome: string;
+  id: number;
+  descricao: string;
   valor: string;
   data: string;
+  categoria_id: number;
 };
 
 type Props = {
@@ -15,6 +17,8 @@ type Props = {
   valor: string;
   Imagem: React.FC<React.SVGProps<SVGSVGElement>>;
   subgastos?: Subgasto[];
+  onEdit?: (gasto: { id: number; descricao: string; valor: string; data: string; categoria_id: number; }) => void;
+  onDelete?: (id: number) => void;
 };
 
 const GastoCategoriaRelatorio = ({
@@ -24,6 +28,8 @@ const GastoCategoriaRelatorio = ({
   valor,
   Imagem,
   subgastos = [],
+  onEdit,
+  onDelete
 }: Props) => {
   const [aberto, setAberto] = useState(false);
 
@@ -53,7 +59,7 @@ const GastoCategoriaRelatorio = ({
         <View style={styles.listaSubgastos}>
           {subgastos.map((item, index) => (
             <View key={index} style={styles.subgastoItem}>
-              <Text style={styles.subgastoNome}>{item.nome}</Text>
+              <Text style={styles.subgastoNome}>{item.descricao}</Text>
 
               <View style={styles.subgastoValorEIcones}>
                 <View style={styles.valoresContainer}>
@@ -64,14 +70,25 @@ const GastoCategoriaRelatorio = ({
                 <View style={styles.iconesContainer}>
                   <TouchableOpacity
                     style={styles.botaoAcao}
-                    onPress={() => console.log('Editar', item)}
+                    onPress={() =>
+                      onEdit &&
+                      onEdit({
+                        id: item.id,
+                        descricao: item.descricao,
+                        valor: item.valor.replace('R$', '').replace(',', '.'),
+                        data: item.data,
+                        categoria_id:item.categoria_id
+                        
+                      })
+                    }
                   >
                     <Ionicons name="pencil-outline" size={20} color="#4A4A4A" />
                   </TouchableOpacity>
 
                   <TouchableOpacity
                     style={styles.botaoAcao}
-                    onPress={() => console.log('Apagar', item)}
+                    onPress={() => onDelete && onDelete(item.id)}
+                    
                   >
                     <Ionicons name="trash-outline" size={20} color="#cc0000" />
                   </TouchableOpacity>
@@ -86,6 +103,7 @@ const GastoCategoriaRelatorio = ({
 };
 
 export default GastoCategoriaRelatorio;
+
 
 const styles = StyleSheet.create({
   containerGeral: {
@@ -102,8 +120,8 @@ const styles = StyleSheet.create({
   },
   containerAtivo: {},
   imagemContainer: {
-    width: 40,
-    height: 40,
+    width: 50,
+    height: 50,
     borderRadius: 20,
     justifyContent: 'center',
     alignItems: 'center',
@@ -123,11 +141,10 @@ const styles = StyleSheet.create({
     color: '#4A4A4A',
     fontFamily: 'Manrope',
     textDecorationLine: 'underline',
-    marginTop: 2,
   },
   valor: {
-    fontSize: 20,
-    fontWeight: '700',
+    fontSize: 16,
+    fontWeight: '600',
     color: '#4A4A4A',
     fontFamily: 'Manrope',
     marginBottom: 15,
@@ -166,7 +183,7 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: '#4A4A4A',
     fontFamily: 'Manrope',
-    marginTop:-20,
+    marginTop: -20,
   },
   subgastoData: {
     fontSize: 14,
@@ -176,8 +193,8 @@ const styles = StyleSheet.create({
   },
   iconesContainer: {
     gap: 1,
-    marginRight:-10,
-     marginBottom:20,
+    marginRight: -10,
+    marginBottom: 20,
   },
   botaoAcao: {
     padding: 4,

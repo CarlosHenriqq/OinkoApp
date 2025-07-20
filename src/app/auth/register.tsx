@@ -8,8 +8,65 @@ import StepIndicator from 'react-native-step-indicator';
 import { Button } from '../../../components/botao';
 import Input from "../../../components/input";
 import { API_BASE_URL, ENDPOINTS } from '../../config/api';
+import { isValidDate, isValidEmail, isValidPassword } from '../../config/mask';
 
 export default function Register() {
+
+
+    const [isChecked, setIsChecked] = useState(false);
+    const [name, setName] = useState('');
+    const [birthDate, setBirthDate] = useState('');
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [errors, setErrors] = useState({
+        name: '',
+        birthDate: '',
+        email: '',
+        password: '',
+        
+    });
+ const validateForm = () => {
+  let isValid = true;
+  const newErrors = {...errors};
+
+  if (!name) {
+    newErrors.name = 'Nome é obrigatório';
+    isValid = false;
+  } else {
+    newErrors.name = '';
+  }
+
+  if (!birthDate) {
+    newErrors.birthDate = 'Data de nascimento é obrigatória';
+    isValid = false;
+  } else if (!isValidDate(birthDate)){
+    newErrors.birthDate = 'Data inválida'
+    isValid= false;
+  }else {
+    newErrors.birthDate = '';
+  }
+  if (!email) {
+    newErrors.email = 'E-mail é obrigatório';
+    isValid = false;
+  } else if (!isValidEmail(email)) {
+    newErrors.email = 'E-mail inválido';
+    isValid = false;
+  }else {
+    newErrors.email = '';
+  }
+  if (!password) {
+    newErrors.password = 'Senha é obrigatória';
+    isValid = false;
+  } else if (!isValidPassword(password)) {
+    newErrors.password = 'A senha precisa ter no mínimo 8 caractéres';
+    isValid = false;}
+    else {
+    newErrors.password = '';
+  }
+  setErrors(newErrors);
+  return isValid;
+}
+
     const customStyles = {
         stepIndicatorSize: 20,
         currentStepIndicatorSize: 24,
@@ -33,15 +90,8 @@ export default function Register() {
         labelSize: 13,
         currentStepLabelColor: '#A3C0AC'
     };
-
-    const [isChecked, setIsChecked] = useState(false);
-    const [name, setName] = useState('');
-    const [birthDate, setBirthDate] = useState('');
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-
     async function handleRegister() {
-        if (!isChecked) {
+        if (!isChecked ) {
             alert('Você precisa aceitar os Termos de Uso.');
             return;
         }
@@ -73,7 +123,7 @@ export default function Register() {
         }
     }
 
-    function formatDate(text) {
+    function formatDate(text:string) {
         let cleanText = text.replace(/\D/g, '');
         if (cleanText.length > 8) cleanText = cleanText.slice(0, 8);
         if (cleanText.length >= 5) return `${cleanText.slice(0, 2)}/${cleanText.slice(2, 4)}/${cleanText.slice(4)}`;
@@ -81,9 +131,10 @@ export default function Register() {
         return cleanText;
     }
 
-    function handleChangeBirthDate(text) {
+    function handleChangeBirthDate(text:string) {
         setBirthDate(formatDate(text));
     }
+
 
     return (
         <View style={{ backgroundColor: '#E0E8F9', flex: 1 }}>
@@ -100,10 +151,10 @@ export default function Register() {
                 <View style={{ marginBottom: 50 }}>
                     <Text style={styles.title}>Informações Pessoais</Text>
                 </View>
-                <Input placeholder="Como devo te chamar?" icon="person-circle-outline" value={name} onChangeText={setName} />
-                <Input placeholder="Data de nascimento" icon="calendar-outline" keyboardType="numeric" value={birthDate} onChangeText={handleChangeBirthDate} maxLength={10} />
-                <Input placeholder="Digite seu e-mail" icon="mail-outline" value={email} onChangeText={setEmail} />
-                <Input placeholder="Senha" icon="lock-closed-outline" isPassword value={password} onChangeText={setPassword} />
+                <Input placeholder="Como devo te chamar?" icon="person-circle-outline" value={name} onChangeText={setName} error={errors.name}/>
+                <Input placeholder="Data de nascimento" icon="calendar-outline" keyboardType="numeric" value={birthDate} onChangeText={handleChangeBirthDate} maxLength={10} error={errors.birthDate} />
+                <Input placeholder="Digite seu e-mail" icon="mail-outline" value={email} onChangeText={setEmail} error={errors.email} />
+                <Input placeholder="Senha" icon="lock-closed-outline" isPassword value={password} onChangeText={setPassword} error={errors.password} />
 
                 <View style={styles.checkboxContainer}>
                     <Checkbox
@@ -115,13 +166,13 @@ export default function Register() {
                     <View style={{ marginLeft: 12 }}>
                         <Text style={{ color: '#4A4A4A', fontFamily: 'Manrope', fontSize: 14 }}>Declaro que li e concordo com:</Text>
                         <TouchableOpacity onPress={() => router.replace("/terms/terms")}>
-                        <Text style={{ textDecorationLine: 'underline', color: '#4A4A4A', fontFamily: 'Manrope', fontSize: 14, fontWeight: '600' }}>Termo de uso e Política de Privacidade</Text>
+                            <Text style={{ textDecorationLine: 'underline', color: '#4A4A4A', fontFamily: 'Manrope', fontSize: 14, fontWeight: '600' }}>Termo de uso e Política de Privacidade</Text>
                         </TouchableOpacity>
                     </View>
                 </View>
 
                 <View style={{ marginTop: 60, marginBottom: 60 }}>
-                    <Button title="Avançar" onPress={handleRegister} />
+                    <Button title="Avançar" onPress={() => {if (validateForm()) {handleRegister();}}}/>
                 </View>
 
                 <View style={styles.loginContainer}>
@@ -188,4 +239,4 @@ const styles = StyleSheet.create({
         fontFamily: 'Manrope',
         fontSize: 16,
     },
-});
+})

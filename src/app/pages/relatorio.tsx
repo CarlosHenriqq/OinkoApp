@@ -2,7 +2,6 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 import { useCallback, useEffect, useState } from "react";
 import { Dimensions, ScrollView, StyleSheet, Text, View } from "react-native";
-
 import {
   Alimentacao,
   Assinaturas,
@@ -18,7 +17,10 @@ import {
   Saude,
   Transporte,
 } from "../../../assets/iconsCategorias";
+import NewGasto from '../../../components/NewGasto';
 
+import { useFocusEffect } from "@react-navigation/native";
+import BotaoComConfirmacaoDelete from "../../../components/buttonConfirmDelete";
 import GastoCategoriaRelatorio from "../../../components/gastoCategoriaRelatorio";
 import Header from "../../../components/header";
 import NavegacaoMeses from "../../../components/navegacaoMeses";
@@ -45,6 +47,39 @@ export default function Relatorio() {
   const [mesSelecionado, setMesSelecionado] = useState(new Date().getMonth());
   const [anoSelecionado, setAnoSelecionado] = useState(new Date().getFullYear());
   const [userId, setUserId] = useState<number | null>(null);
+  const [editandoGasto, setEditandoGasto] = useState<Gasto | null>(null);
+  const [gastoParaExcluir, setGastoParaExcluir] = useState<number | null>(null);
+  const [modalVisivel, setModalVisivel] = useState(false);
+
+
+  function abrirModalExclusao(id: number) {
+    setGastoParaExcluir(id);
+    setModalVisivel(true);
+  }
+
+  function fecharModal() {
+    setModalVisivel(false);
+    setGastoParaExcluir(null);
+  }
+
+  async function handleConfirmarExclusao() {
+    if (!gastoParaExcluir) return;
+    try {
+      await axios.delete(`${API_BASE_URL}${ENDPOINTS.GASTOS_DELETE}`, {
+        data: { gastoId: gastoParaExcluir },
+      });
+      buscarGastos();
+    } catch (error) {
+      console.error("Erro ao excluir gasto:", error);
+    }
+    fecharModal();
+  }
+
+  function handleEditarGasto(gasto: Gasto) {
+    setEditandoGasto(gasto);
+  }
+
+
 
   const iconMap = {
     'Alimentação': Alimentacao,
@@ -90,6 +125,14 @@ export default function Relatorio() {
     buscarGastos();
   }, [buscarGastos]);
 
+  useFocusEffect(
+          useCallback(() => {
+              buscarGastos();
+              
+          }, [buscarGastos])
+      );
+
+
   // Agrupar gastos por categoria
   const categoriasAgrupadas: CategoriaAgrupada[] = [];
   gastos.forEach((gasto) => {
@@ -111,6 +154,10 @@ export default function Relatorio() {
     const [ano, mes, dia] = dataISO.split('-');
     return `${dia}/${mes}/${ano}`;
   }
+  useEffect(() => {
+    console.log("Gasto para excluir:", gastoParaExcluir);
+  }, [gastoParaExcluir]);
+
 
 
   return (
@@ -131,7 +178,7 @@ export default function Relatorio() {
           <Text style={{ fontSize: 16, color: "#4A4A4A", fontFamily: "Manrope" }}>
             Nesse mês você gastou:
           </Text>
-          <Text style={{ fontSize: 16, color: "#526471", fontFamily: "Manrope", fontWeight: "600" }}>
+          <Text style={{ fontSize: 18, color: "#526471", fontFamily: "Manrope", fontWeight: "600" }}>
             R${" "}
             {gastos
               .reduce((acc, g) => acc + Number(g.valor), 0)
@@ -166,17 +213,54 @@ export default function Relatorio() {
                 valor={`R$${categoria.valorTotal.toFixed(2).replace(".", ",")}`}
                 Imagem={Imagem}
                 subgastos={categoria.gastos.map((g) => ({
-                  nome: g.descricao,
+                  descricao: g.descricao,
                   valor: `R$${Number(g.valor).toFixed(2).replace(".", ",")}`,
                   data: formatarDataBR(g.data),
+                  id: g.id,
+                  categoria_id: g.id_cat
                 }))}
+                onEdit={(gastoSub) => handleEditarGasto({
+                  id: gastoSub.id,
+                  descricao: gastoSub.descricao,
+                  valor: Number(gastoSub.valor.replace('R$', '').replace(',', '.')),
+                  data: gastoSub.data,
+                  categoria_nome: categoria.nome,
+                  categoria_id: gastoSub.categoria_id
+                  
+                })}
+                onDelete={(id) => abrirModalExclusao(id)}
               />
+
+
             );
           })}
         </View>
 
         <View style={{ height: 20 }} />
       </View>
+      <NewGasto
+        visible={!!editandoGasto}
+        onClose={() => setEditandoGasto(null)}
+        onSave={async () => {
+          setEditandoGasto(null);
+          buscarGastos();
+        }}
+        gasto={editandoGasto}
+      />
+
+      {gastoParaExcluir && (
+        <BotaoComConfirmacaoDelete
+          visible={modalVisivel}
+          onConfirm={handleConfirmarExclusao}
+          onCancel={fecharModal}
+          titulo="Excluir Gasto"
+          mensagem="Você tem certeza que deseja "
+          mensagem2="excluir este gasto?"
+          textoBotaoConfirmar="Excluir"
+          textoBotaoCancelar="Cancelar"
+        />
+      )}
+
     </ScrollView>
   );
 }

@@ -3,8 +3,8 @@ import axios from "axios";
 import { router } from "expo-router";
 import { useEffect, useState } from "react";
 import { Image, ScrollView, StyleSheet, Text, View } from "react-native";
-import { Button } from "../../../components/botao";
 import { ButtonMenor } from "../../../components/botaoMenor";
+import BotaoComConfirmacao from "../../../components/buttonConfirm";
 import HeaderProfile from "../../../components/headerProfile";
 import InputCategoria from "../../../components/inputCategoria";
 import InputRenda from "../../../components/inputRenda";
@@ -125,7 +125,7 @@ async function handleSalvarFinanceiro() {
       return;
     }
 
-    // Prepara dados para enviar
+    
     const data = {
       usuario_id: userId,
       renda: renda ? Number(renda.replace(/\D/g, '')) : 0, // considerando renda em centavos como número
@@ -133,8 +133,8 @@ async function handleSalvarFinanceiro() {
     };
 
     const response = await axios.post(`${API_BASE_URL}${ENDPOINTS.REGISTER_FINANCE}`, data);
-
-    alert(response.data.mensagem || 'Atualizado com sucesso!');
+    console.log('foi')
+    
   } catch (error) {
     console.error('Erro ao atualizar financeiro:', error);
     alert('Erro ao salvar. Tente novamente.');
@@ -205,6 +205,7 @@ async function handleSalvarFinanceiro() {
             value={formatMoney(renda)}
             onChangeText={handleChangeRenda}
             isEditable={false}
+            error=''
           />
 
           <Text style={[styles.TextProfile]}>
@@ -241,7 +242,7 @@ async function handleSalvarFinanceiro() {
             ))}
           </View>
 
-          <Button title="Salvar alterações" onPress={handleSalvarFinanceiro} />
+          <BotaoComConfirmacao onConfirm={handleSalvarFinanceiro} />
         </View>
 
         <View style={{ height: 20 }}></View>

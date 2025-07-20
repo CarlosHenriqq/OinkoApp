@@ -204,10 +204,12 @@ console.log('Senha Atual:', senhaAtual);
           
         </View>
 
-        <View style={{ height: 30, marginTop:20}}>
+        <View style={{ height: 80, marginTop:30,}}>
           <BotaoComConfirmacao onConfirm={handleSalvar} />
+          
         </View>
       </View>
+      
     </ScrollView>
     </KeyboardAvoidingView>
   );

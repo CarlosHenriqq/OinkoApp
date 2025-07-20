@@ -148,7 +148,7 @@ export default function UserDash() {
 if (rendaNum > 0) {
   dadosGrafico.push({
     value: rendaRestante,
-    color: '#4A4A4A',
+    color: '#a8a8a8ff',
     text: 'Disponível',
   });
 }
@@ -184,18 +184,18 @@ if (rendaNum > 0) {
             </View>
 
             <View style={styles.gastosCard}>
-                <View style={{marginTop:10}}></View>
-                <PieChart 
+                <PieChart
     data={dadosGrafico}
     donut
+    
     textColor="white"
     radius={150}
     innerRadius={90}
     sectionAutoFocus={false}
     centerLabelComponent={() => (
         <View style={{ alignItems: 'center' }}>
-            <Text style={{ fontSize: 20, fontFamily: 'Manrope', fontWeight: 'medium', color: '#4A4A4A' }}>Sua Renda</Text>
-            <Text style={{ fontSize: 18, fontFamily: 'Manrope' ,fontWeight: 'bold', color: '#4A4A4A'}}>R${renda}</Text>
+            <Text style={{ fontSize: 22, fontFamily: 'Manrope', fontWeight: 'bold' }}>Total</Text>
+            <Text style={{ fontSize: 18, fontFamily: 'Manrope' }}>R${renda}</Text>
         </View>
     )}
 />

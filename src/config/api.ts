@@ -11,4 +11,6 @@ export const ENDPOINTS = {
   UPDATE_USER: '/auth/updateUser',
   GASTOS: '/expenses/gastos',
   EXTRATO: '/expenses/extract/extrato',
+  GASTOS_DELETE: '/controller/deleteGasto',
+  GASTOS_UPDATE: '/controller/updateGasto'
 };

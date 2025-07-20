@@ -11,6 +11,10 @@ import { API_BASE_URL, ENDPOINTS } from '../../config/api';
 
 export default function RegisterFinance() {
     const labels = ["Dados pessoais", "Dados Financeiros"];
+    const [errors, setErrors] = useState({
+        renda: '',
+        categorias: '', 
+    });
     const customStyles = {
         stepIndicatorSize: 20,
         currentStepIndicatorSize: 24,
@@ -109,6 +113,25 @@ export default function RegisterFinance() {
         alert('Erro ao salvar informações. Tente novamente.');
     }
 }
+const validateForm = () => {
+  let isValid = true;
+  const newErrors = {...errors};
+
+  if (!renda) {
+    newErrors.renda = 'Valor deve ser maior que R$0,00';
+    isValid = false;
+  } else {
+    newErrors.renda = '';
+  }
+  if (selectedCategories.length === 0) {
+    newErrors.categorias = 'Por favor, selecione ao menos 1 categoria';
+    isValid = false;
+  } else {
+    newErrors.categorias = '';
+  }
+  setErrors(newErrors);
+  return isValid;
+}
 
 
     return (
@@ -126,7 +149,12 @@ export default function RegisterFinance() {
                         <Text style={{ color: '#4A4A4A', fontSize: 34, fontFamily: 'Manrope', fontWeight: "bold", maxWidth: 230, textAlign: 'center' }}>Informações Financeiras</Text>
                     </View>
                     <View>
-                        <Input placeholder="Quanto é a sua renda?" icon="cash-outline" value={renda} onChangeText={setRenda} />
+                        <Input 
+                        placeholder="Quanto é a sua renda?" 
+                        icon="cash-outline" 
+                        value={renda} 
+                        onChangeText={handleChangeRenda}
+                        error={errors.renda} />
                     </View>
                     <View style={{ marginBottom: 25 }}>
                         <Text style={{ color: '#4A4A4A', fontSize: 20, fontFamily: 'Manrope', fontWeight: "600", maxWidth: 336, textAlign: 'center' }}>Quais dessas categorias fazem parte do seu mês? <Text style={{ fontWeight: 'bold' }}>Escolha até 7   </Text></Text>
@@ -159,9 +187,10 @@ export default function RegisterFinance() {
                                     ))}
                                 </View>
                             ))}
+                            {errors ? <Text style={styles.errorText}>{errors.categorias}</Text> : null}
                         </View>
                         <View style={{ marginTop:25, marginBottom:25}}>
-                    <Button title='Finalizar' onPress={handleRegisterFinance} />
+                    <Button title='Finalizar' onPress={() => {if (validateForm()){handleRegisterFinance()}; }} />
                     </View>
             </View>
 
@@ -186,5 +215,14 @@ const styles = StyleSheet.create({
         backgroundColor: '#E0E8F9',
         justifyContent: 'center',
         alignItems: 'center',
+    },
+    errorText: {
+        color: '#FF0000',
+        fontSize: 13,
+        marginTop: 4,
+        fontFamily: 'Manrope',
+        marginLeft: 8,
+        fontWeight: '700',
+        textAlign:'center'
     },
 });
