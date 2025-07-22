@@ -13,7 +13,7 @@ export default function ProfileEdit() {
   const [nomeUser, setNomeUser] = useState('');
   const [email, setEmail] = useState('');
   const [senhaAtual, setSenhaAtual] = useState('');
-const [senhaNova, setSenhaNova] = useState('');
+  const [senhaNova, setSenhaNova] = useState('');
 
 
   // Formata data 'yyyy-mm-dd' para 'dd/mm/yyyy'
@@ -23,7 +23,7 @@ const [senhaNova, setSenhaNova] = useState('');
     const mes = dateStr.slice(2, 4);
     const ano = dateStr.slice(4);
     return `${dia}/${mes}/${ano}`;
-}
+  }
 
 
   // Atualiza dataNascimento conforme o input do usuário (formato dd/mm/yyyy)
@@ -33,17 +33,17 @@ const [senhaNova, setSenhaNova] = useState('');
 
     let formatted = '';
     if (raw.length <= 2) {
-        formatted = raw;
+      formatted = raw;
     } else if (raw.length <= 4) {
-        formatted = `${raw.slice(0, 2)}/${raw.slice(2)}`;
+      formatted = `${raw.slice(0, 2)}/${raw.slice(2)}`;
     } else if (raw.length <= 8) {
-        formatted = `${raw.slice(0, 2)}/${raw.slice(2, 4)}/${raw.slice(4)}`;
+      formatted = `${raw.slice(0, 2)}/${raw.slice(2, 4)}/${raw.slice(4)}`;
     } else {
-        formatted = `${raw.slice(0, 2)}/${raw.slice(2, 4)}/${raw.slice(4, 8)}`;
+      formatted = `${raw.slice(0, 2)}/${raw.slice(2, 4)}/${raw.slice(4, 8)}`;
     }
 
     setDataNascimento(formatted);
-}
+  }
 
 
 
@@ -66,50 +66,50 @@ const [senhaNova, setSenhaNova] = useState('');
 
   async function handleSalvar() {
     try {
-        const userId = await AsyncStorage.getItem('userId');
-        if (!userId) return;
+      const userId = await AsyncStorage.getItem('userId');
+      if (!userId) return;
 
-        const dataFormatada = dataNascimento.replace(/\D/g, '');
-console.log('Verificando userId:', userId);
-console.log('Senha Atual:', senhaAtual);
-        // Atualiza nome, email e data
-        await axios.put(`${API_BASE_URL}${ENDPOINTS.UPDATE_USER}`, {
-            usuario_id: userId,
-            nome: nomeUser,
-            email,
-            data_nascimento: dataFormatada,
+      const dataFormatada = dataNascimento.replace(/\D/g, '');
+      console.log('Verificando userId:', userId);
+      console.log('Senha Atual:', senhaAtual);
+      // Atualiza nome, email e data
+      await axios.put(`${API_BASE_URL}${ENDPOINTS.UPDATE_USER}`, {
+        usuario_id: userId,
+        nome: nomeUser,
+        email,
+        data_nascimento: dataFormatada,
+      });
+
+      await AsyncStorage.setItem('userName', nomeUser);
+
+      // Se for alterar senha
+      if (senhaAtual && senhaNova) {
+        // 1️⃣ Verificar se senhaAtual está correta
+        const verifyResponse = await axios.post(`${API_BASE_URL}/auth/verificarSenha`, {
+          usuario_id: userId,
+          senha: senhaAtual,
         });
 
-        await AsyncStorage.setItem('userName', nomeUser);
-
-        // Se for alterar senha
-        if (senhaAtual && senhaNova) {
-            // 1️⃣ Verificar se senhaAtual está correta
-            const verifyResponse = await axios.post(`${API_BASE_URL}/auth/verificarSenha`, {
-                usuario_id: userId,
-                senha: senhaAtual,
-            });
-
-            if (!verifyResponse.data.valida) {
-                Alert.alert('Erro', 'Senha atual incorreta.');
-                return;
-            }
-
-            // 2️⃣ Alterar a senha no backend
-            await axios.put(`${API_BASE_URL}/auth/alterarSenha`, {
-                usuario_id: userId,
-                nova_senha: senhaNova,
-            });
-
-            Alert.alert('Sucesso', 'Perfil e senha atualizados com sucesso!');
-        } else {
-            Alert.alert('Sucesso', 'Perfil atualizado com sucesso!');
+        if (!verifyResponse.data.valida) {
+          Alert.alert('Erro', 'Senha atual incorreta.');
+          return;
         }
+
+        // 2️⃣ Alterar a senha no backend
+        await axios.put(`${API_BASE_URL}/auth/alterarSenha`, {
+          usuario_id: userId,
+          nova_senha: senhaNova,
+        });
+
+        Alert.alert('Sucesso', 'Perfil e senha atualizados com sucesso!');
+      } else {
+        Alert.alert('Sucesso', 'Perfil atualizado com sucesso!');
+      }
     } catch (error) {
-        console.error('Erro ao atualizar perfil:', error);
-        Alert.alert('Erro', 'Erro ao atualizar perfil. Tente novamente.');
+      console.error('Erro ao atualizar perfil:', error);
+      Alert.alert('Erro', 'Erro ao atualizar perfil. Tente novamente.');
     }
-}
+  }
 
 
 
@@ -118,99 +118,104 @@ console.log('Senha Atual:', senhaAtual);
   }, []);
 
   return (
-     <KeyboardAvoidingView
-    style={{ flex: 1 }}
-    behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-    keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20} // ajuste se necessário
-  >
-    <ScrollView
-      contentContainerStyle={{ flexGrow: 1 }}
-      bounces={false}
-      overScrollMode="never"
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20} // ajuste se necessário
     >
-      <View style={styles.Background}>
-        <HeaderProfile showBackButton />
+      <ScrollView
+        contentContainerStyle={{ flexGrow: 1 }}
+        bounces={false}
+        overScrollMode="never"
+      >
+        <View style={styles.Background}>
+          <HeaderProfile showBackButton />
 
-        {/* Wrapper para a foto */}
-        <View style={styles.fotoWrapper}>
-          <EditarFotoPerfil />
+          {/* Wrapper para a foto */}
+          <View style={styles.fotoWrapper}>
+            <EditarFotoPerfil />
+          </View>
+
+          <View style={styles.Card}>
+            <Text style={[styles.Label, { paddingBottom: 20 }]}>Informações pessoais</Text>
+
+            <InputRenda
+              placeholder={nomeUser}
+              icon="person-circle-outline"
+              onChangeText={setNomeUser}
+              isEditable={true}
+              value={nomeUser}
+              error=""
+            />
+
+            <InputRenda
+              placeholder={dataNascimento ? dataNascimento : '06/04/2024'}
+              icon="calendar-outline"
+              keyboardType="numeric"
+              maxLength={10}
+              value={dataNascimento }
+              onChangeText={handleChangeData}
+              isEditable={true}
+              error=""
+            />
+
+            <InputRenda
+              placeholder={email ? email : 'exemplo@exemplo.com'}
+              icon="mail-outline"
+              onChangeText={setEmail}
+              isEditable={true}
+              value={email }
+              error=""
+            />
+          </View>
+
+          <View style={{ marginTop: 20, marginBottom: 10, width: '90%', alignItems: 'flex-start' }}>
+            <Text
+              style={{
+                fontFamily: 'Manrope',
+                fontSize: 20,
+                fontWeight: '600',
+                color: '#4a4a4a',
+                textAlign: 'left',
+              }}
+            >
+              Informações de segurança
+            </Text>
+          </View>
+
+          <View style={[styles.Card, { paddingTop: 30 }]}>
+            <Text style={[styles.TextProfile]}>
+              Deseja alterar sua <Text style={{ fontWeight: "bold" }}>senha?</Text>
+            </Text>
+
+            <InputRenda
+              placeholder="Senha atual"
+              icon="lock-closed-outline"
+              isPassword
+              value={senhaAtual}
+              onChangeText={setSenhaAtual}
+              error=""
+            />
+
+            <InputRenda
+              placeholder="Senha nova"
+              icon="lock-closed-outline"
+              isPassword
+              isEditable={true}
+              value={senhaNova}
+              onChangeText={setSenhaNova}
+              error="" />
+
+
+          </View>
+
+          <View style={{ height: 80, marginTop: 30, }}>
+            <BotaoComConfirmacao onConfirm={handleSalvar} />
+
+          </View>
         </View>
 
-        <View style={styles.Card}>
-          <Text style={[styles.Label, { paddingBottom: 20 }]}>Informações pessoais</Text>
-
-          <InputRenda
-           placeholder={nomeUser}
-            icon="person-circle-outline"
-           onChangeText={setNomeUser}
-            isEditable={true}
-            value={nomeUser}
-          />
-
-          <InputRenda
-           placeholder={dataNascimento}
-            icon="calendar-outline"
-            keyboardType="numeric"
-            maxLength={10}
-            value={dataNascimento}
-            onChangeText={handleChangeData}
-            isEditable={true}
-          />
-
-          <InputRenda
-          placeholder={email}
-            icon="mail-outline"
-            onChangeText={setEmail}
-            isEditable={true}
-            value={email}
-          />
-        </View>
-
-        <View style={{ marginTop: 20, marginBottom: 10, width: '90%', alignItems: 'flex-start' }}>
-          <Text
-            style={{
-              fontFamily: 'Manrope',
-              fontSize: 20,
-              fontWeight: '600',
-              color: '#4a4a4a',
-              textAlign: 'left',
-            }}
-          >
-            Informações de segurança
-          </Text>
-        </View>
-
-        <View style={[styles.Card, { paddingTop: 30 }]}>
-          <Text style={[styles.TextProfile]}>
-            Deseja alterar sua <Text style={{ fontWeight: "bold" }}>senha?</Text>
-          </Text>
-
-          <InputRenda 
-          placeholder="Senha atual"
-          icon="lock-closed-outline"
-          isPassword
-          value={senhaAtual}
-          onChangeText={setSenhaAtual}
-          />
-
-          <InputRenda 
-          placeholder="Senha nova" 
-          icon="lock-closed-outline" 
-          isPassword 
-          isEditable={true} 
-          value={senhaNova}
-          onChangeText={setSenhaNova} />
-
-          
-        </View>
-
-        <View style={{ height: 80, marginTop:30,}}>
-          <BotaoComConfirmacao onConfirm={handleSalvar} />
-          
-        </View>
-      </View>
-      
-    </ScrollView>
+      </ScrollView>
     </KeyboardAvoidingView>
   );
 }

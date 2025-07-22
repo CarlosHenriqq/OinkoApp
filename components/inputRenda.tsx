@@ -7,9 +7,10 @@ interface InputProps extends TextInputProps {
   icon: keyof typeof Ionicons.glyphMap;
   isPassword?: boolean;
   isEditable?: boolean; // campos comuns: bloqueia, libera com lápis
+  error: string
 }
 
-export default function InputRenda({ placeholder, icon, isPassword, isEditable = false, ...rest }: InputProps) {
+export default function InputRenda({ placeholder, icon, isPassword, isEditable = false, error, ...rest }: InputProps) {
   const [showPassword, setShowPassword] = useState(false);
   const [editable, setEditable] = useState(isPassword ? true : isEditable); // senha = sempre editável
   const inputRef = useRef<TextInput>(null);

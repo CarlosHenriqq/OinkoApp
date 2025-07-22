@@ -5,7 +5,7 @@ interface ButtonProps extends TouchableOpacityProps {
 
 }
 
-export  function Button ({title, ...rest}){
+export  function Button ({title,...rest}){
     return (
         <TouchableOpacity style={styles.button}{...rest}>
             <Text style={styles.text}>{title}</Text>

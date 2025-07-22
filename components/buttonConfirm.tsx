@@ -18,7 +18,7 @@ export default function BotaoComConfirmacao({onConfirm}) {
         onPress={() => setModalVisible(true)}
         style={estilos.botaoSalvar}
       >
-        <Text style={{ color: '#fff', fontFamily: 'Manrope', fontWeight: '800', fontSize: '18', }}>
+        <Text style={{ color: '#fff', fontFamily: 'Manrope', fontWeight: '800', fontSize: 18}}>
           Salvar alterações
         </Text>
       </TouchableOpacity>

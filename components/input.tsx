@@ -6,9 +6,10 @@ interface InputProps extends TextInputProps {
     placeholder: string;
     icon: keyof typeof Ionicons.glyphMap;
      isPassword?: boolean;
+     error: string
 }
 
-export default function Input({ placeholder, icon, isPassword, ...rest }: InputProps) {
+export default function Input({ placeholder, icon, isPassword, error, ...rest }: InputProps) {
     const [showPassword, setShowPassword] = useState(false);
     return (
         <View style={styles.container}>

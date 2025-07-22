@@ -1,14 +1,17 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { StyleSheet, TextInput, View } from 'react-native';
 
-const OTPInput = () => {
+interface OTPInputProps {
+  onCodeFilled: (code: string) => void;
+}
+
+const OTPInput = ({ onCodeFilled }: OTPInputProps) => {
   const inputRefs = useRef<TextInput[]>([]);
   const [otp, setOtp] = useState(Array(5).fill(''));
 
   const handleChange = (text: string, index: number) => {
     const newOtp = [...otp];
     newOtp[index] = text;
-
     setOtp(newOtp);
 
     if (text && index < 4) {
@@ -21,6 +24,12 @@ const OTPInput = () => {
       inputRefs.current[index - 1]?.focus();
     }
   };
+
+  useEffect(() => {
+    if (otp.every((digit) => digit !== '')) {
+      onCodeFilled(otp.join(''));
+    }
+  }, [otp]);
 
   return (
     <View style={styles.container}>
@@ -47,18 +56,17 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     justifyContent: 'center',
-    gap: 12, // espaçamento entre os inputs
-
+    gap: 12,
   },
   input: {
     width: 48,
     height: 70,
     borderRadius: 20,
     borderWidth: 3,
-    borderColor: '#ADC8B3', // verde suave
+    borderColor: '#ADC8B3',
     fontSize: 32,
     fontWeight: '500',
     color: '#ADC8B3',
-    backgroundColor: '#F2F6FF', // azul muito claro
+    backgroundColor: '#F2F6FF',
   },
 });
