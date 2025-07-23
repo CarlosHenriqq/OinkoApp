@@ -4,7 +4,6 @@
     "slug": "oinko",
     "version": "1.0.0",
     "orientation": "portrait",
-    
     "scheme": "oinko",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
@@ -13,31 +12,33 @@
     },
     "android": {
       "adaptiveIcon": {
-        
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "package": "com.oinkofinancas.app"
     },
     "web": {
       "bundler": "metro",
       "output": "static"
-      
     },
     "plugins": [
-      "expo-router",
       [
         "expo-splash-screen",
         {
-          
-          "imageWidth": 200,
           "resizeMode": "contain",
           "backgroundColor": "#ffffff"
         }
       ]
     ],
-    
     "experiments": {
       "typedRoutes": true
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "e02338f9-c0ae-416f-891e-b054087e570b"
+      }
+    },
+    "owner": "carloshenriqque"
   }
 }

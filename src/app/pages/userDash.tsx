@@ -84,7 +84,7 @@ export default function UserDash() {
             const response =  await axios.get(`${API_BASE_URL}${ENDPOINTS.USER_INFO}`, {
                 headers: { usuario_id: userId }
             });
-            console.log(response.data); // contém id, nome, email, renda
+            
             setRenda(response.data.renda)
         } catch (error) {
             console.error('Erro ao buscar user info:', error);
@@ -113,8 +113,8 @@ export default function UserDash() {
         }, [])
     );
 
-    async function handleSalvarGasto(gastoSalvo) {
-        console.log('Gasto salvo no backend:', gastoSalvo);
+    async function handleSalvarGasto(gastoSalvo:number) {
+        
         setTimeout(() => {
             buscarGasto();
             buscarGastosPorCategoria();
@@ -122,19 +122,19 @@ export default function UserDash() {
     }
 
     const categoriaCores = {
-    'Dívidas': '#B65C5C',
-    'Transporte': '#5C7F8A',
-    'Pets': '#C8AD94',
-    'Saúde': '#6DA97A',
-    'Cuidados Pessoais': '#B9A7C3',
-    'Educação': '#708BD8',
-    'Entretenimento': '#F1997C',
-    'Assinaturas': '#8A38F5',
-    'Alimentação': '#E6C48C',
-    'Moradia': '#8C9E6D',
-    'Cartão de Crédito': '#8A75A0',
-    'Contas do Dia a Dia': '#6F6F6F',
-    'Outros': '#D6D0C4',
+    'Dívidas': '#B65C5C' as string,
+    'Transporte': '#5C7F8A'  as string,
+    'Pets': '#C8AD94'  as string,
+    'Saúde': '#6DA97A' as string ,
+    'Cuidados Pessoais': '#B9A7C3'  as string,
+    'Educação': '#708BD8'  as string,
+    'Entretenimento': '#F1997C'  as string,
+    'Assinaturas': '#8A38F5'  as string,
+    'Alimentação': '#E6C48C'  as string,
+    'Moradia': '#8C9E6D'  as string,
+    'Cartão de Crédito': '#8A75A0'  as string,
+    'Contas do Dia a Dia': '#6F6F6F' as string,
+    'Outros': '#D6D0C4'  as string,
 };
     const rendaNum = parseFloat(typeof renda === 'string' ? renda.replace(',', '.') : renda ?? 0);
     const gastoNum = parseFloat(typeof gasto === 'string' ? gasto.replace(',', '.') : gasto ?? 0);

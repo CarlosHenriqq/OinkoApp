@@ -254,8 +254,7 @@ export default function Relatorio() {
           onConfirm={handleConfirmarExclusao}
           onCancel={fecharModal}
           titulo="Excluir Gasto"
-          mensagem="Você tem certeza que deseja "
-          mensagem2="excluir este gasto?"
+          mensagem="Você tem certeza que deseja excluir este gasto?"
           textoBotaoConfirmar="Excluir"
           textoBotaoCancelar="Cancelar"
         />
