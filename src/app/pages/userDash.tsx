@@ -41,71 +41,69 @@ export default function UserDash() {
     'Assinatura': Assinaturas
   };
 
-  function alteraCor() {
-    const rendaNum = parseFloat(
-      typeof renda === 'string' ? renda.replace(',', '.') : renda ?? 0
-    );
-    const gastoNum = parseFloat(
-      typeof gasto === 'string' ? gasto.replace(',', '.') : gasto ?? 0
-    );
-    return rendaNum < gastoNum ? 'red' : '#526471';
-  }
-
-  async function buscarGasto() {
-    const userId = await AsyncStorage.getItem('userId');
-    try {
-      const response = await axios.get(`${API_BASE_URL}${ENDPOINTS.GASTOS}/total`, {
-        headers: { usuario_id: userId }
-      });
-      if (response.data?.total != null) {
-        const valorFormatado = Number(response.data.total).toFixed(2).replace('.', ',');
-        setGasto(valorFormatado);
-      } else {
-        setGasto('0,00');
-      }
-    } catch (error) {
-      console.error('Erro ao buscar gastos:', error);
+    function alteraCor() {
+        const rendaNum = parseFloat(
+            typeof renda === 'string' ? renda.replace(',', '.') : renda ?? 0
+        );
+        const gastoNum = parseFloat(
+            typeof gasto === 'string' ? gasto.replace(',', '.') : gasto ?? 0
+        );
+        return rendaNum < gastoNum ? 'red' : '#526471';
     }
-  }
+    async function buscarGasto() {
+        const userId = await AsyncStorage.getItem('userId');
+        try {
+            const response = await axios.get(`${API_BASE_URL}${ENDPOINTS.GASTOS}/total`, {
+                headers: { usuario_id: userId }
+            });
+            if (response.data?.total != null) {
+                const valorFormatado = Number(response.data.total).toFixed(2).replace('.', ',');
+                setGasto(valorFormatado);
 
-  async function buscarGastosPorCategoria() {
-    const userId = await AsyncStorage.getItem('userId');
-    try {
-      const response = await axios.get(`${API_BASE_URL}${ENDPOINTS.GASTOS}/totalPCategoria`, {
-        headers: { usuario_id: userId }
-      });
-      setGastosPorCategoria(response.data);
-    } catch (error) {
-      console.error('Erro ao buscar gastos por categoria:', error);
+            } else {
+                setGasto('0,00');
+            }
+        } catch (error) {
+            console.error('Erro ao buscar gastos:', error);
+        }
     }
-  }
-
-  async function buscarUserInfo() {
-    const userId = await AsyncStorage.getItem('userId');
-    try {
-      const response = await axios.get(`${API_BASE_URL}${ENDPOINTS.USER_INFO}`, {
-        headers: { usuario_id: userId }
-      });
-      setRenda(response.data.renda);
-    } catch (error) {
-      console.error('Erro ao buscar user info:', error);
+    async function buscarGastosPorCategoria() {
+        const userId = await AsyncStorage.getItem('userId');
+        try {
+            const response = await axios.get(`${API_BASE_URL}${ENDPOINTS.GASTOS}/totalPCategoria`, {
+                headers: { usuario_id: userId }
+            });
+            setGastosPorCategoria(response.data);
+        } catch (error) {
+            console.error('Erro ao buscar gastos por categoria:', error);
+        }
     }
-  }
+    async function buscarUserInfo() {
+        const userId = await AsyncStorage.getItem('userId');
 
-  async function carregarNome() {
-    const nomeCompleto = await AsyncStorage.getItem('userName');
-    if (nomeCompleto) {
-      const primeiro = nomeCompleto.split(' ')[0];
-      setPrimeiroNome(primeiro);
+        try {
+            const response =  await axios.get(`${API_BASE_URL}${ENDPOINTS.USER_INFO}`, {
+                headers: { usuario_id: userId }
+            });
+            
+            setRenda(response.data.renda)
+        } catch (error) {
+            console.error('Erro ao buscar user info:', error);
+        }
     }
-  }
-
-  useEffect(() => {
-    buscarUserInfo();
-    carregarNome();
-    buscarGasto();
-    buscarGastosPorCategoria();
-  }, []);
+    async function carregarNome() {
+        const nomeCompleto = await AsyncStorage.getItem('userName');
+        if (nomeCompleto) {
+            const primeiro = nomeCompleto.split(' ')[0];
+            setPrimeiroNome(primeiro);
+        }
+    }
+    useEffect(() => {
+        buscarUserInfo();
+        carregarNome();
+        buscarGasto();
+        buscarGastosPorCategoria();
+    }, []);
 
   useFocusEffect(
     useCallback(() => {
@@ -116,13 +114,13 @@ export default function UserDash() {
     }, [])
   );
 
-  async function handleSalvarGasto(gastoSalvo) {
-    console.log('Gasto salvo no backend:', gastoSalvo);
-    setTimeout(() => {
-      buscarGasto();
-      buscarGastosPorCategoria();
-    }, 100);
-  }
+    async function handleSalvarGasto(gastoSalvo:number) {
+        
+        setTimeout(() => {
+            buscarGasto();
+            buscarGastosPorCategoria();
+        }, 100);
+    }
 
   const categoriaCores = {
     'Dívidas': '#B65C5C',

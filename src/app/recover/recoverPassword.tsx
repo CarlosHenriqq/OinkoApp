@@ -1,13 +1,64 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import axios from "axios";
 import { router } from "expo-router";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { useState } from "react";
+import { Alert, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { Button } from "../../../components/botao";
-import InputVerication from "../../../components/inputVerication";
+import OTPInput from "../../../components/inputVerication";
+import { API_BASE_URL, ENDPOINTS } from "../../config/api";
 
 export default function RecoverPassword() {
+  const [codigo, setCodigo] = useState('');
+
+  async function handleValidarCodigo() {
+    if (!codigo) {
+      Alert.alert('Erro', 'Por favor, insira o código recebido.');
+      return;
+    }
+
+    try {
+      const email = await AsyncStorage.getItem('emailForgot');
+      if (!email) {
+        Alert.alert('Erro', 'Email não encontrado, tente novamente.');
+        return;
+      }
+
+      const response = await axios.post(`${API_BASE_URL}${ENDPOINTS.VALIDATE_RESET_CODE}/verify`, {
+        email,
+        code: codigo
+      });
+      AsyncStorage.setItem('emailRecover', email)
+      if (response.data.valido) {
+        router.push('/recover/changePassword');
+      } else {
+        Alert.alert('Erro', 'Código inválido ou expirado.');
+      }
+    } catch (error) {
+      console.error(error);
+      Alert.alert('Erro', 'Erro ao validar código. Tente novamente.');
+    }
+  }
+
+  async function handleReenviarCodigo() {
+    try {
+      const email = await AsyncStorage.getItem('emailForgot');
+      if (!email) {
+        Alert.alert('Erro', 'Email não encontrado, tente novamente.');
+        return;
+      }
+
+      await axios.post(`${API_BASE_URL}${ENDPOINTS.VALIDATE_RESET_CODE}/forgot`, { email });
+      Alert.alert('Sucesso', 'Código reenviado para seu e-mail.');
+    } catch (error) {
+      console.error(error);
+      Alert.alert('Erro', 'Erro ao reenviar código.');
+    }
+  }
+
   return (
     <View style={styles.container}>
       <View style={styles.textoSenha}>
-        <Text style={styles.title}>
+        <Text style={{ color: '#4A4A4A', fontSize: 34, fontFamily: 'Manrope', fontWeight: "bold", maxWidth: 250, textAlign: 'center', lineHeight: 40 }}>
           Recuperação de senha
         </Text>
       </View>
@@ -20,12 +71,24 @@ export default function RecoverPassword() {
       </View>
 
       <View style={styles.inputContainer}>
-        <InputVerication />
+          <OTPInput onCodeFilled={setCodigo} />
       </View>
 
       <View style={styles.resendContainer}>
-        <TouchableOpacity>
+        <TouchableOpacity onPress={handleReenviarCodigo}> 
           <Text style={styles.resendText}>Reenviar código</Text>
+        </TouchableOpacity>
+      </View>
+      <View style={{ marginTop: 60 }}>
+        <OTPInput onCodeFilled={setCodigo} />
+
+      </View>
+
+      <View style={{ marginTop: 10 }}>
+        <TouchableOpacity onPress={handleReenviarCodigo}>
+          <Text style={{ color: '#4A4A4A', fontSize: 12, fontFamily: 'Manrope', fontWeight: "bold", textDecorationLine: "underline", textAlign: 'center' }}>
+            Reenviar código
+          </Text>
         </TouchableOpacity>
       </View>
 

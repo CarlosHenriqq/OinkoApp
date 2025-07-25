@@ -94,29 +94,58 @@ export default function RegisterFinance() {
     }
   }
 
-  async function handleRegisterFinance() {
-    const userIdStr = await AsyncStorage.getItem('userId');
-    const userId = userIdStr ? Number(userIdStr) : null;
+    async function handleRegisterFinance() {
+    if (!validateForm()) return;
     try {
-      const response = await axios.post(`${API_BASE_URL}${ENDPOINTS.REGISTER_FINANCE}`, {
-        usuario_id: userId,
-        renda,
-        categorias: selectedCategories
-      });
+        
 
-      const rendaUser = response.data.renda;
-      AsyncStorage.setItem('renda', rendaUser);
-      alert('Informações gravadas com sucesso!');
-      router.push('/auth/login');
+        let userIdStr = await AsyncStorage.getItem('userId');
+        let userId = userIdStr ? Number(userIdStr) : 'null';
+
+        let nome = await AsyncStorage.getItem('userName') || '';
+        let email = await AsyncStorage.getItem('email') || '';
+        const dataNascimento = null; // ajustar se desejar solicitar antes
+
+        if (!userId) {
+            // Cria usuário no banco caso venha do Clerk (Google)
+            const response = await axios.post(`${API_BASE_URL}${ENDPOINTS.REGISTER}`, {
+                nome,
+                email,
+                senha: '', // senha vazia pois é login social
+                data_nascimento: dataNascimento,
+            });
+
+            userId = response.data.id;
+            await AsyncStorage.setItem('userId', userId.toString());
+        }
+
+        const cleanRenda = Number(renda.replace(/\D/g, ''));
+
+        await axios.post(`${API_BASE_URL}${ENDPOINTS.REGISTER_FINANCE}`, {
+            usuario_id: userId,
+            renda: cleanRenda,
+            categorias: selectedCategories,
+        });
+
+        await AsyncStorage.setItem('renda', cleanRenda.toString());
+
+        Alert.alert('Sucesso', 'Informações financeiras salvas com sucesso!');
+
+        // Checar se nome ou email estão vazios, indicando necessidade de completar perfil
+        if (!nome || !email) {
+            router.replace('/profileEdit');
+        } else {
+            router.replace('/auth/pages/userDash');
+        }
+
     } catch (error) {
-      console.error(error);
-      alert('Erro ao salvar informações. Tente novamente.');
-    }
-  }
-
-  const validateForm = () => {
-    let isValid = true;
-    const newErrors = { ...errors };
+        console.error(error);
+        Alert.alert('Erro', 'Erro ao salvar informações. Tente novamente.');
+    } 
+}
+const validateForm = () => {
+  let isValid = true;
+  const newErrors = {...errors};
 
     if (!renda) {
       newErrors.renda = 'Valor deve ser maior que R$0,00';

@@ -12,5 +12,7 @@ export const ENDPOINTS = {
   GASTOS: '/expenses/gastos',
   EXTRATO: '/expenses/extract/extrato',
   GASTOS_DELETE: '/controller/deleteGasto',
-  GASTOS_UPDATE: '/controller/updateGasto'
+  GASTOS_UPDATE: '/controller/updateGasto',
+  VALIDATE_RESET_CODE: '/auth/recoverPassword',
+  UPLOAD_PICTURE: '/upload/upload-foto'
 };

@@ -1,7 +1,12 @@
+import { ClerkProvider } from '@clerk/clerk-expo';
 import { useFonts } from 'expo-font';
 import { Slot } from 'expo-router';
 import { ActivityIndicator, View } from 'react-native';
-// @@iconify-code-gen
+
+const PUBLIC_CLERK_PUBLISHABLE_KEY = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY as string;
+console.log("Clerk Publishable Key:", PUBLIC_CLERK_PUBLISHABLE_KEY);
+
+
 export default function Layout() {
   const [fontsLoaded] = useFonts({
     'Manrope': require('../../assets/fonts/Manrope.ttf'),
@@ -15,5 +20,10 @@ export default function Layout() {
     );
   }
 
-  return <Slot />;
+  // ✅ Correção aqui:
+  return (
+    <ClerkProvider publishableKey={PUBLIC_CLERK_PUBLISHABLE_KEY} >
+      <Slot />
+    </ClerkProvider>
+  );
 }

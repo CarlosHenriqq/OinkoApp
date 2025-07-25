@@ -14,6 +14,7 @@ export default function ProfileEdit() {
   const [email, setEmail] = useState('');
   const [senhaAtual, setSenhaAtual] = useState('');
   const [senhaNova, setSenhaNova] = useState('');
+  const [senhaNova, setSenhaNova] = useState('');
 
 
   // Formata data 'yyyy-mm-dd' para 'dd/mm/yyyy'
@@ -23,6 +24,7 @@ export default function ProfileEdit() {
     const mes = dateStr.slice(2, 4);
     const ano = dateStr.slice(4);
     return `${dia}/${mes}/${ano}`;
+  }
   }
 
 
@@ -182,12 +184,37 @@ export default function ProfileEdit() {
               Informações de segurança
             </Text>
           </View>
+          <View style={{ marginTop: 20, marginBottom: 10, width: '90%', alignItems: 'flex-start' }}>
+            <Text
+              style={{
+                fontFamily: 'Manrope',
+                fontSize: 20,
+                fontWeight: '600',
+                color: '#4a4a4a',
+                textAlign: 'left',
+              }}
+            >
+              Informações de segurança
+            </Text>
+          </View>
 
           <View style={[styles.Card, { paddingTop: 30 }]}>
             <Text style={[styles.TextProfile]}>
               Deseja alterar sua <Text style={{ fontWeight: "bold" }}>senha?</Text>
             </Text>
+          <View style={[styles.Card, { paddingTop: 30 }]}>
+            <Text style={[styles.TextProfile]}>
+              Deseja alterar sua <Text style={{ fontWeight: "bold" }}>senha?</Text>
+            </Text>
 
+            <InputRenda
+              placeholder="Senha atual"
+              icon="lock-closed-outline"
+              isPassword
+              value={senhaAtual}
+              onChangeText={setSenhaAtual}
+              error=""
+            />
             <InputRenda
               placeholder="Senha atual"
               icon="lock-closed-outline"
@@ -205,7 +232,17 @@ export default function ProfileEdit() {
               value={senhaNova}
               onChangeText={setSenhaNova}
               error="" />
+            <InputRenda
+              placeholder="Senha nova"
+              icon="lock-closed-outline"
+              isPassword
+              isEditable={true}
+              value={senhaNova}
+              onChangeText={setSenhaNova}
+              error="" />
 
+
+          </View>
 
           </View>
 

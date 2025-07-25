@@ -1,18 +1,21 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Dimensions, StyleSheet, TextInput, View } from 'react-native';
 
 const screenWidth = Dimensions.get('window').width;
 const inputWidth = screenWidth * 0.11; // proporcional
 const inputHeight = screenWidth * 0.16;
 
-const OTPInput = () => {
+interface OTPInputProps {
+  onCodeFilled: (code: string) => void;
+}
+
+const OTPInput = ({ onCodeFilled }: OTPInputProps) => {
   const inputRefs = useRef<TextInput[]>([]);
   const [otp, setOtp] = useState(Array(5).fill(''));
 
   const handleChange = (text: string, index: number) => {
     const newOtp = [...otp];
     newOtp[index] = text;
-
     setOtp(newOtp);
 
     if (text && index < 4) {
@@ -25,6 +28,12 @@ const OTPInput = () => {
       inputRefs.current[index - 1]?.focus();
     }
   };
+
+  useEffect(() => {
+    if (otp.every((digit) => digit !== '')) {
+      onCodeFilled(otp.join(''));
+    }
+  }, [otp]);
 
   return (
     <View style={styles.container}>

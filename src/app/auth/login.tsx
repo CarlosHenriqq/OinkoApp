@@ -1,9 +1,11 @@
+import { useOAuth, useUser } from "@clerk/clerk-expo";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 import { useRouter } from "expo-router";
-import { useState } from "react";
+import * as WebBrowser from 'expo-web-browser';
+import { useEffect, useState } from "react";
 import {
-  Alert,
+ 
   KeyboardAvoidingView,
   Platform,
   StyleSheet,
@@ -17,39 +19,107 @@ import { Button } from "../../../components/botao";
 import Input from "../../../components/input";
 import { API_BASE_URL, ENDPOINTS } from "../../config/api";
 
+WebBrowser.maybeCompleteAuthSession();
+
+
 export default function Login() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
 
   async function handleLogin() {
-    try {
-      const response = await axios.post(
-        `${API_BASE_URL}${ENDPOINTS.LOGIN}`,
-        { email, senha }
-      );
+  const { user } = useUser();
+  const [isLoading, setIsLoading] = useState(false);
+  const googleOAuth = useOAuth({ strategy: "oauth_google" });
+  const router = useRouter();
+  const [email, setEmail] = useState('');
+  const [senha, setSenha] = useState('');
+  const [googleLoginSuccess, setGoogleLoginSuccess] = useState(false);
 
+  // Quando login via Google ocorrer
+  useEffect(() => {
+    async function saveGoogleUser() {
+      if (googleLoginSuccess && user) {
+        try {
+          const userName = user.fullName || "Usuário";
+          const userId = user.id || "";
+          const userEmail = user.emailAddresses?.[0]?.emailAddress || "";
+
+          const prevEmail = await AsyncStorage.getItem('email');
+          if (prevEmail && prevEmail !== userEmail) {
+            // Usuário mudou, limpa a foto
+            await AsyncStorage.removeItem('fotoPerfil');
+          }
+
+          await AsyncStorage.setItem('userName', userName);
+          await AsyncStorage.setItem('userId', userId);
+          await AsyncStorage.setItem('email', userEmail);
+          await AsyncStorage.setItem('token', ''); // ou token do Clerk se desejar
+
+          router.replace('/auth/registerFinance');
+        } catch (e) {
+          console.error('Erro ao salvar dados do usuário Google:', e);
+        } finally {
+          setGoogleLoginSuccess(false);
+        }
+      }
+    }
+    saveGoogleUser();
+  }, [user, googleLoginSuccess]);
+
+  async function onGoogleSignin() {
+    try {
+      const oAuthFlow = await googleOAuth.startOAuthFlow();
+      if (oAuthFlow.authSessionResult?.type === "success" && oAuthFlow.setActive) {
+        await oAuthFlow.setActive({ session: oAuthFlow.createdSessionId });
+        setGoogleLoginSuccess(true);
+      }
+    } catch (error) {
+      console.log("Erro no Google OAuth:", error);
+    }
+  }
+
+  async function handleLogin() {
+    setIsLoading(true);
+    try {
+      const response = await axios.post(`${API_BASE_URL}${ENDPOINTS.LOGIN}`, { email, senha });
       const userName = response.data.usuario.nome;
       const userId = response.data.usuario.id;
       const renda = response.data.usuario.renda;
 
-      await AsyncStorage.setItem("userName", userName);
-      await AsyncStorage.setItem("userId", userId.toString());
-      await AsyncStorage.setItem("token", response.data.token);
-
-      if (renda != null) {
-        await AsyncStorage.setItem("renda", renda.toString());
-      } else {
-        await AsyncStorage.removeItem("renda");
+      const prevEmail = await AsyncStorage.getItem('email');
+      console.log(prevEmail, email)
+      if (prevEmail && prevEmail !== email) {
+        // Usuário mudou, limpa a foto
+        await AsyncStorage.removeItem('fotoPerfil');
       }
 
-      Alert.alert("Sucesso", "Login realizado com sucesso!");
-      router.replace("/pages/userDash");
+      await AsyncStorage.setItem('userName', userName);
+      await AsyncStorage.setItem('userId', userId.toString());
+      await AsyncStorage.setItem('token', response.data.token);
+      await AsyncStorage.setItem('email', email);
+
+      if (renda != null) {
+        await AsyncStorage.setItem('renda', renda.toString());
+      } else {
+        await AsyncStorage.removeItem('renda');
+        router.replace("/auth/registerFinance")
+      }
+
+      router.replace('/auth/pages/userDash');
     } catch (error) {
-      console.error(error);
-      Alert.alert("Erro", "Email ou senha inválidos.");
+      console.error("Erro no login:", error);
+    } finally {
+      setIsLoading(false);
     }
   }
+
+  useEffect(() => {
+    WebBrowser.warmUpAsync();
+    return () => {
+      WebBrowser.coolDownAsync();
+    };
+  }, []);
 
   return (
     <KeyboardAvoidingView

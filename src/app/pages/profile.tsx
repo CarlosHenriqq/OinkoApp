@@ -20,6 +20,8 @@ import { API_BASE_URL, ENDPOINTS } from "../../config/api";
 const { width: screenWidth } = Dimensions.get("window");
 
 export default function Profile() {
+
+  
   const categorias = [
     ["Dívidas", "Transporte", "Pets"],
     ["Saúde", "Cuidados Pessoais"],
@@ -51,15 +53,19 @@ export default function Profile() {
   const [nomeUser, setNomeUser] = useState("");
   const [email, setEmail] = useState("");
 
-  useEffect(() => {
-    async function carregarFoto() {
-      const uri = await AsyncStorage.getItem("fotoPerfil");
-      if (uri) setFotoUri(uri);
-    }
-    carregarFoto();
+  useEffect(()=>{
+    carregarUsuario()
+    
+  },[])
+
+  useFocusEffect(
+  useCallback(() => {
+    console.log('montada')
     carregarUsuario();
     carregarCategoriasSelecionadas();
-  }, []);
+  }, [])
+);
+  
 
   function handleToggleCategory(category: string) {
     if (selectedCategories.includes(category)) {
@@ -87,44 +93,53 @@ export default function Profile() {
     setRenda(formatted);
   }
 
-  async function carregarUsuario() {
-    try {
-      const userId = await AsyncStorage.getItem("userId");
-      if (userId) {
-        const response = await axios.get(
-          `${API_BASE_URL}${ENDPOINTS.USER_INFO}`,
-          {
-            headers: { usuario_id: userId },
-          }
-        );
-        const { nome, email, renda } = response.data;
-        setNomeUser(nome);
-        setEmail(email);
-        if (renda !== null && renda !== undefined) {
-          const rendaFormatada = formatMoney((renda * 100).toString());
-          setRenda(rendaFormatada);
-        } else {
-          setRenda("");
-        }
-      }
-    } catch (error) {
-      console.error("Erro ao carregar usuário no perfil:", error);
+async function carregarUsuario() {
+  try {
+    // Primeiro pega do AsyncStorage
+    const usuarioSalvo = await AsyncStorage.getItem('usuarioPerfil');
+    if (usuarioSalvo) {
+      const data = JSON.parse(usuarioSalvo);
+      setNomeUser(data.nome);
+      setEmail(data.email);
+      setRenda(formatMoney((data.renda * 100).toString()));
+      setFotoUri(data.image_url ? `${API_BASE_URL}${data.image_url}` : null);
     }
-  }
 
-  async function carregarCategoriasSelecionadas() {
+    // Depois atualiza dados do backend
+    const userId = await AsyncStorage.getItem('userId');
+    if (userId) {
+      const response = await axios.get(`${API_BASE_URL}${ENDPOINTS.USER_INFO}`, {
+        headers: { usuario_id: userId }
+      });
+
+      const { nome, email, renda, image_url } = response.data;
+
+      setNomeUser(nome);
+      setEmail(email);
+      setRenda(renda !== null ? formatMoney((renda * 100).toString()) : '');
+      setFotoUri(image_url ? (image_url.startsWith('/uploads') ? `${API_BASE_URL}${image_url}` : image_url) : null);
+
+      // Atualiza cache local
+      await AsyncStorage.setItem('usuarioPerfil', JSON.stringify(response.data));
+    }
+  } catch (error) {
+    console.error('Erro ao carregar usuário no perfil:', error);
+  }
+}
+
+
+async function carregarCategoriasSelecionadas() {
     try {
-      const userId = await AsyncStorage.getItem("userId");
-      if (userId) {
-        const response = await axios.get(
-          `${API_BASE_URL}${ENDPOINTS.CATEGORIA_POR_USUARIO}`,
-          {
-            headers: { usuario_id: userId },
-          }
-        );
-        const categoriasSelecionadas = response.data.map((cat) => cat.nome);
-        setSelectedCategories(categoriasSelecionadas);
-      }
+        const userId = await AsyncStorage.getItem('userId');
+        console.log(userId)
+        if (userId) {
+            const response = await axios.get(`${API_BASE_URL}${ENDPOINTS.CATEGORIA_POR_USUARIO}`, {
+                headers: { usuario_id: userId }
+            });
+            const categoriasSelecionadas = response.data.map(cat => cat.nome); // deve vir como ['Pets', 'Saúde', ...]
+            setSelectedCategories(categoriasSelecionadas);
+            console.log(categoriasSelecionadas)
+        }
     } catch (error) {
       console.error("Erro ao carregar categorias selecionadas:", error);
     }
