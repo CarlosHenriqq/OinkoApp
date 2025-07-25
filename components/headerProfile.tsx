@@ -1,8 +1,12 @@
 import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useNavigation } from "@react-navigation/native";
 import { router } from "expo-router";
-import { TouchableOpacity, View } from "react-native";
+import { Dimensions, TouchableOpacity, View } from "react-native";
+
+const { width } = Dimensions.get('window');
+const BASE_WIDTH = 390;
+const scale = width / BASE_WIDTH;
+const scaled = (size: number) => size * scale;
 
 interface HeaderProfileProps {
   children?: React.ReactNode;
@@ -11,17 +15,16 @@ interface HeaderProfileProps {
 }
 
 export default function HeaderProfile({ children, showBackButton = false, showLogoutButton = false }: HeaderProfileProps) {
-  const navigation = useNavigation();
 
   async function handleLogout() {
-        try {
-            await AsyncStorage.removeItem('token');
-            router.replace('/auth/login');
-        } catch (error) {
-            console.error(error);
-            alert('Erro ao fazer logout.');
-        }
+    try {
+      await AsyncStorage.removeItem('token');
+      router.replace('/auth/login');
+    } catch (error) {
+      console.error(error);
+      alert('Erro ao fazer logout.');
     }
+  }
 
   return (
     <View
@@ -31,13 +34,13 @@ export default function HeaderProfile({ children, showBackButton = false, showLo
         left: 0,
         right: 0,
         backgroundColor: '#A3C0AC',
-        borderBottomRightRadius: 30,
-        borderBottomLeftRadius: 30,
-        height: 125,
+        borderBottomRightRadius: scaled(30),
+        borderBottomLeftRadius: scaled(30),
+        height: scaled(125),
         shadowColor: '#000000',
-        shadowOffset: { width: 0, height: 2 },
+        shadowOffset: { width: 0, height: scaled(2) },
         shadowOpacity: 0.4,
-        shadowRadius: 2,
+        shadowRadius: scaled(2),
         elevation: 3,
         justifyContent: 'center',
       }}
@@ -47,13 +50,13 @@ export default function HeaderProfile({ children, showBackButton = false, showLo
           onPress={() => router.replace("/pages/profile")}
           style={{
             position: 'absolute',
-            top: 50,
-            left: 20,
-            padding: 8,
+            top: scaled(50),
+            left: scaled(20),
+            padding: scaled(8),
             zIndex: 10,
           }}
         >
-          <Ionicons name="chevron-back-outline" size={30} color="#526471" />
+          <Ionicons name="chevron-back-outline" size={scaled(30)} color="#526471" />
         </TouchableOpacity>
       )}
 
@@ -62,13 +65,13 @@ export default function HeaderProfile({ children, showBackButton = false, showLo
           onPress={handleLogout}
           style={{
             position: 'absolute',
-            top: 50,
-            right: 20,
-            padding: 8,
+            top: scaled(50),
+            right: scaled(20),
+            padding: scaled(8),
             zIndex: 10,
           }}
         >
-          <Ionicons name="log-out-outline" size={30} color="#526471" />
+          <Ionicons name="log-out-outline" size={scaled(30)} color="#526471" />
         </TouchableOpacity>
       )}
 

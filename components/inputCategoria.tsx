@@ -1,4 +1,9 @@
-import { Pressable, StyleSheet, Text } from "react-native";
+import { Dimensions, Pressable, StyleSheet, Text } from "react-native";
+
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
+const BASE_WIDTH = 390;
+const scale = SCREEN_WIDTH / BASE_WIDTH;
+const scaled = (size: number) => size * scale;
 
 interface InputCategoriaProps {
     title: string;
@@ -34,7 +39,12 @@ const InputCategoria = ({
                     : { backgroundColor: backgroundColorUnSelect, borderColor: borderColorUnSelect }
             ]}
         >
-            <Text style={{ color: isSelected ? '#ffffff' : textUnselect, fontFamily: 'Manrope', fontWeight: '800', fontSize: 18 }}>
+            <Text style={{
+                color: isSelected ? '#ffffff' : textUnselect,
+                fontFamily: 'Manrope',
+                fontWeight: '800',
+                fontSize: scaled(18)
+            }}>
                 {title}
             </Text>
         </Pressable>
@@ -43,18 +53,18 @@ const InputCategoria = ({
 
 const styles = StyleSheet.create({
     input: {
-        height: 30,
+        height: scaled(30),
         borderWidth: 3,
-        borderRadius: 20,
+        borderRadius: scaled(20),
         justifyContent: 'center',
         alignItems: 'center',
-        paddingHorizontal: 10,
-        marginBottom: 8,
-        shadowColor: '#000000',         // cor da sombra
-                shadowOffset: { width: 0, height: 2 },  // x e y do Figma
-                shadowOpacity: 0.4,          // 10% = 0.1
-                shadowRadius: 2,
-                elevation: 3,  
+        paddingHorizontal: scaled(10),
+        marginBottom: scaled(8),
+        shadowColor: '#000000',
+        shadowOffset: { width: 0, height: scaled(2) },
+        shadowOpacity: 0.4,
+        shadowRadius: scaled(2),
+        elevation: 3,
     },
 });
 

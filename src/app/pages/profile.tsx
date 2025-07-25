@@ -2,13 +2,22 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 import { router } from "expo-router";
 import { useEffect, useState } from "react";
-import { Image, ScrollView, StyleSheet, Text, View } from "react-native";
+import {
+  Dimensions,
+  Image,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 import { ButtonMenor } from "../../../components/botaoMenor";
 import BotaoComConfirmacao from "../../../components/buttonConfirm";
 import HeaderProfile from "../../../components/headerProfile";
 import InputCategoria from "../../../components/inputCategoria";
 import InputRenda from "../../../components/inputRenda";
 import { API_BASE_URL, ENDPOINTS } from "../../config/api";
+
+const { width: screenWidth } = Dimensions.get("window");
 
 export default function Profile() {
   const categorias = [
@@ -37,11 +46,10 @@ export default function Profile() {
   };
 
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
-  const [renda, setRenda] = useState(""); // valor em centavos para facilitar formatação
+  const [renda, setRenda] = useState("");
   const [fotoUri, setFotoUri] = useState<string | null>(null);
-  const [nomeUser, setNomeUser] = useState('');
-  const [email, setEmail] = useState('');
-  
+  const [nomeUser, setNomeUser] = useState("");
+  const [email, setEmail] = useState("");
 
   useEffect(() => {
     async function carregarFoto() {
@@ -63,8 +71,7 @@ export default function Profile() {
     }
   }
 
-  // Função para formatar valor em centavos para moeda BRL
- function formatMoney(value: string) {
+  function formatMoney(value: string) {
     const numericValue = value.replace(/\D/g, "");
     const number = Number(numericValue) / 100;
     if (isNaN(number)) return "";
@@ -72,94 +79,89 @@ export default function Profile() {
       style: "currency",
       currency: "BRL",
     });
-}
+  }
 
-function handleChangeRenda(text: string) {
-    const clean = text.replace(/\D/g, '');
+  function handleChangeRenda(text: string) {
+    const clean = text.replace(/\D/g, "");
     const formatted = formatMoney(clean);
     setRenda(formatted);
-}
-
-async function carregarUsuario() {
-    try {
-        const userId = await AsyncStorage.getItem('userId');
-        if (userId) {
-            const response = await axios.get(`${API_BASE_URL}${ENDPOINTS.USER_INFO}`, {
-                headers: { usuario_id: userId }
-            });
-            const { nome, email, renda } = response.data;
-            setNomeUser(nome);
-            setEmail(email);
-            if (renda !== null && renda !== undefined) {
-                const rendaFormatada = formatMoney((renda * 100).toString());
-                setRenda(rendaFormatada);
-            } else {
-                setRenda('');
-            }
-        }
-    } catch (error) {
-        console.error('Erro ao carregar usuário no perfil:', error);
-    }
-}
-async function carregarCategoriasSelecionadas() {
-    try {
-        const userId = await AsyncStorage.getItem('userId');
-        if (userId) {
-            const response = await axios.get(`${API_BASE_URL}${ENDPOINTS.CATEGORIA_POR_USUARIO}`, {
-                headers: { usuario_id: userId }
-            });
-            const categoriasSelecionadas = response.data.map(cat => cat.nome); // deve vir como ['Pets', 'Saúde', ...]
-            setSelectedCategories(categoriasSelecionadas);
-            console.log(categoriasSelecionadas)
-        }
-    } catch (error) {
-        console.error('Erro ao carregar categorias selecionadas:', error);
-    }
-    
-}
-async function handleSalvarFinanceiro() {
-  try {
-    const userId = await AsyncStorage.getItem('userId');
-    if (!userId) {
-      alert('Usuário não autenticado');
-      return;
-    }
-
-    
-    const data = {
-      usuario_id: userId,
-      renda: renda ? Number(renda.replace(/\D/g, '')) : 0, // considerando renda em centavos como número
-      categorias: selectedCategories, // array de strings
-    };
-
-    const response = await axios.post(`${API_BASE_URL}${ENDPOINTS.REGISTER_FINANCE}`, data);
-    console.log('foi')
-    
-  } catch (error) {
-    console.error('Erro ao atualizar financeiro:', error);
-    alert('Erro ao salvar. Tente novamente.');
   }
-}
 
+  async function carregarUsuario() {
+    try {
+      const userId = await AsyncStorage.getItem("userId");
+      if (userId) {
+        const response = await axios.get(
+          `${API_BASE_URL}${ENDPOINTS.USER_INFO}`,
+          {
+            headers: { usuario_id: userId },
+          }
+        );
+        const { nome, email, renda } = response.data;
+        setNomeUser(nome);
+        setEmail(email);
+        if (renda !== null && renda !== undefined) {
+          const rendaFormatada = formatMoney((renda * 100).toString());
+          setRenda(rendaFormatada);
+        } else {
+          setRenda("");
+        }
+      }
+    } catch (error) {
+      console.error("Erro ao carregar usuário no perfil:", error);
+    }
+  }
 
+  async function carregarCategoriasSelecionadas() {
+    try {
+      const userId = await AsyncStorage.getItem("userId");
+      if (userId) {
+        const response = await axios.get(
+          `${API_BASE_URL}${ENDPOINTS.CATEGORIA_POR_USUARIO}`,
+          {
+            headers: { usuario_id: userId },
+          }
+        );
+        const categoriasSelecionadas = response.data.map((cat) => cat.nome);
+        setSelectedCategories(categoriasSelecionadas);
+      }
+    } catch (error) {
+      console.error("Erro ao carregar categorias selecionadas:", error);
+    }
+  }
 
+  async function handleSalvarFinanceiro() {
+    try {
+      const userId = await AsyncStorage.getItem("userId");
+      if (!userId) {
+        alert("Usuário não autenticado");
+        return;
+      }
 
+      const data = {
+        usuario_id: userId,
+        renda: renda ? Number(renda.replace(/\D/g, "")) : 0,
+        categorias: selectedCategories,
+      };
+
+      await axios.post(`${API_BASE_URL}${ENDPOINTS.REGISTER_FINANCE}`, data);
+    } catch (error) {
+      console.error("Erro ao atualizar financeiro:", error);
+      alert("Erro ao salvar. Tente novamente.");
+    }
+  }
 
   return (
-    <ScrollView
-      contentContainerStyle={{ flexGrow: 1 }}
-      bounces={false}
-      overScrollMode="never"
-    >
+    <ScrollView contentContainerStyle={{ flexGrow: 1 }} bounces={false}>
       <View style={styles.Background}>
-        <HeaderProfile showLogoutButton/>
-        
+        <HeaderProfile showLogoutButton />
+
         <View style={styles.PhotoContainer}>
           <Image
             source={
               fotoUri
                 ? { uri: fotoUri }
-                : require("../../../assets/images/perfil.png") // ajuste o caminho conforme seu projeto
+                : require("../../../assets/images/perfil.png")
             }
             style={styles.Photo}
           />
@@ -178,7 +180,12 @@ async function handleSalvarFinanceiro() {
         </View>
 
         <View
-          style={{ marginTop: 20, marginBottom: 10, width: "90%", alignItems: "flex-start" }}
+          style={{
+            marginTop: 20,
+            marginBottom: 10,
+            width: "90%",
+            alignItems: "flex-start",
+          }}
         >
           <Text
             style={{
@@ -194,7 +201,7 @@ async function handleSalvarFinanceiro() {
         </View>
 
         <View style={[styles.Card, { paddingTop: 30 }]}>
-          <Text style={[styles.TextProfile]}>
+          <Text style={styles.TextProfile}>
             Deseja mudar sua <Text style={{ fontWeight: "bold" }}>renda?</Text>
           </Text>
 
@@ -205,10 +212,10 @@ async function handleSalvarFinanceiro() {
             value={formatMoney(renda)}
             onChangeText={handleChangeRenda}
             isEditable={false}
-            error=''
+            error=""
           />
 
-          <Text style={[styles.TextProfile]}>
+          <Text style={styles.TextProfile}>
             Deseja mudar suas categorias?{" "}
             <Text style={{ fontWeight: "bold" }}>Selecione até 7</Text>
           </Text>
@@ -220,8 +227,8 @@ async function handleSalvarFinanceiro() {
                 style={{
                   flexDirection: "row",
                   justifyContent: "space-between",
-                  gap: 13,
-                  maxWidth: 310,
+                  gap: 5,
+                  maxWidth: screenWidth * 0.85,
                 }}
               >
                 {row.map((cat) => (
@@ -245,7 +252,7 @@ async function handleSalvarFinanceiro() {
           <BotaoComConfirmacao onConfirm={handleSalvarFinanceiro} />
         </View>
 
-        <View style={{ height: 20 }}></View>
+        <View style={{ height: 20 }} />
       </View>
     </ScrollView>
   );
@@ -258,7 +265,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingTop: 135,
   },
-
   PhotoContainer: {
     width: 120,
     height: 120,
@@ -273,13 +279,11 @@ const styles = StyleSheet.create({
     top: 65,
     zIndex: 2,
   },
-
   Photo: {
     width: "100%",
     height: "100%",
     resizeMode: "cover",
   },
-
   Card: {
     width: "90%",
     backgroundColor: "#fff",
@@ -293,7 +297,6 @@ const styles = StyleSheet.create({
     shadowRadius: 3,
     elevation: 3,
   },
-
   Label: {
     fontSize: 20,
     color: "#4A4A4A",
@@ -301,7 +304,6 @@ const styles = StyleSheet.create({
     marginBottom: 1,
     fontWeight: "bold",
   },
-
   Name: {
     fontSize: 34,
     fontWeight: "bold",
@@ -309,14 +311,12 @@ const styles = StyleSheet.create({
     fontFamily: "Manrope",
     marginBottom: -4,
   },
-
   Mail: {
     fontSize: 16,
     color: "#4A4A4A",
     fontFamily: "Manrope",
     marginBottom: 10,
   },
-
   TextProfile: {
     fontSize: 20,
     color: "#4A4A4A",

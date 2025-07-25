@@ -2,6 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Dimensions, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 const { width } = Dimensions.get('window');
+const ladoBotao = width * 0.22; // equivalente aproximado de 90px em 414px (iPhone 13 Pro Max)
 
 const meses = [
   'Jan', 'Fev', 'Mar', 'Abr',
@@ -35,7 +36,6 @@ export default function NavegacaoMeses({ mesSelecionado, anoSelecionado, setMesS
     setAnoSelecionado(novoAno);
   }
 
-  // Formata o ano para mostrar só os dois últimos dígitos
   function formatarAno(ano: number) {
     return ano.toString().slice(-2);
   }
@@ -76,10 +76,10 @@ const styles = StyleSheet.create({
   },
   botaoEsquerda: {
     position: 'absolute',
-    left: 90,
+    left: ladoBotao,
   },
   botaoDireita: {
     position: 'absolute',
-    right: 90,
+    right: ladoBotao,
   },
 });

@@ -3,15 +3,18 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import { useEffect, useState } from 'react';
 import {
+  Dimensions,
   Modal,
   StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
-  View,
+  View
 } from 'react-native';
 import DropDownPicker from 'react-native-dropdown-picker';
 import { API_BASE_URL, ENDPOINTS } from '../src/config/api';
+
+const { width: screenWidth } = Dimensions.get('window');
 
 export default function NewGasto({ visible, onClose, onSave, gasto = null }) {
   const [descricao, setDescricao] = useState('');
@@ -75,17 +78,15 @@ export default function NewGasto({ visible, onClose, onSave, gasto = null }) {
   }, [visible, gasto]);
 
   useEffect(() => {
-  if (gasto && items.length > 0) {
-    // Se o gasto tem categoria_id e bate com algum item do dropdown, seleciona ele
-    const categoriaExistente = items.find(item => item.value === gasto.categoria_id);
-    if (categoriaExistente) {
-      setValue(categoriaExistente.value);
-    } else {
-      setValue(null);
+    if (gasto && items.length > 0) {
+      const categoriaExistente = items.find(item => item.value === gasto.categoria_id);
+      if (categoriaExistente) {
+        setValue(categoriaExistente.value);
+      } else {
+        setValue(null);
+      }
     }
-  }
-}, [gasto, items]);
-
+  }, [gasto, items]);
 
   function formatMoney(text) {
     let cleanText = text.replace(/\D/g, '');
@@ -223,16 +224,89 @@ export default function NewGasto({ visible, onClose, onSave, gasto = null }) {
 }
 
 const styles = StyleSheet.create({
-  overlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.3)', justifyContent: 'center', alignItems: 'center' },
-  container: { width: 330, backgroundColor: '#E0E8F9', padding: 20, borderRadius: 20, elevation: 3, position: 'relative' },
-  closeButton: { position: 'absolute', top: 10, right: 10, zIndex: 10 },
-  title: { fontSize: 20, fontWeight: '600', color: '#4A4A4A', marginBottom: 15, textAlign: 'center', fontFamily: 'Manrope' },
-  input: { backgroundColor: '#fff', borderWidth: 3, borderColor: '#A3C0AC', borderRadius: 15, paddingHorizontal: 10, paddingVertical: 8, marginBottom: 12, fontSize: 18, fontFamily: 'Manrope', fontWeight: '600', color: '#4A4A4A' },
-  row: { flexDirection: 'row' },
-  saveButton: { backgroundColor: '#4A4A4A', width: 200, height: 40, borderRadius: 24, alignItems: 'center', justifyContent: 'center', marginTop: 8, alignSelf: 'center' },
-  saveButtonText: { fontWeight: 'bold', color: '#fff', fontFamily: 'Manrope', fontSize: 18 },
-  dropdown: { backgroundColor: '#fff', borderWidth: 3, borderColor: '#A3C0AC', borderRadius: 15, height: 40, paddingHorizontal: 10, marginBottom: 30 },
-  dropdownText: { fontFamily: 'Manrope', color: '#4A4A4A', fontWeight: 'bold', fontSize: 18 },
-  dropdownPlaceholder: { color: '#A3C0AC', fontWeight: 'bold' },
-  dropdownContainer: { borderColor: '#A3C0AC', borderRadius: 15, borderTopWidth: 1, borderWidth: 3 },
+  overlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.3)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  container: {
+    width: screenWidth * 0.9,
+    backgroundColor: '#E0E8F9',
+    padding: 20,
+    borderRadius: 20,
+    elevation: 3,
+    position: 'relative',
+  },
+  closeButton: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+    zIndex: 10,
+  },
+  title: {
+    fontSize: 20,
+    fontWeight: '600',
+    color: '#4A4A4A',
+    marginBottom: 15,
+    textAlign: 'center',
+    fontFamily: 'Manrope',
+  },
+  input: {
+    backgroundColor: '#fff',
+    borderWidth: 3,
+    borderColor: '#A3C0AC',
+    borderRadius: 15,
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+    marginBottom: 12,
+    fontSize: 18,
+    fontFamily: 'Manrope',
+    fontWeight: '600',
+    color: '#4A4A4A',
+  },
+  row: {
+    flexDirection: 'row',
+  },
+  saveButton: {
+    backgroundColor: '#4A4A4A',
+    width: '50%',
+    height: 40,
+    borderRadius: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 8,
+    alignSelf: 'center',
+  },
+  saveButtonText: {
+    fontWeight: 'bold',
+    color: '#fff',
+    fontFamily: 'Manrope',
+    fontSize: 18,
+  },
+  dropdown: {
+    backgroundColor: '#fff',
+    borderWidth: 3,
+    borderColor: '#A3C0AC',
+    borderRadius: 15,
+    height: 40,
+    paddingHorizontal: 10,
+    marginBottom: 30,
+  },
+  dropdownText: {
+    fontFamily: 'Manrope',
+    color: '#4A4A4A',
+    fontWeight: 'bold',
+    fontSize: 18,
+  },
+  dropdownPlaceholder: {
+    color: '#A3C0AC',
+    fontWeight: 'bold',
+  },
+  dropdownContainer: {
+    borderColor: '#A3C0AC',
+    borderRadius: 15,
+    borderTopWidth: 1,
+    borderWidth: 3,
+  },
 });

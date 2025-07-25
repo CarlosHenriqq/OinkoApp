@@ -1,18 +1,23 @@
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Dimensions, StyleSheet, Text, View } from 'react-native';
+
+const { width } = Dimensions.get('window');
+const BASE_WIDTH = 390;
+const scale = width / BASE_WIDTH;
+const scaled = (size: number) => size * scale;
 
 type Props = {
   titulo: string;
   subtitulo: string;
   valor: string;
-  Imagem: React.FC<React.SVGProps<SVGSVGElement>>; // ou simplesmente React.ComponentType<any>
+  Imagem: React.FC<React.SVGProps<SVGSVGElement>>;
 };
 
 const GastoCategoria = ({ titulo, subtitulo, valor, Imagem }: Props) => {
   return (
     <View style={styles.container}>
-      <View style={[styles.imagemContainer,]}>
-        <Imagem width={50} height={50} />
+      <View style={styles.imagemContainer}>
+        <Imagem width={scaled(50)} height={scaled(50)} />
       </View>
       <View style={styles.textos}>
         <Text style={styles.titulo}>{titulo}</Text>
@@ -29,44 +34,43 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 12,
-    paddingHorizontal: 10,
-    borderRadius: 8,
+    paddingVertical: scaled(12),
+    paddingHorizontal: scaled(10),
+    borderRadius: scaled(8),
     justifyContent: 'space-between',
-    marginBottom: 20,
-    maxWidth: 312,
-    maxHeight:50,
+    marginBottom: scaled(20),
+    maxWidth: scaled(312),
+    maxHeight: scaled(50),
     alignSelf: 'center',
-    
   },
   imagemContainer: {
-    width: 50,
-    height: 50,
-    borderRadius: 21,
+    width: scaled(50),
+    height: scaled(50),
+    borderRadius: scaled(21),
     overflow: 'hidden',
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 12,
+    marginRight: scaled(12),
   },
   textos: {
     flex: 1,
   },
   titulo: {
-    fontSize: 16,
+    fontSize: scaled(16),
     fontWeight: '600',
     color: '#4A4A4A',
-    fontFamily:'Manrope',
+    fontFamily: 'Manrope',
   },
   subtitulo: {
-    fontSize: 12,
+    fontSize: scaled(12),
     color: '#4A4A4A',
-    fontFamily:'Manrope',
+    fontFamily: 'Manrope',
   },
   valor: {
-    fontSize: 16,
+    fontSize: scaled(16),
     fontWeight: '600',
     color: '#4A4A4A',
-    fontFamily:'Manrope',
-    marginTop: -15,
+    fontFamily: 'Manrope',
+    marginTop: scaled(-15),
   },
 });

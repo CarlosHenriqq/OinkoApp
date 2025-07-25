@@ -34,6 +34,7 @@ interface Gasto {
   data: string;
   descricao: string;
   categoria_nome: string;
+  categoria_id: number;
 }
 
 interface CategoriaAgrupada {
@@ -50,7 +51,6 @@ export default function Relatorio() {
   const [editandoGasto, setEditandoGasto] = useState<Gasto | null>(null);
   const [gastoParaExcluir, setGastoParaExcluir] = useState<number | null>(null);
   const [modalVisivel, setModalVisivel] = useState(false);
-
 
   function abrirModalExclusao(id: number) {
     setGastoParaExcluir(id);
@@ -78,8 +78,6 @@ export default function Relatorio() {
   function handleEditarGasto(gasto: Gasto) {
     setEditandoGasto(gasto);
   }
-
-
 
   const iconMap = {
     'Alimentação': Alimentacao,
@@ -126,14 +124,11 @@ export default function Relatorio() {
   }, [buscarGastos]);
 
   useFocusEffect(
-          useCallback(() => {
-              buscarGastos();
-              
-          }, [buscarGastos])
-      );
+    useCallback(() => {
+      buscarGastos();
+    }, [buscarGastos])
+  );
 
-
-  // Agrupar gastos por categoria
   const categoriasAgrupadas: CategoriaAgrupada[] = [];
   gastos.forEach((gasto) => {
     let categoria = categoriasAgrupadas.find((c) => c.nome === gasto.categoria_nome);
@@ -154,11 +149,6 @@ export default function Relatorio() {
     const [ano, mes, dia] = dataISO.split('-');
     return `${dia}/${mes}/${ano}`;
   }
-  useEffect(() => {
-    console.log("Gasto para excluir:", gastoParaExcluir);
-  }, [gastoParaExcluir]);
-
-
 
   return (
     <ScrollView contentContainerStyle={{ flexGrow: 1 }} bounces={false} overScrollMode="never">
@@ -175,10 +165,8 @@ export default function Relatorio() {
         />
 
         <View style={styles.expenseContainer}>
-          <Text style={{ fontSize: 16, color: "#4A4A4A", fontFamily: "Manrope" }}>
-            Nesse mês você gastou:
-          </Text>
-          <Text style={{ fontSize: 18, color: "#526471", fontFamily: "Manrope", fontWeight: "600" }}>
+          <Text style={styles.expenseLabel}>Nesse mês você gastou:</Text>
+          <Text style={styles.expenseValue}>
             R${" "}
             {gastos
               .reduce((acc, g) => acc + Number(g.valor), 0)
@@ -187,18 +175,8 @@ export default function Relatorio() {
           </Text>
         </View>
 
-        <View style={{ marginTop: 20, marginBottom: 10, width: "90%", alignItems: "flex-start" }}>
-          <Text
-            style={{
-              fontFamily: "Manrope",
-              fontSize: 20,
-              fontWeight: "600",
-              color: "#4a4a4a",
-              textAlign: "left",
-            }}
-          >
-            Resumo total dos gastos
-          </Text>
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionHeaderText}>Resumo total dos gastos</Text>
         </View>
 
         <View style={[styles.Card, { paddingTop: 30 }]}>
@@ -217,7 +195,7 @@ export default function Relatorio() {
                   valor: `R$${Number(g.valor).toFixed(2).replace(".", ",")}`,
                   data: formatarDataBR(g.data),
                   id: g.id,
-                  categoria_id: g.id_cat
+                  categoria_id: g.categoria_id
                 }))}
                 onEdit={(gastoSub) => handleEditarGasto({
                   id: gastoSub.id,
@@ -226,18 +204,16 @@ export default function Relatorio() {
                   data: gastoSub.data,
                   categoria_nome: categoria.nome,
                   categoria_id: gastoSub.categoria_id
-                  
                 })}
                 onDelete={(id) => abrirModalExclusao(id)}
               />
-
-
             );
           })}
         </View>
 
         <View style={{ height: 20 }} />
       </View>
+
       <NewGasto
         visible={!!editandoGasto}
         onClose={() => setEditandoGasto(null)}
@@ -260,7 +236,6 @@ export default function Relatorio() {
           textoBotaoCancelar="Cancelar"
         />
       )}
-
     </ScrollView>
   );
 }
@@ -271,14 +246,13 @@ const styles = StyleSheet.create({
     backgroundColor: "#E0E8F9",
     alignItems: "center",
   },
-
   Card: {
     width: "90%",
     backgroundColor: "#fff",
     borderRadius: 20,
     alignItems: "center",
     paddingTop: 60,
-    height: 620,
+    minHeight: 620,
     paddingBottom: 30,
     shadowColor: "#000000",
     shadowOffset: { width: 0, height: 3 },
@@ -286,19 +260,18 @@ const styles = StyleSheet.create({
     shadowRadius: 3,
     elevation: 3,
   },
-
   TextTop: {
     fontSize: 20,
     fontWeight: "600",
     color: "#4a4a4a",
     marginTop: 50,
     fontFamily: "Manrope",
+    textAlign: "center",
   },
-
   expenseContainer: {
     borderRadius: 30,
     backgroundColor: "#ffffff",
-    width: 315,
+    width: "90%",
     height: 50,
     justifyContent: "space-between",
     paddingHorizontal: 20,
@@ -311,4 +284,28 @@ const styles = StyleSheet.create({
     shadowRadius: 3,
     elevation: 3,
   },
+  expenseLabel: {
+    fontSize: 16,
+    color: "#4A4A4A",
+    fontFamily: "Manrope"
+  },
+  expenseValue: {
+    fontSize: 18,
+    color: "#526471",
+    fontFamily: "Manrope",
+    fontWeight: "600"
+  },
+  sectionHeader: {
+    marginTop: 20,
+    marginBottom: 10,
+    width: "90%",
+    alignItems: "flex-start"
+  },
+  sectionHeaderText: {
+    fontFamily: "Manrope",
+    fontSize: 20,
+    fontWeight: "600",
+    color: "#4a4a4a",
+    textAlign: "left",
+  }
 });

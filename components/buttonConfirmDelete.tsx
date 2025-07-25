@@ -1,5 +1,10 @@
 import { router } from 'expo-router';
-import { Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Dimensions, Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+
+const { width } = Dimensions.get('window');
+const BASE_WIDTH = 390;
+const scale = width / BASE_WIDTH;
+const scaled = (size: number) => size * scale;
 
 export default function BotaoComConfirmacaoDelete({
   visible,
@@ -25,7 +30,10 @@ export default function BotaoComConfirmacaoDelete({
     >
       <View style={estilos.overlay}>
         <View style={estilos.card}>
-          <Text style={estilos.texto}>{mensagem}<Text style={{fontWeight: 600}}>{mensagem2}</Text></Text>
+          <Text style={estilos.texto}>
+            {mensagem}
+            <Text style={{ fontWeight: '600' }}>{mensagem2}</Text>
+          </Text>
 
           <View style={estilos.botoes}>
             <TouchableOpacity
@@ -57,49 +65,49 @@ const estilos = StyleSheet.create({
   },
   card: {
     backgroundColor: '#e0e8f9',
-    borderRadius: 20,
-    padding: 24,
-    width: 330,
+    borderRadius: scaled(20),
+    padding: scaled(24),
+    width: scaled(330),
     alignItems: 'center',
-    gap: 20,
+    gap: scaled(20),
     shadowColor: '#000000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: { width: 0, height: scaled(2) },
     shadowOpacity: 0.4,
-    shadowRadius: 2,
+    shadowRadius: scaled(2),
     elevation: 3,
   },
   texto: {
     color: '#4A4A4A',
-    fontSize: 20,
+    fontSize: scaled(20),
     textAlign: 'center',
     fontFamily: 'Manrope',
-    lineHeight: 25,
+    lineHeight: scaled(25),
   },
   botoes: {
     flexDirection: 'row',
-    gap: 20,
+    gap: scaled(20),
     shadowColor: '#000000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: { width: 0, height: scaled(2) },
     shadowOpacity: 0.4,
-    shadowRadius: 2,
+    shadowRadius: scaled(2),
   },
   botao: {
-    width:120,
-    paddingVertical: 5,
-    borderRadius: 30,
+    width: scaled(120),
+    paddingVertical: scaled(5),
+    borderRadius: scaled(30),
   },
   textoBotao: {
     fontWeight: 'bold',
     color: '#fff',
     fontFamily: 'Manrope',
-    fontSize: 18,
-    textAlign:'center', 
+    fontSize: scaled(18),
+    textAlign: 'center',
   },
   botaoSalvar: {
     backgroundColor: '#526471',
-    width: 200,
-    height: 40,
-    borderRadius: 30,
+    width: scaled(200),
+    height: scaled(40),
+    borderRadius: scaled(30),
     alignItems: 'center',
     justifyContent: 'center',
   },

@@ -1,6 +1,17 @@
 import { Ionicons } from '@expo/vector-icons';
 import React, { useState } from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import {
+  Dimensions,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View
+} from 'react-native';
+
+const { width } = Dimensions.get('window');
+const BASE_WIDTH = 390;
+const scale = width / BASE_WIDTH;
+const scaled = (size: number) => size * scale;
 
 type Subgasto = {
   id: number;
@@ -17,7 +28,7 @@ type Props = {
   valor: string;
   Imagem: React.FC<React.SVGProps<SVGSVGElement>>;
   subgastos?: Subgasto[];
-  onEdit?: (gasto: { id: number; descricao: string; valor: string; data: string; categoria_id: number; }) => void;
+  onEdit?: (gasto: { id: number; descricao: string; valor: string; data: string; categoria_id: number }) => void;
   onDelete?: (id: number) => void;
 };
 
@@ -37,7 +48,7 @@ const GastoCategoriaRelatorio = ({
     <View style={styles.containerGeral}>
       <View style={[styles.container, aberto && styles.containerAtivo]}>
         <View style={styles.imagemContainer}>
-          <Imagem width={50} height={50} />
+          <Imagem width={scaled(50)} height={scaled(50)} />
         </View>
 
         <View style={styles.textos}>
@@ -77,20 +88,18 @@ const GastoCategoriaRelatorio = ({
                         descricao: item.descricao,
                         valor: item.valor.replace('R$', '').replace(',', '.'),
                         data: item.data,
-                        categoria_id:item.categoria_id
-                        
+                        categoria_id: item.categoria_id
                       })
                     }
                   >
-                    <Ionicons name="pencil-outline" size={20} color="#4A4A4A" />
+                    <Ionicons name="pencil-outline" size={scaled(20)} color="#4A4A4A" />
                   </TouchableOpacity>
 
                   <TouchableOpacity
                     style={styles.botaoAcao}
                     onPress={() => onDelete && onDelete(item.id)}
-                    
                   >
-                    <Ionicons name="trash-outline" size={20} color="#cc0000" />
+                    <Ionicons name="trash-outline" size={scaled(20)} color="#cc0000" />
                   </TouchableOpacity>
                 </View>
               </View>
@@ -104,71 +113,70 @@ const GastoCategoriaRelatorio = ({
 
 export default GastoCategoriaRelatorio;
 
-
 const styles = StyleSheet.create({
   containerGeral: {
-    marginBottom: 16,
+    marginBottom: scaled(16),
   },
   container: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 10,
-    paddingHorizontal: 10,
+    marginBottom: scaled(10),
+    paddingHorizontal: scaled(10),
     justifyContent: 'space-between',
-    maxWidth: 325,
+    maxWidth: scaled(325),
     alignSelf: 'center',
   },
   containerAtivo: {},
   imagemContainer: {
-    width: 50,
-    height: 50,
-    borderRadius: 20,
+    width: scaled(50),
+    height: scaled(50),
+    borderRadius: scaled(20),
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 12,
+    marginRight: scaled(12),
   },
   textos: {
     flex: 1,
   },
   titulo: {
-    fontSize: 16,
+    fontSize: scaled(16),
     fontWeight: '600',
     color: '#4A4A4A',
     fontFamily: 'Manrope',
   },
   subtitulo: {
-    fontSize: 11,
+    fontSize: scaled(11),
     color: '#4A4A4A',
     fontFamily: 'Manrope',
     textDecorationLine: 'underline',
   },
   valor: {
-    fontSize: 16,
+    fontSize: scaled(16),
     fontWeight: '600',
     color: '#4A4A4A',
     fontFamily: 'Manrope',
-    marginBottom: 15,
-    marginRight: -5,
+    marginBottom: scaled(15),
+    marginRight: scaled(-5),
   },
   listaSubgastos: {
-    marginTop: 12,
-    paddingHorizontal: 10,
+    marginTop: scaled(12),
+    paddingHorizontal: scaled(10),
   },
   subgastoItem: {
-    marginBottom: -5,
+    marginBottom: scaled(-5),
     flexDirection: 'row',
     justifyContent: 'space-between',
-    maxWidth: 300,
+    maxWidth: scaled(300),
     alignSelf: 'center',
   },
   subgastoNome: {
-    fontSize: 14,
+    fontSize: scaled(14),
     color: '#4A4A4A',
     fontFamily: 'Manrope',
     fontWeight: '600',
-    lineHeight: 18,
+    lineHeight: scaled(18),
     flex: 1,
-    marginTop: 8,
+    marginTop: scaled(8),
   },
   subgastoValorEIcones: {
     flexDirection: 'row',
@@ -176,27 +184,27 @@ const styles = StyleSheet.create({
   },
   valoresContainer: {
     alignItems: 'flex-end',
-    marginRight: 5,
+    marginRight: scaled(5),
   },
   subgastoValor: {
-    fontSize: 16,
+    fontSize: scaled(16),
     fontWeight: '700',
     color: '#4A4A4A',
     fontFamily: 'Manrope',
-    marginTop: -20,
+    marginTop: scaled(-20),
   },
   subgastoData: {
-    fontSize: 14,
+    fontSize: scaled(14),
     color: '#4A4A4A',
     fontFamily: 'Manrope',
-    marginTop: 1,
+    marginTop: scaled(1),
   },
   iconesContainer: {
-    gap: 1,
-    marginRight: -10,
-    marginBottom: 20,
+    gap: scaled(1),
+    marginRight: scaled(-10),
+    marginBottom: scaled(20),
   },
   botaoAcao: {
-    padding: 4,
+    padding: scaled(4),
   },
 });

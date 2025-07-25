@@ -1,5 +1,9 @@
 import { useRef, useState } from 'react';
-import { StyleSheet, TextInput, View } from 'react-native';
+import { Dimensions, StyleSheet, TextInput, View } from 'react-native';
+
+const screenWidth = Dimensions.get('window').width;
+const inputWidth = screenWidth * 0.11; // proporcional
+const inputHeight = screenWidth * 0.16;
 
 const OTPInput = () => {
   const inputRefs = useRef<TextInput[]>([]);
@@ -28,7 +32,7 @@ const OTPInput = () => {
         <TextInput
           key={index}
           ref={(ref) => (inputRefs.current[index] = ref!)}
-          style={styles.input}
+          style={[styles.input, { width: inputWidth, height: inputHeight }]}
           maxLength={1}
           keyboardType="numeric"
           value={digit}
@@ -47,18 +51,15 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     justifyContent: 'center',
-    gap: 12, // espaçamento entre os inputs
-
+    gap: 12,
   },
   input: {
-    width: 48,
-    height: 70,
     borderRadius: 20,
     borderWidth: 3,
-    borderColor: '#ADC8B3', // verde suave
+    borderColor: '#ADC8B3',
     fontSize: 32,
     fontWeight: '500',
     color: '#ADC8B3',
-    backgroundColor: '#F2F6FF', // azul muito claro
+    backgroundColor: '#F2F6FF',
   },
 });

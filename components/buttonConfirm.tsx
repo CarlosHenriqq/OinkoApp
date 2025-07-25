@@ -1,29 +1,32 @@
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Dimensions, Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
-export default function BotaoComConfirmacao({onConfirm}) {
+const { width } = Dimensions.get('window');
+const BASE_WIDTH = 390;
+const scale = width / BASE_WIDTH;
+const scaled = (size: number) => size * scale;
+
+export default function BotaoComConfirmacao({ onConfirm }) {
   const [modalVisible, setModalVisible] = useState(false);
 
   function handleConfirmar() {
     setModalVisible(false);
-    if(onConfirm) onConfirm();
+    if (onConfirm) onConfirm();
     router.replace("/pages/profile");
   }
 
   return (
     <>
-      {/* botão principal que abre o modal */}
       <TouchableOpacity
         onPress={() => setModalVisible(true)}
         style={estilos.botaoSalvar}
       >
-        <Text style={{ color: '#fff', fontFamily: 'Manrope', fontWeight: '800', fontSize: '18', }}>
+        <Text style={estilos.textoBotaoSalvar}>
           Salvar alterações
         </Text>
       </TouchableOpacity>
 
-      {/* modal de confirmação */}
       <Modal
         animationType="fade"
         transparent={true}
@@ -68,49 +71,55 @@ const estilos = StyleSheet.create({
   },
   card: {
     backgroundColor: '#e0e8f9',
-    borderRadius: 20,
-    padding: 24,
-    width: 330,
+    borderRadius: scaled(20),
+    padding: scaled(24),
+    width: scaled(330),
     alignItems: 'center',
-    gap: 20,
-    shadowColor: '#000000',         // cor da sombra
-                shadowOffset: { width: 0, height: 2 },  // x e y do Figma
-                shadowOpacity: 0.4,          // 10% = 0.1
-                shadowRadius: 2,
-                elevation: 3,  
+    gap: scaled(20),
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: scaled(2) },
+    shadowOpacity: 0.4,
+    shadowRadius: scaled(2),
+    elevation: 3,
   },
   texto: {
     color: '#4A4A4A',
-    fontSize: 20,
+    fontSize: scaled(20),
     textAlign: 'center',
     fontFamily: 'Manrope',
-    lineHeight: 25,
+    lineHeight: scaled(25),
   },
   botoes: {
     flexDirection: 'row',
-    gap: 20,
-    shadowColor: '#000000',         // cor da sombra
-                shadowOffset: { width: 0, height: 2 },  // x e y do Figma
-                shadowOpacity: 0.4,          // 10% = 0.1
-                shadowRadius: 2,  
+    gap: scaled(20),
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: scaled(2) },
+    shadowOpacity: 0.4,
+    shadowRadius: scaled(2),
   },
   botao: {
-    paddingHorizontal: 30,
-    paddingVertical: 5,
-    borderRadius: 30,
+    paddingHorizontal: scaled(30),
+    paddingVertical: scaled(5),
+    borderRadius: scaled(30),
   },
   textoBotao: {
     fontWeight: 'bold',
     color: '#fff',
     fontFamily: 'Manrope',
-    fontSize: 18,
+    fontSize: scaled(18),
   },
   botaoSalvar: {
     backgroundColor: '#526471',
-    width:200,
-    height: 40,
-    borderRadius: 30,
-    alignItems:'center',
-    justifyContent:'center',
+    width: scaled(200),
+    height: scaled(40),
+    borderRadius: scaled(30),
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  textoBotaoSalvar: {
+    color: '#fff',
+    fontFamily: 'Manrope',
+    fontWeight: '800',
+    fontSize: scaled(18),
   },
 });

@@ -57,12 +57,14 @@ return(
                            <Text style={styles.TextLong}>Este termo é regido pelas leis brasileiras. Em caso de disputa, será utilizado o foro da comarca do usuário, conforme a legislação vigente.</Text>
 
                            <Text style={styles.TextTitle}>Contato</Text>
-                           <Text style={styles.TextLong}>Em caso de dúvidas ou solicitações, entre em contato com a equipe pelo                           e-mail:<Text style={{ color: '#517CEA', textDecorationLine: "underline" }}>contato@oinkoapp.com</Text></Text>
+                           <Text style={styles.TextLong}>Em caso de dúvidas ou solicitações, entre em contato com a equipe pelo                           e-mail:<Text style={{ color: '#517CEA', textDecorationLine: "underline" }}>oinkofinancas@gmail.com</Text></Text>
                             <View style={{height:30}}></View>
                             </View>
 
                         <View style={{alignItems: 'center',}}>
-                        <Text style={[styles.TextTop,{lineHeight:40, marginTop:50}]}>Política de Privacidade</Text>
+                        <Text style={[styles.TextTop,{lineHeight:45, marginTop:50}]}>Política</Text>
+                        <Text style={[styles.TextTop,{lineHeight:35,}]}> de Privacidade</Text>
+                      
                         <Text style={styles.TextSub}>Última atualização: 06/07/2025</Text>
                     </View>
 
@@ -101,7 +103,7 @@ return(
                            <Text style={styles.TextLong}>Podemos atualizar esta política de tempos em tempos. Sempre que isso ocorrer, notificaremos você dentro do aplicativo.</Text>
 
                            <Text style={styles.TextTitle}>Contato</Text>
-                           <Text style={styles.TextLong}>Em caso de dúvidas ou solicitações, entre em contato com a equipe pelo                           e-mail:<Text style={{ color: '#517CEA', textDecorationLine: "underline" }}>contato@oinkoapp.com</Text></Text>
+                           <Text style={styles.TextLong}>Em caso de dúvidas ou solicitações, entre em contato com a equipe pelo                           e-mail:<Text style={{ color: '#517CEA', textDecorationLine: "underline" }}>oinkofinancas@gmail.com</Text></Text>
                         
                          <View style={{alignItems:"center", marginTop: 30, marginBottom: 30}}>
                             <Button title="Li e Concordo" onPress={() => router.replace("/auth/register")}></Button> 
@@ -149,8 +151,8 @@ const styles = StyleSheet.create({
     marginTop: 10,
     fontFamily: 'Manrope',
     textAlign: "center",
-    maxWidth:200,
-    maxHeight: 30,
+    maxWidth:260,
+    maxHeight: 35,
     },
     TextTitle: {
     fontSize: 20,
@@ -192,5 +194,4 @@ const styles = StyleSheet.create({
             elevation: 3,
     },
 });
-
 
