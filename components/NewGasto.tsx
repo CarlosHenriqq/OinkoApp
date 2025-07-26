@@ -13,6 +13,7 @@ import {
 } from 'react-native';
 import DropDownPicker from 'react-native-dropdown-picker';
 import { API_BASE_URL, ENDPOINTS } from '../src/config/api';
+import { isValidDate } from '../src/config/mask';
 
 const { width: screenWidth } = Dimensions.get('window');
 
@@ -23,6 +24,50 @@ export default function NewGasto({ visible, onClose, onSave, gasto = null }) {
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState(null);
   const [items, setItems] = useState([]);
+  const [errors, setErrors] = useState({
+    valor: '',
+    data: '',
+    descricao: '',
+    categoria: ''
+  });
+
+  const validateForm = () => {
+    let isValid = true;
+    const newErrors = { ...errors };
+
+    if (!descricao) {
+      newErrors.descricao = 'Descrição é obrigatória';
+      isValid = false;
+    } else {
+      newErrors.descricao = '';
+    }
+
+    if (!valor) {
+      newErrors.valor = 'Valor é obrigatório';
+      isValid = false;
+    } else {
+      newErrors.valor = '';
+    }
+
+    if (!data) {
+      newErrors.data = 'Data é obrigatória';
+      isValid = false;
+    } else if (!isValidDate(data)) {
+      newErrors.data = 'Data inválida';
+      isValid = false;
+    } else {
+      newErrors.data = '';
+    }
+    if (!value) {
+      newErrors.categoria = 'Por favor, selecione uma categoria';
+      isValid = false;
+    } else {
+      newErrors.categoria = '';
+    }
+
+    setErrors(newErrors);
+    return isValid;
+  };
 
   useEffect(() => {
     async function buscarCategorias() {
@@ -74,6 +119,7 @@ export default function NewGasto({ visible, onClose, onSave, gasto = null }) {
         setData('');
         setValue(null);
       }
+      setErrors({ valor: '', data: '', descricao: '' }); // Limpar erros ao abrir
     }
   }, [visible, gasto]);
 
@@ -125,6 +171,8 @@ export default function NewGasto({ visible, onClose, onSave, gasto = null }) {
   }
 
   async function handleSalvar() {
+    if (!validateForm()) return;
+
     try {
       const userIdStr = await AsyncStorage.getItem('userId');
       const userId = userIdStr ? Number(userIdStr) : null;
@@ -170,29 +218,37 @@ export default function NewGasto({ visible, onClose, onSave, gasto = null }) {
           <TextInput
             placeholder="Descrição do gasto"
             placeholderTextColor="#A3C0AC"
-            style={styles.input}
+            style={[styles.input, errors.descricao ? styles.inputError : null]}
             value={descricao}
             onChangeText={setDescricao}
           />
+          {errors.descricao ? <Text style={styles.errorText}>{errors.descricao}</Text> : null}
 
           <View style={styles.row}>
-            <TextInput
-              placeholder="R$0,00"
-              placeholderTextColor="#A3C0AC"
-              style={[styles.input, { flex: 1, marginRight: 8 }]}
-              value={valor}
-              onChangeText={handleChangeValor}
-              keyboardType="numeric"
-            />
-            <TextInput
-              placeholder="01/01/2025"
-              placeholderTextColor="#A3C0AC"
-              style={[styles.input, { flex: 1 }]}
-              value={data}
-              onChangeText={handleChangeData}
-              keyboardType="numeric"
-              maxLength={10}
-            />
+            <View style={{ flex: 1, marginRight: 8 }}>
+              <TextInput
+                placeholder="R$0,00"
+                placeholderTextColor="#A3C0AC"
+                style={[styles.input, errors.valor ? styles.inputError : null]}
+                value={valor}
+                onChangeText={handleChangeValor}
+                keyboardType="numeric"
+              />
+              {errors.valor ? <Text style={styles.errorText}>{errors.valor}</Text> : null}
+            </View>
+
+            <View style={{ flex: 1 }}>
+              <TextInput
+                placeholder="01/01/2025"
+                placeholderTextColor="#A3C0AC"
+                style={[styles.input, errors.data ? styles.inputError : null]}
+                value={data}
+                onChangeText={handleChangeData}
+                keyboardType="numeric"
+                maxLength={10}
+              />
+              {errors.data ? <Text style={styles.errorText}>{errors.data}</Text> : null}
+            </View>
           </View>
 
           <DropDownPicker
@@ -213,6 +269,8 @@ export default function NewGasto({ visible, onClose, onSave, gasto = null }) {
             arrowIconStyle={{ height: 25 }}
             showArrowIcon={!gasto}
           />
+          {errors.categoria ? <Text style={[styles.errorText, {marginTop:-15}]}>{errors.categoria}</Text> : null}
+
 
           <TouchableOpacity style={styles.saveButton} onPress={handleSalvar}>
             <Text style={styles.saveButtonText}>Salvar gasto</Text>
@@ -231,12 +289,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   container: {
-    width: screenWidth * 0.9,
+    width: screenWidth * 0.8,
     backgroundColor: '#E0E8F9',
     padding: 20,
     borderRadius: 20,
-    elevation: 3,
     position: 'relative',
+    shadowColor: "#000000",
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 3,
   },
   closeButton: {
     position: 'absolute',
@@ -259,23 +321,30 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     paddingHorizontal: 10,
     paddingVertical: 8,
-    marginBottom: 12,
+    marginBottom: 4,
     fontSize: 18,
     fontFamily: 'Manrope',
     fontWeight: '600',
     color: '#4A4A4A',
   },
+  
+  errorText: {
+    color: '#FF0000',
+    fontSize: 12,
+    marginBottom: 8,
+    fontFamily: 'Manrope',
+    paddingLeft:10
+  },
   row: {
     flexDirection: 'row',
   },
   saveButton: {
-    backgroundColor: '#4A4A4A',
-    width: '50%',
+    backgroundColor: '#526471',
+    width: '60%',
     height: 40,
     borderRadius: 24,
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 8,
     alignSelf: 'center',
   },
   saveButtonText: {

@@ -42,7 +42,7 @@ export default function ForgetPassword() {
       </View>
 
       <View style={styles.inputContainer}>
-        <Input placeholder="Digite seu E-mail" icon="mail-outline" />
+        <Input placeholder="Digite seu E-mail" icon="mail-outline" error="" />
       </View>
 
       <View style={styles.buttonContainer}>

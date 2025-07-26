@@ -4,10 +4,7 @@ import axios from "axios";
 import { useCallback, useEffect, useState } from 'react';
 import { Dimensions, ScrollView, StyleSheet, Text, View } from "react-native";
 import { PieChart } from 'react-native-gifted-charts';
-import {
-  Alimentacao, Assinaturas, Cartao, Contas, Cuidados, Divida,
-  Educacao, Entretenimento, Moradia, Outros, Pets, Saude, Transporte
-} from '../../../assets/iconsCategorias';
+import { Alimentacao, Assinaturas, Cartao, Contas, Cuidados, Divida, Educacao, Entretenimento, Moradia, Outros, Pets, Saude, Transporte } from '../../../assets/iconsCategorias';
 import Cabeca from "../../../assets/images/cabeca.svg";
 import Moeda from "../../../assets/images/moeda.svg";
 import { Button } from "../../../components/botao";
@@ -25,6 +22,8 @@ export default function UserDash() {
   const [renda, setRenda] = useState('');
   const [gastosPorCategoria, setGastosPorCategoria] = useState([]);
 
+
+
   const iconMap = {
     'Alimentação': Alimentacao,
     'Pets': Pets,
@@ -41,69 +40,69 @@ export default function UserDash() {
     'Assinatura': Assinaturas
   };
 
-    function alteraCor() {
-        const rendaNum = parseFloat(
-            typeof renda === 'string' ? renda.replace(',', '.') : renda ?? 0
-        );
-        const gastoNum = parseFloat(
-            typeof gasto === 'string' ? gasto.replace(',', '.') : gasto ?? 0
-        );
-        return rendaNum < gastoNum ? 'red' : '#526471';
-    }
-    async function buscarGasto() {
-        const userId = await AsyncStorage.getItem('userId');
-        try {
-            const response = await axios.get(`${API_BASE_URL}${ENDPOINTS.GASTOS}/total`, {
-                headers: { usuario_id: userId }
-            });
-            if (response.data?.total != null) {
-                const valorFormatado = Number(response.data.total).toFixed(2).replace('.', ',');
-                setGasto(valorFormatado);
+  function alteraCor() {
+    const rendaNum = parseFloat(
+      typeof renda === 'string' ? renda.replace(',', '.') : renda ?? 0
+    );
+    const gastoNum = parseFloat(
+      typeof gasto === 'string' ? gasto.replace(',', '.') : gasto ?? 0
+    );
+    return rendaNum < gastoNum ? 'red' : '#526471';
+  }
+  async function buscarGasto() {
+    const userId = await AsyncStorage.getItem('userId');
+    try {
+      const response = await axios.get(`${API_BASE_URL}${ENDPOINTS.GASTOS}/total`, {
+        headers: { usuario_id: userId }
+      });
+      if (response.data?.total != null) {
+        const valorFormatado = Number(response.data.total).toFixed(2).replace('.', ',');
+        setGasto(valorFormatado);
 
-            } else {
-                setGasto('0,00');
-            }
-        } catch (error) {
-            console.error('Erro ao buscar gastos:', error);
-        }
+      } else {
+        setGasto('0,00');
+      }
+    } catch (error) {
+      console.error('Erro ao buscar gastos:', error);
     }
-    async function buscarGastosPorCategoria() {
-        const userId = await AsyncStorage.getItem('userId');
-        try {
-            const response = await axios.get(`${API_BASE_URL}${ENDPOINTS.GASTOS}/totalPCategoria`, {
-                headers: { usuario_id: userId }
-            });
-            setGastosPorCategoria(response.data);
-        } catch (error) {
-            console.error('Erro ao buscar gastos por categoria:', error);
-        }
+  }
+  async function buscarGastosPorCategoria() {
+    const userId = await AsyncStorage.getItem('userId');
+    try {
+      const response = await axios.get(`${API_BASE_URL}${ENDPOINTS.GASTOS}/totalPCategoria`, {
+        headers: { usuario_id: userId }
+      });
+      setGastosPorCategoria(response.data);
+    } catch (error) {
+      console.error('Erro ao buscar gastos por categoria:', error);
     }
-    async function buscarUserInfo() {
-        const userId = await AsyncStorage.getItem('userId');
+  }
+  async function buscarUserInfo() {
+    const userId = await AsyncStorage.getItem('userId');
 
-        try {
-            const response =  await axios.get(`${API_BASE_URL}${ENDPOINTS.USER_INFO}`, {
-                headers: { usuario_id: userId }
-            });
-            
-            setRenda(response.data.renda)
-        } catch (error) {
-            console.error('Erro ao buscar user info:', error);
-        }
+    try {
+      const response = await axios.get(`${API_BASE_URL}${ENDPOINTS.USER_INFO}`, {
+        headers: { usuario_id: userId }
+      });
+      console.log(response.data); // contém id, nome, email, renda
+      setRenda(response.data.renda)
+    } catch (error) {
+      console.error('Erro ao buscar user info:', error);
     }
-    async function carregarNome() {
-        const nomeCompleto = await AsyncStorage.getItem('userName');
-        if (nomeCompleto) {
-            const primeiro = nomeCompleto.split(' ')[0];
-            setPrimeiroNome(primeiro);
-        }
+  }
+  async function carregarNome() {
+    const nomeCompleto = await AsyncStorage.getItem('userName');
+    if (nomeCompleto) {
+      const primeiro = nomeCompleto.split(' ')[0];
+      setPrimeiroNome(primeiro);
     }
-    useEffect(() => {
-        buscarUserInfo();
-        carregarNome();
-        buscarGasto();
-        buscarGastosPorCategoria();
-    }, []);
+  }
+  useEffect(() => {
+    buscarUserInfo();
+    carregarNome();
+    buscarGasto();
+    buscarGastosPorCategoria();
+  }, []);
 
   useFocusEffect(
     useCallback(() => {
@@ -114,13 +113,13 @@ export default function UserDash() {
     }, [])
   );
 
-    async function handleSalvarGasto(gastoSalvo:number) {
-        
-        setTimeout(() => {
-            buscarGasto();
-            buscarGastosPorCategoria();
-        }, 100);
-    }
+  async function handleSalvarGasto(gastoSalvo) {
+    console.log('Gasto salvo no backend:', gastoSalvo);
+    setTimeout(() => {
+      buscarGasto();
+      buscarGastosPorCategoria();
+    }, 100);
+  }
 
   const categoriaCores = {
     'Dívidas': '#B65C5C',
@@ -137,24 +136,32 @@ export default function UserDash() {
     'Contas do Dia a Dia': '#6F6F6F',
     'Outros': '#D6D0C4',
   };
-
   const rendaNum = parseFloat(typeof renda === 'string' ? renda.replace(',', '.') : renda ?? 0);
   const gastoNum = parseFloat(typeof gasto === 'string' ? gasto.replace(',', '.') : gasto ?? 0);
   const rendaRestante = Math.max(rendaNum - gastoNum, 0);
+  const dadosGrafico =
+  gastosPorCategoria.length > 0
+    ? gastosPorCategoria.map((gasto) => ({
+        value: parseFloat(gasto.total),
+        color: categoriaCores[gasto.nome],
+        text: gasto.nome,
+      }))
+    : [
+        {
+          value: rendaNum,
+          color: '#a8a8a8ff',
+          text: 'Disponível',
+        },
+      ];
 
-  const dadosGrafico = gastosPorCategoria.map((gasto) => ({
-    value: parseFloat(gasto.total),
-    color: categoriaCores[gasto.nome],
-    text: gasto.nome,
-  }));
-
-  if (rendaNum > 0) {
-    dadosGrafico.push({
-      value: rendaRestante,
-      color: '#a8a8a8ff',
-      text: 'Disponível',
-    });
-  }
+// Adiciona a fatia da renda restante caso existam gastos
+if (gastosPorCategoria.length > 0 && rendaNum > 0) {
+  dadosGrafico.push({
+    value: rendaRestante,
+    color: '#a8a8a8ff',
+    text: 'Disponível',
+  });
+}
 
   return (
     <ScrollView contentContainerStyle={{ flexGrow: 1 }} bounces={false} overScrollMode="never">
@@ -181,31 +188,33 @@ export default function UserDash() {
         <Button title='Registrar Gasto' onPress={() => setPopupVisible(true)} />
       </View>
 
-      <View style={{ marginTop: 20, marginLeft: width * 0.05 }}>
+      <View style={{ marginTop: 20, marginLeft: 20 }}>
         <Text style={{ fontFamily: 'manrope', fontSize: 20, fontWeight: '600', color: '#4a4a4a' }}>
           Gastos atuais por categoria
         </Text>
       </View>
 
-      <View style={[styles.gastosCard, { height: 'auto', maxHeight: 900 }]}>
+      <View style={styles.gastosCard}>
         <PieChart
           data={dadosGrafico}
           donut
+
           textColor="white"
-          radius={width * 0.40}
-          innerRadius={width * 0.24}
+          radius={150}
+          innerRadius={90}
           sectionAutoFocus={false}
           centerLabelComponent={() => (
             <View style={{ alignItems: 'center' }}>
-              <Text style={{ fontSize: width * 0.06, fontFamily: 'Manrope', fontWeight: 'bold' }}>Total</Text>
-              <Text style={{ fontSize: width * 0.05, fontFamily: 'Manrope' }}>R${renda}</Text>
+              <Text style={{ fontSize: 22, fontFamily: 'Manrope', fontWeight: 'bold' }}>Total</Text>
+              <Text style={{ fontSize: 18, fontFamily: 'Manrope' }}>R${renda}</Text>
             </View>
           )}
         />
 
-        <View style={{ marginTop: 30, width: '100%' }}>
+
+        <View style={{ marginTop: 30 }}>
           {gastosPorCategoria.map((gasto, index) => {
-            const Imagem = iconMap[gasto.nome] || Outros;
+            const Imagem = iconMap[gasto.nome] || Outros; // Usa ícone 'Outros' como fallback
             return (
               <GastoCategoria
                 key={index}
@@ -255,11 +264,11 @@ const styles = StyleSheet.create({
     width: width * 0.8,
     height: 60,
     justifyContent: 'center',
-    paddingHorizontal: width * 0.08,
-    marginLeft: width * 0.1,
+    paddingHorizontal: 35,
+    marginLeft: 40,
     marginTop: -25,
     flexDirection: 'row',
-    gap: width * 0.18,
+    gap: 108,
     alignItems: 'center',
   },
   expenseLabel: {
@@ -278,6 +287,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#ffffff',
     width: '90%',
+    height: 922,
     borderRadius: 20,
     alignSelf: 'center',
     padding: 20,

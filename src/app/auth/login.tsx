@@ -5,7 +5,6 @@ import { useRouter } from "expo-router";
 import * as WebBrowser from 'expo-web-browser';
 import { useEffect, useState } from "react";
 import {
- 
   KeyboardAvoidingView,
   Platform,
   StyleSheet,
@@ -23,11 +22,7 @@ WebBrowser.maybeCompleteAuthSession();
 
 
 export default function Login() {
-  const router = useRouter();
-  const [email, setEmail] = useState("");
-  const [senha, setSenha] = useState("");
 
-  async function handleLogin() {
   const { user } = useUser();
   const [isLoading, setIsLoading] = useState(false);
   const googleOAuth = useOAuth({ strategy: "oauth_google" });
@@ -106,7 +101,7 @@ export default function Login() {
         router.replace("/auth/registerFinance")
       }
 
-      router.replace('/auth/pages/userDash');
+      router.replace('/pages/userDash');
     } catch (error) {
       console.error("Erro no login:", error);
     } finally {
@@ -136,6 +131,7 @@ export default function Login() {
           icon="mail-outline"
           value={email}
           onChangeText={setEmail}
+          error=""
         />
         <Input
           placeholder="Senha"
@@ -143,6 +139,7 @@ export default function Login() {
           isPassword
           value={senha}
           onChangeText={setSenha}
+          error=''
         />
       </View>
 
@@ -156,7 +153,7 @@ export default function Login() {
         <View style={styles.line} />
       </View>
 
-      <TouchableOpacity style={styles.googleBtn}>
+      <TouchableOpacity style={styles.googleBtn} onPress={onGoogleSignin}>
         <Google />
       </TouchableOpacity>
 
@@ -172,7 +169,9 @@ export default function Login() {
       </View>
     </KeyboardAvoidingView>
   );
-}
+
+  }
+
 
 const styles = StyleSheet.create({
   container: {
@@ -245,4 +244,4 @@ const styles = StyleSheet.create({
     fontFamily: "Manrope",
     fontSize: 16,
   },
-});
+})

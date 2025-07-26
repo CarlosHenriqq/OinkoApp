@@ -11,8 +11,8 @@ export default function BotaoComConfirmacaoDelete({
   onConfirm,
   onCancel,
   titulo = "Confirmação",
-  mensagem = "Você tem certeza que deseja continuar?",
-  mensagem2 = "Você tem certeza que deseja continuar?",
+  mensagem = "Você tem certeza que deseja ",
+  mensagem2 = "excluir esse gasto?",
   textoBotaoConfirmar = "Sim",
   textoBotaoCancelar = "Não",
 }) {

@@ -1,7 +1,8 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
-import { router } from "expo-router";
-import { useEffect, useState } from "react";
+import * as FileSystem from "expo-file-system";
+import { router, useFocusEffect } from "expo-router";
+import { useCallback, useEffect, useState } from "react";
 import {
   Dimensions,
   Image,
@@ -10,6 +11,7 @@ import {
   Text,
   View,
 } from "react-native";
+import PerflPadrao from '../../../assets/images/cabeca.svg';
 import { ButtonMenor } from "../../../components/botaoMenor";
 import BotaoComConfirmacao from "../../../components/buttonConfirm";
 import HeaderProfile from "../../../components/headerProfile";
@@ -20,8 +22,6 @@ import { API_BASE_URL, ENDPOINTS } from "../../config/api";
 const { width: screenWidth } = Dimensions.get("window");
 
 export default function Profile() {
-
-  
   const categorias = [
     ["Dívidas", "Transporte", "Pets"],
     ["Saúde", "Cuidados Pessoais"],
@@ -32,19 +32,19 @@ export default function Profile() {
   ];
 
   const categoriasWidth = {
-    "Dívidas": 91,
-    "Transporte": 123,
-    "Pets": 68,
-    "Saúde": 84,
-    "Cuidados Pessoais": 197,
-    "Educação": 114,
-    "Entretenimento": 170,
-    "Assinatura": 135,
-    "Alimentação": 141,
-    "Moradia": 100,
-    "Cartão de crédito": 188,
-    "Contas do dia a dia": 200,
-    "Outros": 89,
+    "Dívidas": 95,
+    "Transporte": 128,
+    "Pets": 70,
+    "Saúde": 86,
+    "Cuidados Pessoais": 205,
+    "Educação": 119,
+    "Entretenimento": 175,
+    "Assinatura": 137,
+    "Alimentação": 145,
+    "Moradia": 102,
+    "Cartão de crédito": 190,
+    "Contas do dia a dia": 202,
+    "Outros": 91,
   };
 
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
@@ -53,19 +53,17 @@ export default function Profile() {
   const [nomeUser, setNomeUser] = useState("");
   const [email, setEmail] = useState("");
 
-  useEffect(()=>{
-    carregarUsuario()
-    
-  },[])
+  useEffect(() => {
+    carregarUsuario();
+  }, []);
 
   useFocusEffect(
-  useCallback(() => {
-    console.log('montada')
-    carregarUsuario();
-    carregarCategoriasSelecionadas();
-  }, [])
-);
-  
+    useCallback(() => {
+      console.log('montada');
+      carregarUsuario();
+      carregarCategoriasSelecionadas();
+    }, [])
+  );
 
   function handleToggleCategory(category: string) {
     if (selectedCategories.includes(category)) {
@@ -93,53 +91,102 @@ export default function Profile() {
     setRenda(formatted);
   }
 
-async function carregarUsuario() {
-  try {
-    // Primeiro pega do AsyncStorage
-    const usuarioSalvo = await AsyncStorage.getItem('usuarioPerfil');
-    if (usuarioSalvo) {
-      const data = JSON.parse(usuarioSalvo);
-      setNomeUser(data.nome);
-      setEmail(data.email);
-      setRenda(formatMoney((data.renda * 100).toString()));
-      setFotoUri(data.image_url ? `${API_BASE_URL}${data.image_url}` : null);
-    }
-
-    // Depois atualiza dados do backend
-    const userId = await AsyncStorage.getItem('userId');
-    if (userId) {
-      const response = await axios.get(`${API_BASE_URL}${ENDPOINTS.USER_INFO}`, {
-        headers: { usuario_id: userId }
-      });
-
-      const { nome, email, renda, image_url } = response.data;
-
-      setNomeUser(nome);
-      setEmail(email);
-      setRenda(renda !== null ? formatMoney((renda * 100).toString()) : '');
-      setFotoUri(image_url ? (image_url.startsWith('/uploads') ? `${API_BASE_URL}${image_url}` : image_url) : null);
-
-      // Atualiza cache local
-      await AsyncStorage.setItem('usuarioPerfil', JSON.stringify(response.data));
-    }
-  } catch (error) {
-    console.error('Erro ao carregar usuário no perfil:', error);
-  }
-}
-
-
-async function carregarCategoriasSelecionadas() {
+  async function carregarUsuario() {
     try {
-        const userId = await AsyncStorage.getItem('userId');
-        console.log(userId)
-        if (userId) {
-            const response = await axios.get(`${API_BASE_URL}${ENDPOINTS.CATEGORIA_POR_USUARIO}`, {
-                headers: { usuario_id: userId }
-            });
-            const categoriasSelecionadas = response.data.map(cat => cat.nome); // deve vir como ['Pets', 'Saúde', ...]
-            setSelectedCategories(categoriasSelecionadas);
-            console.log(categoriasSelecionadas)
+      const usuarioSalvo = await AsyncStorage.getItem('usuarioPerfil');
+      if (usuarioSalvo) {
+        const data = JSON.parse(usuarioSalvo);
+        setNomeUser(data.nome);
+        setEmail(data.email);
+        setRenda(formatMoney((data.renda * 100).toString()));
+
+        const urlCompleta = data.image_url
+          ? data.image_url.startsWith('/')
+            ? `${API_BASE_URL.replace(/\/$/, '')}${data.image_url}`
+            : data.image_url
+          : null;
+
+        if (urlCompleta) {
+          // Tenta carregar imagem do cache local primeiro
+          const localPath = await AsyncStorage.getItem('localFotoPerfil');
+          if (localPath) {
+            const info = await FileSystem.getInfoAsync(localPath);
+            if (info.exists) {
+              setFotoUri(localPath);
+            } else {
+              await AsyncStorage.removeItem('localFotoPerfil');
+              await baixarESalvarImagem(urlCompleta);
+            }
+          } else {
+            await baixarESalvarImagem(urlCompleta);
+          }
         }
+      }
+
+      const userId = await AsyncStorage.getItem('userId');
+      if (userId) {
+        const response = await axios.get(`${API_BASE_URL}${ENDPOINTS.USER_INFO}`, {
+          headers: { usuario_id: userId }
+        });
+
+        const { nome, email, renda, image_url } = response.data;
+        setNomeUser(nome);
+        setEmail(email);
+        setRenda(renda !== null ? formatMoney((renda * 100).toString()) : '');
+
+        const urlCompleta = image_url
+          ? image_url.startsWith('/')
+            ? `${API_BASE_URL.replace(/\/$/, '')}${image_url}`
+            : image_url
+          : null;
+
+        if (urlCompleta) {
+          const localPath = await AsyncStorage.getItem('localFotoPerfil');
+          if (localPath) {
+            const info = await FileSystem.getInfoAsync(localPath);
+            if (info.exists) {
+              setFotoUri(localPath);
+            } else {
+              await AsyncStorage.removeItem('localFotoPerfil');
+              await baixarESalvarImagem(urlCompleta);
+            }
+          } else {
+            await baixarESalvarImagem(urlCompleta);
+          }
+        }
+
+        await AsyncStorage.setItem('usuarioPerfil', JSON.stringify(response.data));
+      }
+    } catch (error) {
+      console.error('Erro ao carregar usuário no perfil:', error);
+    }
+  }
+
+  async function baixarESalvarImagem(url: string) {
+    try {
+      const localFileUri = FileSystem.documentDirectory + 'fotoPerfil.jpg';
+      const downloadResumable = FileSystem.createDownloadResumable(url, localFileUri);
+      await downloadResumable.downloadAsync();
+      await AsyncStorage.setItem('localFotoPerfil', localFileUri);
+      setFotoUri(localFileUri);
+    } catch (error) {
+      console.error('Erro ao baixar imagem:', error);
+      setFotoUri(url); // fallback para url direta
+    }
+  }
+
+  async function carregarCategoriasSelecionadas() {
+    try {
+      const userId = await AsyncStorage.getItem('userId');
+      console.log(userId);
+      if (userId) {
+        const response = await axios.get(`${API_BASE_URL}${ENDPOINTS.CATEGORIA_POR_USUARIO}`, {
+          headers: { usuario_id: userId }
+        });
+        const categoriasSelecionadas = response.data.map(cat => cat.nome); // deve vir como ['Pets', 'Saúde', ...]
+        setSelectedCategories(categoriasSelecionadas);
+        console.log(categoriasSelecionadas);
+      }
     } catch (error) {
       console.error("Erro ao carregar categorias selecionadas:", error);
     }
@@ -172,17 +219,17 @@ async function carregarCategoriasSelecionadas() {
         <HeaderProfile showLogoutButton />
 
         <View style={styles.PhotoContainer}>
-          <Image
-            source={
-              fotoUri
-                ? { uri: fotoUri }
-                : require("../../../assets/images/perfil.png")
-            }
-            style={styles.Photo}
-          />
-        </View>
+  {fotoUri && typeof fotoUri === 'string' && (fotoUri.startsWith('file://') || fotoUri.startsWith('http')) ? (
+    <Image
+      source={{ uri: fotoUri }}
+      style={styles.Photo}
+    />
+  ) : (
+    <PerflPadrao width={120} height={120} />
+  )}
+</View>
 
-        <View style={styles.Card}>
+        <View style={[styles.Card, { marginTop: 5 }]}>
           <Text style={styles.Label}>Informações pessoais</Text>
           <Text style={styles.Name}>{nomeUser}</Text>
           <Text style={styles.Mail}>{email}</Text>
@@ -284,7 +331,7 @@ const styles = StyleSheet.create({
     width: 120,
     height: 120,
     borderRadius: 60,
-    backgroundColor: "#FACFBC",
+    backgroundColor: "#ffffff",
     overflow: "hidden",
     justifyContent: "center",
     alignItems: "center",

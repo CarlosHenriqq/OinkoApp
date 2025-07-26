@@ -70,15 +70,8 @@ export default function RecoverPassword() {
         </Text>
       </View>
 
-      <View style={styles.inputContainer}>
-          <OTPInput onCodeFilled={setCodigo} />
-      </View>
 
-      <View style={styles.resendContainer}>
-        <TouchableOpacity onPress={handleReenviarCodigo}> 
-          <Text style={styles.resendText}>Reenviar código</Text>
-        </TouchableOpacity>
-      </View>
+     
       <View style={{ marginTop: 60 }}>
         <OTPInput onCodeFilled={setCodigo} />
 

@@ -34,7 +34,6 @@ interface Gasto {
   data: string;
   descricao: string;
   categoria_nome: string;
-  categoria_id: number;
 }
 
 interface CategoriaAgrupada {
@@ -51,6 +50,7 @@ export default function Relatorio() {
   const [editandoGasto, setEditandoGasto] = useState<Gasto | null>(null);
   const [gastoParaExcluir, setGastoParaExcluir] = useState<number | null>(null);
   const [modalVisivel, setModalVisivel] = useState(false);
+
 
   function abrirModalExclusao(id: number) {
     setGastoParaExcluir(id);
@@ -78,6 +78,8 @@ export default function Relatorio() {
   function handleEditarGasto(gasto: Gasto) {
     setEditandoGasto(gasto);
   }
+
+
 
   const iconMap = {
     'Alimentação': Alimentacao,
@@ -124,11 +126,14 @@ export default function Relatorio() {
   }, [buscarGastos]);
 
   useFocusEffect(
-    useCallback(() => {
-      buscarGastos();
-    }, [buscarGastos])
-  );
+          useCallback(() => {
+              buscarGastos();
+              
+          }, [buscarGastos])
+      );
 
+
+  // Agrupar gastos por categoria
   const categoriasAgrupadas: CategoriaAgrupada[] = [];
   gastos.forEach((gasto) => {
     let categoria = categoriasAgrupadas.find((c) => c.nome === gasto.categoria_nome);
@@ -149,6 +154,11 @@ export default function Relatorio() {
     const [ano, mes, dia] = dataISO.split('-');
     return `${dia}/${mes}/${ano}`;
   }
+  useEffect(() => {
+    console.log("Gasto para excluir:", gastoParaExcluir);
+  }, [gastoParaExcluir]);
+
+
 
   return (
     <ScrollView contentContainerStyle={{ flexGrow: 1 }} bounces={false} overScrollMode="never">
@@ -165,8 +175,10 @@ export default function Relatorio() {
         />
 
         <View style={styles.expenseContainer}>
-          <Text style={styles.expenseLabel}>Nesse mês você gastou:</Text>
-          <Text style={styles.expenseValue}>
+          <Text style={{ fontSize: 16, color: "#4A4A4A", fontFamily: "Manrope" }}>
+            Nesse mês você gastou:
+          </Text>
+          <Text style={{ fontSize: 18, color: "#526471", fontFamily: "Manrope", fontWeight: "600" }}>
             R${" "}
             {gastos
               .reduce((acc, g) => acc + Number(g.valor), 0)
@@ -175,8 +187,18 @@ export default function Relatorio() {
           </Text>
         </View>
 
-        <View style={styles.sectionHeader}>
-          <Text style={styles.sectionHeaderText}>Resumo total dos gastos</Text>
+        <View style={{ marginTop: 20, marginBottom: 10, width: "90%", alignItems: "flex-start" }}>
+          <Text
+            style={{
+              fontFamily: "Manrope",
+              fontSize: 20,
+              fontWeight: "600",
+              color: "#4a4a4a",
+              textAlign: "left",
+            }}
+          >
+            Resumo total dos gastos
+          </Text>
         </View>
 
         <View style={[styles.Card, { paddingTop: 30 }]}>
@@ -195,7 +217,7 @@ export default function Relatorio() {
                   valor: `R$${Number(g.valor).toFixed(2).replace(".", ",")}`,
                   data: formatarDataBR(g.data),
                   id: g.id,
-                  categoria_id: g.categoria_id
+                  categoria_id: g.id_cat
                 }))}
                 onEdit={(gastoSub) => handleEditarGasto({
                   id: gastoSub.id,
@@ -204,16 +226,18 @@ export default function Relatorio() {
                   data: gastoSub.data,
                   categoria_nome: categoria.nome,
                   categoria_id: gastoSub.categoria_id
+                  
                 })}
                 onDelete={(id) => abrirModalExclusao(id)}
               />
+
+
             );
           })}
         </View>
 
         <View style={{ height: 20 }} />
       </View>
-
       <NewGasto
         visible={!!editandoGasto}
         onClose={() => setEditandoGasto(null)}
@@ -230,11 +254,13 @@ export default function Relatorio() {
           onConfirm={handleConfirmarExclusao}
           onCancel={fecharModal}
           titulo="Excluir Gasto"
-          mensagem="Você tem certeza que deseja excluir este gasto?"
           textoBotaoConfirmar="Excluir"
+          mensagem="Você tem certeza que deseja "
+          mensagem2='excluir esse gasto?'
           textoBotaoCancelar="Cancelar"
         />
       )}
+
     </ScrollView>
   );
 }
@@ -270,7 +296,7 @@ const styles = StyleSheet.create({
   expenseContainer: {
     borderRadius: 30,
     backgroundColor: "#ffffff",
-    width: "90%",
+    width: "80%",
     height: 50,
     justifyContent: "space-between",
     paddingHorizontal: 20,
@@ -308,4 +334,3 @@ const styles = StyleSheet.create({
     textAlign: "left",
   }
 });
-

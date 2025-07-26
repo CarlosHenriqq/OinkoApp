@@ -12,13 +12,23 @@ interface HeaderProfileProps {
   children?: React.ReactNode;
   showBackButton?: boolean;
   showLogoutButton?: boolean;
+  fotoUri?: string | null;
 }
 
-export default function HeaderProfile({ children, showBackButton = false, showLogoutButton = false }: HeaderProfileProps) {
+export default function HeaderProfile({ children, showBackButton = false, showLogoutButton = false, fotoUri = null}: HeaderProfileProps) {
 
   async function handleLogout() {
     try {
       await AsyncStorage.removeItem('token');
+        await AsyncStorage.multiRemove([
+        'userName',
+        'email',
+        'password',
+        'birthDate',
+        'userId',
+        'renda',
+        'tempRegisterData'
+      ]);
       router.replace('/auth/login');
     } catch (error) {
       console.error(error);
@@ -47,7 +57,9 @@ export default function HeaderProfile({ children, showBackButton = false, showLo
     >
       {showBackButton && (
         <TouchableOpacity
-          onPress={() => router.replace("/pages/profile")}
+          onPress={() => router.replace({pathname:'/pages/profile',
+            params:{fotoUri:fotoUri}
+          })}
           style={{
             position: 'absolute',
             top: scaled(50),

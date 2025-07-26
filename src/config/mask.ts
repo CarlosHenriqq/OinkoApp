@@ -3,8 +3,8 @@ export function isValidEmail(email: string): boolean {
 }
 
 export function isValidPassword(password: string): boolean {
-    const regex = /^(?=.[0-9])(?=.[!@#$%^&(),.?":{}|<>])[A-Za-z\d!@#$%^&(),.?":{}|<>]{8,}$/;
-    return regex.test(password);
+  const regex = /^.{8,}$/;
+  return regex.test(password);
 }
 export function isValidDate(dateStr: string): boolean {
     const dateRegex = /^(\d{2})\/(\d{2})\/(\d{4})$/;

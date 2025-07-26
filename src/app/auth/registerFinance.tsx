@@ -2,14 +2,12 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import { router } from "expo-router";
 import { useState } from "react";
-import { Dimensions, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Alert, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import StepIndicator from 'react-native-step-indicator';
 import { Button } from "../../../components/botao";
 import Input from "../../../components/input";
 import InputCategoria from "../../../components/inputCategoria";
 import { API_BASE_URL, ENDPOINTS } from '../../config/api';
-
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 export default function RegisterFinance() {
   const labels = ["Dados pessoais", "Dados Financeiros"];
@@ -17,7 +15,6 @@ export default function RegisterFinance() {
     renda: '',
     categorias: '',
   });
-
   const customStyles = {
     stepIndicatorSize: 20,
     currentStepIndicatorSize: 24,
@@ -52,23 +49,23 @@ export default function RegisterFinance() {
   ];
 
   const categoriasWidth = {
-    "Dívidas": 93,
-    "Transporte": 126,
-    "Pets": 68,
-    "Saúde": 84,
-    "Cuidados Pessoais": 197,
-    "Educação": 114,
-    "Entretenimento": 170,
-    "Assinatura": 135,
-    "Alimentação": 141,
-    "Moradia": 100,
-    "Cartão de crédito": 188,
-    "Contas do dia a dia": 200,
-    "Outros": 89,
+    "Dívidas": 95,
+    "Transporte": 128,
+    "Pets": 70,
+    "Saúde": 86,
+    "Cuidados Pessoais": 205,
+    "Educação": 119,
+    "Entretenimento": 175,
+    "Assinatura": 137,
+    "Alimentação": 145,
+    "Moradia": 102,
+    "Cartão de crédito": 190,
+    "Contas do dia a dia": 202,
+    "Outros": 91,
   };
 
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
-  const [renda, setRenda] = useState('');
+
 
   function formatCurrency(value: string) {
     const cleanValue = value.replace(/\D/g, '');
@@ -93,59 +90,63 @@ export default function RegisterFinance() {
       }
     }
   }
+  const [renda, setRenda] = useState('');
 
-    async function handleRegisterFinance() {
+
+  async function handleRegisterFinance() {
     if (!validateForm()) return;
     try {
-        
 
-        let userIdStr = await AsyncStorage.getItem('userId');
-        let userId = userIdStr ? Number(userIdStr) : 'null';
 
-        let nome = await AsyncStorage.getItem('userName') || '';
-        let email = await AsyncStorage.getItem('email') || '';
-        const dataNascimento = null; // ajustar se desejar solicitar antes
+      let userIdStr = await AsyncStorage.getItem('userId');
+      let userId = userIdStr ? Number(userIdStr) : 'null';
 
-        if (!userId) {
-            // Cria usuário no banco caso venha do Clerk (Google)
-            const response = await axios.post(`${API_BASE_URL}${ENDPOINTS.REGISTER}`, {
-                nome,
-                email,
-                senha: '', // senha vazia pois é login social
-                data_nascimento: dataNascimento,
-            });
+      let nome = await AsyncStorage.getItem('userName') || '';
+      let email = await AsyncStorage.getItem('email') || '';
+      const dataNascimento = null; // ajustar se desejar solicitar antes
 
-            userId = response.data.id;
-            await AsyncStorage.setItem('userId', userId.toString());
-        }
-
-        const cleanRenda = Number(renda.replace(/\D/g, ''));
-
-        await axios.post(`${API_BASE_URL}${ENDPOINTS.REGISTER_FINANCE}`, {
-            usuario_id: userId,
-            renda: cleanRenda,
-            categorias: selectedCategories,
+      if (!userId) {
+        // Cria usuário no banco caso venha do Clerk (Google)
+        const response = await axios.post(`${API_BASE_URL}${ENDPOINTS.REGISTER}`, {
+          nome,
+          email,
+          senha: '', // senha vazia pois é login social
+          data_nascimento: dataNascimento,
         });
 
-        await AsyncStorage.setItem('renda', cleanRenda.toString());
+        userId = response.data.id;
+        await AsyncStorage.setItem('userId', userId.toString());
+      }
 
-        Alert.alert('Sucesso', 'Informações financeiras salvas com sucesso!');
+      const cleanRenda = Number(renda.replace(/\D/g, ''));
 
-        // Checar se nome ou email estão vazios, indicando necessidade de completar perfil
-        if (!nome || !email) {
-            router.replace('/profileEdit');
-        } else {
-            router.replace('/auth/pages/userDash');
-        }
+      await axios.post(`${API_BASE_URL}${ENDPOINTS.REGISTER_FINANCE}`, {
+        usuario_id: userId,
+        renda: cleanRenda,
+        categorias: selectedCategories,
+      });
+
+      await AsyncStorage.setItem('renda', cleanRenda.toString());
+      await AsyncStorage.removeItem('fotoPerfil');
+      await AsyncStorage.removeItem('localFotoPerfil');
+
+      Alert.alert('Sucesso', 'Informações financeiras salvas com sucesso!');
+
+      // Checar se nome ou email estão vazios, indicando necessidade de completar perfil
+      if (!nome || !email) {
+        router.replace('/profileEdit');
+      } else {
+        router.replace('/pages/userDash');
+      }
 
     } catch (error) {
-        console.error(error);
-        Alert.alert('Erro', 'Erro ao salvar informações. Tente novamente.');
-    } 
-}
-const validateForm = () => {
-  let isValid = true;
-  const newErrors = {...errors};
+      console.error(error);
+      Alert.alert('Erro', 'Erro ao salvar informações. Tente novamente.');
+    }
+  }
+  const validateForm = () => {
+    let isValid = true;
+    const newErrors = { ...errors };
 
     if (!renda) {
       newErrors.renda = 'Valor deve ser maior que R$0,00';
@@ -153,63 +154,42 @@ const validateForm = () => {
     } else {
       newErrors.renda = '';
     }
-
     if (selectedCategories.length === 0) {
       newErrors.categorias = 'Por favor, selecione ao menos 1 categoria';
       isValid = false;
     } else {
       newErrors.categorias = '';
     }
-
     setErrors(newErrors);
     return isValid;
-  };
+  }
+
 
   return (
     <View style={{ backgroundColor: '#E0E8F9', flex: 1 }}>
-      <View style={{ backgroundColor: '#E0E8F9', marginTop: 60 }}>
+      <View style={{ backgroundColor: '#E0E8F9', marginTop: 60 }} >
         <StepIndicator
           customStyles={customStyles}
           currentPosition={1}
-          labels={labels}
+          labels={["Dados pessoais", "Dados financeiros"]}
           stepCount={2}
         />
       </View>
-
       <View style={styles.container}>
-        <View style={{ marginBottom: 25, marginTop: 24, paddingHorizontal: 20 }}>
-          <Text style={{
-            color: '#4A4A4A',
-            fontSize: 34,
-            fontFamily: 'Manrope',
-            fontWeight: "bold",
-            maxWidth: SCREEN_WIDTH * 0.75,
-            textAlign: 'center'
-          }}>
-            Informações Financeiras
-          </Text>
+        <View style={{ marginBottom: 25, marginTop: 24 }} >
+          <Text style={{ color: '#4A4A4A', fontSize: 34, fontFamily: 'Manrope', fontWeight: "bold", maxWidth: 230, textAlign: 'center' }}>Informações Financeiras</Text>
         </View>
-
-        <Input
-          placeholder="Quanto é a sua renda?"
-          icon="cash-outline"
-          value={renda}
-          onChangeText={handleChangeRenda}
-          error={errors.renda}
-        />
-
-        <View style={{ marginBottom: 25, paddingHorizontal: 20 }}>
-          <Text style={{
-            color: '#4A4A4A',
-            fontSize: 20,
-            fontFamily: 'Manrope',
-            fontWeight: "600",
-            textAlign: 'center'
-          }}>
-            Quais dessas categorias fazem parte do seu mês? <Text style={{ fontWeight: 'bold' }}>Escolha até 7</Text>
-          </Text>
+        <View>
+          <Input
+            placeholder="Quanto é a sua renda?"
+            icon="cash-outline"
+            value={renda}
+            onChangeText={handleChangeRenda}
+            error={errors.renda} />
         </View>
-
+        <View style={{ marginBottom: 25 }}>
+          <Text style={{ color: '#4A4A4A', fontSize: 20, fontFamily: 'Manrope', fontWeight: "600", maxWidth: 336, textAlign: 'center' }}>Quais dessas categorias fazem parte do seu mês? <Text style={{ fontWeight: 'bold' }}>Escolha até 7   </Text></Text>
+        </View>
         <View style={{ paddingBottom: 20 }}>
           {categorias.map((row, idx) => (
             <View
@@ -217,11 +197,10 @@ const validateForm = () => {
               style={{
                 flexDirection: 'row',
                 justifyContent: 'space-between',
-                flexWrap: 'wrap',
-                gap: 10,
-                paddingHorizontal: 12,
-                marginBottom: 5
+                gap: 13,
+
               }}
+
             >
               {row.map((cat) => (
                 <InputCategoria
@@ -239,11 +218,10 @@ const validateForm = () => {
               ))}
             </View>
           ))}
-          {errors?.categorias ? <Text style={styles.errorText}>{errors.categorias}</Text> : null}
+          {errors ? <Text style={styles.errorText}>{errors.categorias}</Text> : null}
         </View>
-
-        <View style={{ marginTop: 10, marginBottom: 30 }}>
-          <Button title='Finalizar' onPress={() => { if (validateForm()) { handleRegisterFinance() } }} />
+        <View style={{ marginTop: 25, marginBottom: 25 }}>
+          <Button title='Finalizar' onPress={() => { if (validateForm()) { handleRegisterFinance() }; }} />
         </View>
       </View>
 
@@ -254,8 +232,7 @@ const validateForm = () => {
           textDecorationLine: 'underline',
           fontSize: 16,
           fontWeight: '600',
-          color: '#4a4a4a',
-          marginBottom: 25
+          color: '#4a4a4a'
         }}>
           Voltar para a tela anterior
         </Text>
@@ -269,7 +246,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#E0E8F9',
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: 10,
   },
   errorText: {
     color: '#FF0000',
