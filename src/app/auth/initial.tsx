@@ -88,12 +88,13 @@ const styles = StyleSheet.create({
     color: '#4A4A4A',
     fontFamily: 'Manrope',
     fontSize: 16,
+    fontWeight:"500",
   },
   footerLink: {
     textDecorationLine: 'underline',
     color: '#4A4A4A',
     fontFamily: 'Manrope',
     fontSize: 16,
-    marginLeft: 4,
+    fontWeight:"700",
   },
 });

@@ -43,7 +43,7 @@ export default function RegisterFinance() {
     ["Dívidas", "Transporte", "Pets"],
     ["Saúde", "Cuidados Pessoais"],
     ["Educação", "Entretenimento"],
-    ["Assinatura", "Alimentação"],
+    ["Assinaturas", "Alimentação"],
     ["Moradia", "Cartão de crédito"],
     ["Contas do dia a dia", "Outros"],
   ];
@@ -56,7 +56,7 @@ export default function RegisterFinance() {
     "Cuidados Pessoais": 205,
     "Educação": 119,
     "Entretenimento": 175,
-    "Assinatura": 137,
+    "Assinaturas": 139,
     "Alimentação": 145,
     "Moradia": 102,
     "Cartão de crédito": 190,
@@ -188,7 +188,7 @@ export default function RegisterFinance() {
             error={errors.renda} />
         </View>
         <View style={{ marginBottom: 25 }}>
-          <Text style={{ color: '#4A4A4A', fontSize: 20, fontFamily: 'Manrope', fontWeight: "600", maxWidth: 336, textAlign: 'center' }}>Quais dessas categorias fazem parte do seu mês? <Text style={{ fontWeight: 'bold' }}>Escolha até 7   </Text></Text>
+          <Text style={{ color: '#4A4A4A', fontSize: 20, fontFamily: 'Manrope', fontWeight: "500", maxWidth: 336, textAlign: 'center' }}>Quais dessas categorias fazem parte do seu mês? <Text style={{ fontWeight: 'bold' }}>Escolha até 7   </Text></Text>
         </View>
         <View style={{ paddingBottom: 20 }}>
           {categorias.map((row, idx) => (
@@ -231,7 +231,7 @@ export default function RegisterFinance() {
           fontFamily: 'manrope',
           textDecorationLine: 'underline',
           fontSize: 16,
-          fontWeight: '600',
+          fontWeight: '700',
           color: '#4a4a4a'
         }}>
           Voltar para a tela anterior

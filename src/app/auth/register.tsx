@@ -168,7 +168,7 @@ export default function Register() {
                     <View style={{ marginLeft: 12 }}>
                         <Text style={{ color: '#4A4A4A', fontFamily: 'Manrope', fontSize: 14 }}>Declaro que li e concordo com:</Text>
                         <TouchableOpacity onPress={() => router.replace("/terms/terms")}>
-                            <Text style={{ textDecorationLine: 'underline', color: '#4A4A4A', fontFamily: 'Manrope', fontSize: 14, fontWeight: '600' }}>Termo de uso e Política de Privacidade</Text>
+                            <Text style={{ textDecorationLine: 'underline', color: '#4A4A4A', fontFamily: 'Manrope', fontSize: 14, fontWeight: '700' }}>Termo de uso e Política de Privacidade</Text>
                         </TouchableOpacity>
                     </View>
                 </View>
@@ -209,20 +209,21 @@ const styles = StyleSheet.create({
         marginTop: 5,
     },
     checkbox: {
-        marginTop: 10,
-        borderRadius: 3,
+        marginTop: 5,
+        borderRadius: 5,
     },
     checkboxText: {
         color: '#4A4A4A',
         fontFamily: 'Manrope',
         fontSize: 14,
+        fontWeight: '600',
     },
     checkboxLink: {
         textDecorationLine: 'underline',
         color: '#4A4A4A',
         fontFamily: 'Manrope',
-        fontSize: 14,
-        fontWeight: '600',
+        fontSize: 16,
+        fontWeight: '700',
     },
     loginContainer: {
         alignItems: 'center',
@@ -234,11 +235,13 @@ const styles = StyleSheet.create({
         color: '#4A4A4A',
         fontFamily: 'Manrope',
         fontSize: 16,
+        fontWeight: '500',
     },
     loginLink: {
         textDecorationLine: 'underline',
         color: '#4A4A4A',
         fontFamily: 'Manrope',
         fontSize: 16,
+        fontWeight: '700',
     },
 })

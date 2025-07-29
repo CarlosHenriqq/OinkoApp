@@ -188,7 +188,7 @@ const styles = StyleSheet.create({
   },
   subgastoValor: {
     fontSize: scaled(16),
-    fontWeight: '700',
+    fontWeight: '600',
     color: '#4A4A4A',
     fontFamily: 'Manrope',
     marginTop: scaled(-20),

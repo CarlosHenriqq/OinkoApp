@@ -93,6 +93,9 @@ const styles = StyleSheet.create({
   },
   boldText: {
     fontWeight: 'bold',
+    color: '#4A4A4A',
+    fontSize: 16,
+    fontFamily: 'Manrope',
   },
   inputContainer: {
     marginTop: 70,

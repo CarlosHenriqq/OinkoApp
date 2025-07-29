@@ -189,7 +189,7 @@ if (gastosPorCategoria.length > 0 && rendaNum > 0) {
       </View>
 
       <View style={{ marginTop: 20, marginLeft: 20 }}>
-        <Text style={{ fontFamily: 'manrope', fontSize: 20, fontWeight: '600', color: '#4a4a4a' }}>
+        <Text style={{ fontFamily: 'Manrope', fontSize: 20, fontWeight: '600', color: '#4a4a4a' }}>
           Gastos atuais por categoria
         </Text>
       </View>
@@ -205,7 +205,7 @@ if (gastosPorCategoria.length > 0 && rendaNum > 0) {
           sectionAutoFocus={false}
           centerLabelComponent={() => (
             <View style={{ alignItems: 'center' }}>
-              <Text style={{ fontSize: 22, fontFamily: 'Manrope', fontWeight: 'bold' }}>Total</Text>
+              <Text style={{ fontSize: 22, fontFamily: 'Manrope', fontWeight: 'bold' , color:'#4a4a4a'}}>Total</Text>
               <Text style={{ fontSize: 18, fontFamily: 'Manrope' }}>R${renda}</Text>
             </View>
           )}
@@ -244,6 +244,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 15,
     marginBottom: 20,
+    
   },
   greetingText: {
     fontFamily: 'Manrope',
@@ -270,6 +271,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: 108,
     alignItems: 'center',
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 3,
+    
   },
   expenseLabel: {
     fontFamily: 'Manrope',

@@ -220,6 +220,7 @@ const styles = StyleSheet.create({
     fontFamily: "Manrope",
     fontSize: 16,
     color: "#4A4A4A",
+    fontWeight:"500",
   },
   googleBtn: {
     backgroundColor: "white",
@@ -232,6 +233,7 @@ const styles = StyleSheet.create({
     color: "#4A4A4A",
     fontFamily: "Manrope",
     fontSize: 16,
+    fontWeight:"700",
   },
   registerContainer: {
     marginBottom: 65,
@@ -243,5 +245,6 @@ const styles = StyleSheet.create({
     color: "#4A4A4A",
     fontFamily: "Manrope",
     fontSize: 16,
+    fontWeight:"500",
   },
 })

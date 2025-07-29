@@ -1,13 +1,13 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useState } from 'react';
 import {
-    Dimensions,
-    StyleSheet,
-    Text,
-    TextInput,
-    TextInputProps,
-    TouchableOpacity,
-    View,
+  Dimensions,
+  StyleSheet,
+  Text,
+  TextInput,
+  TextInputProps,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 
 const { width } = Dimensions.get('window');
@@ -67,7 +67,7 @@ const styles = StyleSheet.create({
     borderColor: '#A3C0AC',
     borderRadius: scaled(20),
     paddingHorizontal: scaled(10),
-    paddingVertical: scaled(8),
+    paddingVertical: scaled(1),
     backgroundColor: '#ffffff',
     width: '100%',
     height: scaled(50),

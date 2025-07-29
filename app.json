@@ -1,10 +1,11 @@
 {
   "expo": {
-    "name": "oinko",
-    "slug": "oinko",
+    "name": "Oinko",
+    "slug": "Oinko",
+    "icon": "./assets/icon.png",
     "version": "1.0.0",
     "orientation": "portrait",
-    "scheme": "oinko",
+    "scheme": "Oinko",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {

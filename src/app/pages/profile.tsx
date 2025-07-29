@@ -26,7 +26,7 @@ export default function Profile() {
     ["Dívidas", "Transporte", "Pets"],
     ["Saúde", "Cuidados Pessoais"],
     ["Educação", "Entretenimento"],
-    ["Assinatura", "Alimentação"],
+    ["Assinaturas", "Alimentação"],
     ["Moradia", "Cartão de crédito"],
     ["Contas do dia a dia", "Outros"],
   ];
@@ -39,7 +39,7 @@ export default function Profile() {
     "Cuidados Pessoais": 205,
     "Educação": 119,
     "Entretenimento": 175,
-    "Assinatura": 137,
+    "Assinaturas": 139,
     "Alimentação": 145,
     "Moradia": 102,
     "Cartão de crédito": 190,
