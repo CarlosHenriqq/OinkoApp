@@ -231,7 +231,7 @@ export default function RegisterFinance() {
           fontFamily: 'manrope',
           textDecorationLine: 'underline',
           fontSize: 16,
-          fontWeight: '700',
+          fontWeight: '600',
           color: '#4a4a4a'
         }}>
           Voltar para a tela anterior

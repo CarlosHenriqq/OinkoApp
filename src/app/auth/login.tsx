@@ -31,7 +31,7 @@ export default function Login() {
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
   const [googleLoginSuccess, setGoogleLoginSuccess] = useState(false);
-  const [toastVisivel, setToastVisivel] = useState(true);
+  const [toastVisivel, setToastVisivel] = useState(false);
   const [tipo, setTipo] = useState<'sucesso' | 'erro'>('sucesso');
   const [mensagem, setMensagem] = useState('');
 
@@ -39,6 +39,7 @@ export default function Login() {
     setMensagem(texto);
     setTipo(tipoAlerta);
     setToastVisivel(true);
+    
     setTimeout(() => {
         setToastVisivel(false);
     }, 3000);
@@ -264,7 +265,7 @@ const styles = StyleSheet.create({
     color: "#4A4A4A",
     fontFamily: "Manrope",
     fontSize: 16,
-    fontWeight: "700",
+    fontWeight: "600",
   },
   registerContainer: {
     marginBottom: 65,
