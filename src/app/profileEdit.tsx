@@ -8,7 +8,7 @@ import {
   ScrollView,
   StyleSheet,
   Text,
-  View,
+  View
 } from "react-native";
 import BotaoComConfirmacao from "../../components/buttonConfirm";
 import EditarFotoPerfil from "../../components/EditPhoto";
@@ -25,6 +25,24 @@ export default function ProfileEdit() {
 
   // Estado para controlar a URI da imagem
   const [imageUrl, setImageUrl] = useState("");
+  const [toastVisivel, setToastVisivel] = useState(false);
+  const [tipo, setTipo] = useState<'sucesso' | 'erro'>('sucesso');
+  const [mensagem, setMensagem] = useState('');
+
+  const mostrarToast = (mensagem: string, tipo: 'sucesso' | 'erro') => {
+  setMensagem(mensagem);
+  setTipo(tipo);
+  setToastVisivel(true); // <- esse set deve funcionar normalmente
+  setTimeout(() => setToastVisivel(false), 3000);
+};
+
+  function esconderToast() {
+    setToastVisivel(false);
+  }
+useEffect(() => {
+  console.log('toastVisivel agora é:', toastVisivel);
+}, [toastVisivel]);
+
 
   // Formata data 'yyyy-mm-dd' para 'dd/mm/yyyy'
   function formatDateFromString(dateStr: string) {
@@ -79,56 +97,65 @@ export default function ProfileEdit() {
     setImageUrl(novaUri);
   }
 
-  async function handleSalvar() {
-    try {
-      const userId = await AsyncStorage.getItem("userId");
-      if (!userId) return;
+  const [loading, setLoading] = useState(false);
 
-      const dataFormatada = dataNascimento.replace(/\D/g, "");
-      console.log("Verificando userId:", userId);
-      console.log("Senha Atual:", senhaAtual);
-      // Atualiza nome, email e data
-      await axios.put(`${API_BASE_URL}${ENDPOINTS.UPDATE_USER}`, {
+async function handleSalvar() {
+  if (loading) return; // evita chamada duplicada
+  setLoading(true);
+  try {
+    const userId = await AsyncStorage.getItem("userId");
+    if (!userId) {
+      setLoading(false);
+      return;
+    }
+
+    const dataFormatada = dataNascimento.replace(/\D/g, "");
+
+    await axios.put(`${API_BASE_URL}${ENDPOINTS.UPDATE_USER}`, {
+      usuario_id: userId,
+      nome: nomeUser,
+      email,
+      data_nascimento: dataFormatada,
+    });
+
+    await AsyncStorage.setItem("userName", nomeUser);
+
+    if (senhaAtual && senhaNova) {
+      const verifyResponse = await axios.post(`${API_BASE_URL}/auth/verificarSenha`, {
         usuario_id: userId,
-        nome: nomeUser,
-        email,
-        data_nascimento: dataFormatada,
+        senha: senhaAtual,
       });
 
-      await AsyncStorage.setItem("userName", nomeUser);
-
-      // Se for alterar senha
-      if (senhaAtual && senhaNova) {
-        const verifyResponse = await axios.post(`${API_BASE_URL}/auth/verificarSenha`, {
-          usuario_id: userId,
-          senha: senhaAtual,
-        });
-
-        if (!verifyResponse.data.valida) {
-          Alert.alert("Erro", "Senha atual incorreta.");
-          return;
-        }
-
-        await axios.put(`${API_BASE_URL}/auth/alterarSenha`, {
-          usuario_id: userId,
-          nova_senha: senhaNova,
-        });
-
-        Alert.alert("Sucesso", "Perfil e senha atualizados com sucesso!");
-      } else {
-        Alert.alert("Sucesso", "Perfil atualizado com sucesso!");
+      if (!verifyResponse.data.valida) {
+        Alert.alert("Erro", "Senha atual incorreta.");
+        setLoading(false);
+        return;
       }
-    } catch (error) {
-      console.error("Erro ao atualizar perfil:", error);
-      Alert.alert("Erro", "Erro ao atualizar perfil. Tente novamente.");
+
+      await axios.put(`${API_BASE_URL}/auth/alterarSenha`, {
+        usuario_id: userId,
+        nova_senha: senhaNova,
+      });
+      setToastVisivel(true)
+      mostrarToast('Sucesso, Perfil e senha atualizados com sucesso!', 'sucesso');
+    } else {
+      setToastVisivel(true)
+      mostrarToast("Sucesso, perfil atualizado com sucesso!", 'sucesso');
     }
+  } catch (error) {
+    mostrarToast("Erro ao atualizar perfil", 'erro');
+  } finally {
+    setLoading(false);
   }
+}
+
 
   useEffect(() => {
     carregarUsuario();
   }, []);
 
   return (
+    <>
     <KeyboardAvoidingView
       style={{ flex: 1 }}
       behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -217,13 +244,31 @@ export default function ProfileEdit() {
               error=""
             />
           </View>
+        
 
           <View style={{ height: 80, marginTop: 30 }}>
             <BotaoComConfirmacao onConfirm={handleSalvar} />
           </View>
         </View>
       </ScrollView>
+       
     </KeyboardAvoidingView>
+    {toastVisivel && (
+  <View style={{
+    position: 'absolute',
+    bottom: 50,
+    left: 20,
+    right: 20,
+    backgroundColor: tipo === 'sucesso' ? '#4CAF50' : '#F44336',
+    padding: 15,
+    borderRadius: 10,
+    zIndex: 9999,
+  }}>
+    <Text style={{ color: 'white', textAlign: 'center', fontWeight: 'bold' }}>{mensagem}</Text>
+  </View>
+)}
+
+                  </>
   );
 }
 

@@ -329,7 +329,7 @@ const styles = StyleSheet.create({
   },
   
   errorText: {
-    color: '#FF0000',
+    color: '#f15757ff',
     fontSize: 12,
     marginBottom: 8,
     fontFamily: 'Manrope',

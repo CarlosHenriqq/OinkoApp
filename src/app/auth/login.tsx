@@ -16,6 +16,7 @@ import Google from "../../../assets/images/google.svg";
 import Logo from "../../../assets/images/logo.svg";
 import { Button } from "../../../components/botao";
 import Input from "../../../components/input";
+import ToastAlerta from "../../../components/toast";
 import { API_BASE_URL, ENDPOINTS } from "../../config/api";
 
 WebBrowser.maybeCompleteAuthSession();
@@ -30,6 +31,23 @@ export default function Login() {
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
   const [googleLoginSuccess, setGoogleLoginSuccess] = useState(false);
+  const [toastVisivel, setToastVisivel] = useState(true);
+  const [tipo, setTipo] = useState<'sucesso' | 'erro'>('sucesso');
+  const [mensagem, setMensagem] = useState('');
+
+  function mostrarToast(texto: string, tipoAlerta: 'sucesso' | 'erro') {
+    setMensagem(texto);
+    setTipo(tipoAlerta);
+    setToastVisivel(true);
+    setTimeout(() => {
+        setToastVisivel(false);
+    }, 3000);
+  }
+
+  function esconderToast() {
+    setToastVisivel(false);
+  }
+
 
   // Quando login via Google ocorrer
   useEffect(() => {
@@ -102,10 +120,17 @@ export default function Login() {
       }
 
       router.replace('/pages/userDash');
-    } catch (error) {
-      console.error("Erro no login:", error);
-    } finally {
-      setIsLoading(false);
+    } catch (error: any) {
+        console.error('Erro ao fazer login:', error);
+
+        // Evita mostrar erro técnico no toast
+        if (error.response?.status === 401) {
+            mostrarToast('E-mail ou senha inválidos.', 'erro');
+        } else if (error.message === 'Network Error') {
+            mostrarToast('Erro de conexão. Verifique sua internet.', 'erro');
+        } else {
+            mostrarToast('Erro inesperado ao tentar login.', 'erro');
+        }
     }
   }
 
@@ -167,10 +192,16 @@ export default function Login() {
           <Text style={[styles.link, { marginLeft: 4 }]}>Clique aqui</Text>
         </TouchableOpacity>
       </View>
+      <ToastAlerta
+                visivel={toastVisivel}
+                tipo={tipo}
+                mensagem={mensagem}
+                aoFechar={esconderToast}
+            />
     </KeyboardAvoidingView>
   );
 
-  }
+}
 
 
 const styles = StyleSheet.create({
@@ -197,13 +228,13 @@ const styles = StyleSheet.create({
     marginTop: 30,
     width: "100%",
     maxWidth: 400,
-    alignItems:"center",
+    alignItems: "center",
   },
   buttonWrapper: {
     marginTop: 20,
     marginBottom: 20,
     width: "100%",
-    alignItems:"center",
+    alignItems: "center",
   },
   separatorContainer: {
     flexDirection: "row",
@@ -220,7 +251,7 @@ const styles = StyleSheet.create({
     fontFamily: "Manrope",
     fontSize: 16,
     color: "#4A4A4A",
-    fontWeight:"500",
+    fontWeight: "500",
   },
   googleBtn: {
     backgroundColor: "white",
@@ -233,7 +264,7 @@ const styles = StyleSheet.create({
     color: "#4A4A4A",
     fontFamily: "Manrope",
     fontSize: 16,
-    fontWeight:"700",
+    fontWeight: "700",
   },
   registerContainer: {
     marginBottom: 65,
@@ -245,6 +276,6 @@ const styles = StyleSheet.create({
     color: "#4A4A4A",
     fontFamily: "Manrope",
     fontSize: 16,
-    fontWeight:"500",
+    fontWeight: "500",
   },
 })

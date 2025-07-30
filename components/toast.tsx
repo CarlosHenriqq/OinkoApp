@@ -1,50 +1,85 @@
-// components/Toast.tsx
-import { useEffect, useRef } from 'react';
-import { Animated, StyleSheet, Text } from 'react-native';
+import {
+  Dimensions,
+  Modal,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 
-export default function Toast({ message, type = 'success', onClose }) {
-  const opacity = useRef(new Animated.Value(0)).current;
+const { width } = Dimensions.get('window');
+const BASE_WIDTH = 390;
+const scale = width / BASE_WIDTH;
+const scaled = (size: number) => size * scale;
 
-  useEffect(() => {
-    Animated.timing(opacity, {
-      toValue: 1,
-      duration: 300,
-      useNativeDriver: true,
-    }).start(() => {
-      setTimeout(() => {
-        Animated.timing(opacity, {
-          toValue: 0,
-          duration: 300,
-          useNativeDriver: true,
-        }).start(() => {
-          onClose?.();
-        });
-      }, 2000); // tempo visível
-    });
-  }, []);
+interface ToastAlertaProps {
+  tipo: 'sucesso' | 'erro';
+  mensagem: string;
+  visivel: boolean;
+  aoFechar: () => void;
+}
+
+export default function ToastAlerta({ tipo, mensagem, visivel, aoFechar }: ToastAlertaProps) {
+  const corTexto = tipo === 'sucesso' ? '#A3C0AC' : '#f15757ff';
 
   return (
-    <Animated.View style={[styles.toast, { opacity }, type === 'error' ? styles.error : styles.success]}>
-      <Text style={styles.text}>{message}</Text>
-    </Animated.View>
+    <Modal
+      animationType="fade"
+      transparent={true}
+      visible={visivel}
+      onRequestClose={aoFechar}
+    >
+      <View style={estilos.overlay}>
+        <View style={[estilos.card, { backgroundColor: '#e0e8f9' }]}>
+          <Text style={[estilos.texto, {color:corTexto}]}>{mensagem}</Text>
+          <TouchableOpacity
+            onPress={aoFechar}
+            style={[estilos.botao, { backgroundColor: '#526471' }]}
+          >
+            <Text style={estilos.textoBotao}>Fechar</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </Modal>
   );
 }
 
-const styles = StyleSheet.create({
-  toast: {
-    position: 'absolute',
-    bottom: 40,
-    alignSelf: 'center',
-    padding: 14,
-    borderRadius: 10,
-    zIndex: 99,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    elevation: 5,
+const estilos = StyleSheet.create({
+  overlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex:9999
   },
-  text: { color: 'white', fontWeight: 'bold' },
-  success: { backgroundColor: '#4BB543' },
-  error: { backgroundColor: '#E63946' },
+  card: {
+    borderRadius: scaled(10),
+    padding: scaled(20),
+    width: scaled(260),
+    alignItems: 'center',
+    gap: scaled(15),
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: scaled(2) },
+    shadowOpacity: 0.4,
+    shadowRadius: scaled(2),
+    elevation: 3,
+  },
+  texto: {
+    color: '#ffffff',
+    fontSize: scaled(18),
+    textAlign: 'center',
+    fontFamily: 'Manrope',
+    fontWeight:700
+  },
+  botao: {
+    paddingHorizontal: scaled(30),
+    paddingVertical: scaled(8),
+    borderRadius: scaled(30),
+  },
+  textoBotao: {
+    fontWeight: 'bold',
+    color: '#fff',
+    fontFamily: 'Manrope',
+    fontSize: scaled(16),
+  },
 });

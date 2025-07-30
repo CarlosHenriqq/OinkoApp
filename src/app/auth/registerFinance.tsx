@@ -248,7 +248,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   errorText: {
-    color: '#FF0000',
+    color: '#f15757ff',
     fontSize: 13,
     marginTop: 4,
     fontFamily: 'Manrope',

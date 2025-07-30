@@ -4,30 +4,45 @@ import axios from "axios";
 import { useRouter } from "expo-router";
 import * as WebBrowser from 'expo-web-browser';
 import { useEffect, useState } from "react";
-import { Alert, KeyboardAvoidingView, Platform, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { KeyboardAvoidingView, Platform, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import Google from '../../assets/images/google.svg';
 import Logo from '../../assets/images/logo.svg';
 import { Button } from "../../components/botao";
 import Input from '../../components/input';
+import ToastAlerta from "../../components/toast";
 import { API_BASE_URL, ENDPOINTS } from "../config/api";
 
 WebBrowser.maybeCompleteAuthSession()
 
 export default function Login() {
 
+    const [toastVisivel, setToastVisivel] = useState(true);
+    const [tipo, setTipo] = useState<'sucesso' | 'erro'>('sucesso');
+    const [mensagem, setMensagem] = useState('');
+
+    function mostrarToast(texto: string, tipoAlerta: 'sucesso' | 'erro') {
+        setMensagem(texto);
+        setTipo(tipoAlerta);
+        setToastVisivel(true);
+    }
+
+    function esconderToast() {
+        setToastVisivel(false);
+    }
+
     const [isLoading, setIsLoading] = useState(false);
-    const googleOAuth = useOAuth({strategy: "oauth_google" })
+    const googleOAuth = useOAuth({ strategy: "oauth_google" })
 
     async function onGoogleSignin() {
         console.log('chamou')
         try {
             const oAuthFlow = await googleOAuth.startOAuthFlow()
 
-            if(oAuthFlow.authSessionResult?.type === "success"){
-                if(oAuthFlow.setActive){
-                    await oAuthFlow.setActive({session:oAuthFlow.createdSessionId})
+            if (oAuthFlow.authSessionResult?.type === "success") {
+                if (oAuthFlow.setActive) {
+                    await oAuthFlow.setActive({ session: oAuthFlow.createdSessionId })
                 }
-            }else{
+            } else {
                 setIsLoading(false)
             }
         } catch (error) {
@@ -48,32 +63,38 @@ export default function Login() {
     const [senha, setSenha] = useState('');
 
     async function handleLogin() {
-        try {
-            const response = await axios.post(`${API_BASE_URL}${ENDPOINTS.LOGIN}`, { email, senha })
+    try {
+        const response = await axios.post(`${API_BASE_URL}${ENDPOINTS.LOGIN}`, { email, senha });
 
+        const userName = response.data.usuario.nome;
+        const userId = response.data.usuario.id;
+        const renda = response.data.usuario.renda;
 
-            const userName = response.data.usuario.nome;
-            const userId = response.data.usuario.id;
-            const renda = response.data.usuario.renda;
+        await AsyncStorage.setItem('userName', userName);
+        await AsyncStorage.setItem('userId', userId.toString());
+        await AsyncStorage.setItem('token', response.data.token);
 
-            await AsyncStorage.setItem('userName', userName);
-            await AsyncStorage.setItem('userId', userId.toString());
-            await AsyncStorage.setItem('token', response.data.token);
+        if (renda != null) {
+            await AsyncStorage.setItem('renda', renda.toString());
+        } else {
+            await AsyncStorage.removeItem('renda');
+        }
 
-            if (renda != null) {
-                await AsyncStorage.setItem('renda', renda.toString());
-            } else {
-                await AsyncStorage.removeItem('renda');
-            }
+        router.replace('/pages/userDash');
+    } catch (error: any) {
+        console.error('Erro ao fazer login:', error);
 
-            Alert.alert('Sucesso', 'Login realizado com sucesso!');
-            router.replace('/auth/pages/userDash');
-
-        } catch (error) {
-            console.error(error);
-            Alert.alert('Erro', 'Email ou senha inválidos.');
+        // Evita mostrar erro técnico no toast
+        if (error.response?.status === 401) {
+            mostrarToast('E-mail ou senha inválidos.', 'erro');
+        } else if (error.message === 'Network Error') {
+            mostrarToast('Erro de conexão. Verifique sua internet.', 'erro');
+        } else {
+            mostrarToast('Erro inesperado ao tentar login.', 'erro');
         }
     }
+}
+
 
     return (
         <KeyboardAvoidingView style={styles.container}
@@ -90,7 +111,7 @@ export default function Login() {
             </View>
             <View style={{ marginTop: 20, marginBottom: 20 }}>
                 <Button title="Acessar" onPress={handleLogin} />
-                <Button title="aaa" onPress={onGoogleSignin}/>
+                <Button title="aaa" onPress={onGoogleSignin} />
             </View>
             <View style={styles.separatorContainer}>
                 <View style={styles.line} />
@@ -116,6 +137,12 @@ export default function Login() {
                     </Text>
                 </TouchableOpacity>
             </View>
+            <ToastAlerta
+                visivel={true}
+                tipo={tipo}
+                mensagem={mensagem}
+                aoFechar={esconderToast}
+            />
 
 
         </KeyboardAvoidingView>

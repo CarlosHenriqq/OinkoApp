@@ -91,7 +91,7 @@ const styles = StyleSheet.create({
     right: scaled(10),
   },
   errorText: {
-    color: '#FF0000',
+    color: '#f15757ff',
     fontSize: 12,
     marginTop: scaled(2),
     marginLeft: scaled(10),
