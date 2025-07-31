@@ -42,7 +42,7 @@ export default function Profile() {
     "Assinaturas": 139,
     "Alimentação": 145,
     "Moradia": 102,
-    "Cartão de crédito": 190,
+    "Cartão de Crédito": 190,
     "Contas do dia a dia": 202,
     "Outros": 91,
   };

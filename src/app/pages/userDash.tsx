@@ -24,6 +24,7 @@ export default function UserDash() {
 
 
 
+
   const iconMap = {
     'Alimentação': Alimentacao,
     'Pets': Pets,
@@ -86,20 +87,18 @@ export default function UserDash() {
       });
       console.log(response.data); // contém id, nome, email, renda
       setRenda(response.data.renda)
+      const nomeCompleto = response.data.nome
+       if (nomeCompleto) {
+      const primeiro = nomeCompleto.split(' ')[0];
+      setPrimeiroNome(primeiro);
+    }
     } catch (error) {
       console.error('Erro ao buscar user info:', error);
     }
   }
-  async function carregarNome() {
-    const nomeCompleto = await AsyncStorage.getItem('userName');
-    if (nomeCompleto) {
-      const primeiro = nomeCompleto.split(' ')[0];
-      setPrimeiroNome(primeiro);
-    }
-  }
+  
   useEffect(() => {
     buscarUserInfo();
-    carregarNome();
     buscarGasto();
     buscarGastosPorCategoria();
   }, []);
@@ -109,7 +108,6 @@ export default function UserDash() {
       buscarGasto();
       buscarGastosPorCategoria();
       buscarUserInfo();
-      carregarNome();
     }, [])
   );
 
@@ -132,7 +130,7 @@ export default function UserDash() {
     'Assinaturas': '#8A38F5',
     'Alimentação': '#E6C48C',
     'Moradia': '#8C9E6D',
-    'Cartão de Crédito': '#8A75A0',
+    'Cartão de crédito': '#8A75A0',
     'Contas do Dia a Dia': '#6F6F6F',
     'Outros': '#D6D0C4',
   };

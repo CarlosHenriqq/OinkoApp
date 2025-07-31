@@ -1,17 +1,14 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import axios from 'axios';
 import Checkbox from 'expo-checkbox';
 import { router } from 'expo-router';
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import StepIndicator from 'react-native-step-indicator';
 import { Button } from '../../../components/botao';
 import Input from "../../../components/input";
-import { API_BASE_URL, ENDPOINTS } from '../../config/api';
 import { isValidDate, isValidEmail, isValidPassword } from '../../config/mask';
 
 export default function Register() {
-
 
     const [isChecked, setIsChecked] = useState(false);
     const [name, setName] = useState('');
@@ -23,49 +20,49 @@ export default function Register() {
         birthDate: '',
         email: '',
         password: '',
-        
     });
- const validateForm = () => {
-  let isValid = true;
-  const newErrors = {...errors};
 
-  if (!name) {
-    newErrors.name = 'Nome é obrigatório';
-    isValid = false;
-  } else {
-    newErrors.name = '';
-  }
+    const validateForm = () => {
+      let isValid = true;
+      const newErrors = {...errors};
 
-  if (!birthDate) {
-    newErrors.birthDate = 'Data de nascimento é obrigatória';
-    isValid = false;
-  } else if (!isValidDate(birthDate)){
-    newErrors.birthDate = 'Data inválida'
-    isValid= false;
-  }else {
-    newErrors.birthDate = '';
-  }
-  if (!email) {
-    newErrors.email = 'E-mail é obrigatório';
-    isValid = false;
-  } else if (!isValidEmail(email)) {
-    newErrors.email = 'E-mail inválido';
-    isValid = false;
-  }else {
-    newErrors.email = '';
-  }
-  if (!password) {
-    newErrors.password = 'Senha é obrigatória';
-    isValid = false;
-  } else if (!isValidPassword(password)) {
-    newErrors.password = 'A senha precisa ter no mínimo 8 caractéres';
-    isValid = false;}
-    else {
-    newErrors.password = '';
-  }
-  setErrors(newErrors);
-  return isValid;
-}
+      if (!name) {
+        newErrors.name = 'Nome é obrigatório';
+        isValid = false;
+      } else {
+        newErrors.name = '';
+      }
+
+      if (!birthDate) {
+        newErrors.birthDate = 'Data de nascimento é obrigatória';
+        isValid = false;
+      } else if (!isValidDate(birthDate)){
+        newErrors.birthDate = 'Data inválida'
+        isValid= false;
+      }else {
+        newErrors.birthDate = '';
+      }
+      if (!email) {
+        newErrors.email = 'E-mail é obrigatório';
+        isValid = false;
+      } else if (!isValidEmail(email)) {
+        newErrors.email = 'E-mail inválido';
+        isValid = false;
+      }else {
+        newErrors.email = '';
+      }
+      if (!password) {
+        newErrors.password = 'Senha é obrigatória';
+        isValid = false;
+      } else if (!isValidPassword(password)) {
+        newErrors.password = 'A senha precisa ter no mínimo 8 caractéres';
+        isValid = false;}
+        else {
+        newErrors.password = '';
+      }
+      setErrors(newErrors);
+      return isValid;
+    }
 
     const customStyles = {
         stepIndicatorSize: 20,
@@ -90,39 +87,29 @@ export default function Register() {
         labelSize: 13,
         currentStepLabelColor: '#A3C0AC'
     };
-    async function handleRegister() {
-        if (!isChecked ) {
+
+    // Nova função só para avançar sem chamar API ainda
+    async function handleAvancar() {
+        if (!isChecked) {
             alert('Você precisa aceitar os Termos de Uso.');
             return;
         }
 
         const dataNascimentoSemBarra = birthDate.replace(/\D/g, '');
 
-        console.log('Enviando data_nascimento:', dataNascimentoSemBarra);
-
         if (dataNascimentoSemBarra.length !== 8) {
             alert('Data de nascimento inválida. Use o formato dd/mm/yyyy.');
             return;
         }
 
-        try {
-            const response = await axios.post(`${API_BASE_URL}${ENDPOINTS.REGISTER}`, {
-                nome: name,
-                data_nascimento: dataNascimentoSemBarra,
-                email: email,
-                senha: password,
-            });
+        if (!validateForm()) return;
 
-            console.log(response.data);
-            const userId = response.data.id
-            await AsyncStorage.setItem('userId', userId.toString())
-            await AsyncStorage.removeItem('fotoPerfil');
-            alert('Cadastro realizado com sucesso!');
-            router.replace('/auth/registerFinance');
-        } catch (error) {
-            console.error(error);
-            alert('Erro ao cadastrar. Tente novamente.');
-        }
+        // Salva rascunho no AsyncStorage
+        const dados = { name, birthDate, email, password };
+        await AsyncStorage.setItem('@draftCadastro', JSON.stringify(dados));
+
+        // Navega para a próxima tela (dados financeiros)
+        router.replace('/auth/registerFinance');
     }
 
     function formatDate(text:string) {
@@ -136,6 +123,29 @@ export default function Register() {
     function handleChangeBirthDate(text:string) {
         setBirthDate(formatDate(text));
     }
+
+    useEffect(() => {
+  const carregarDadosSalvos = async () => {
+    const dadosSalvos = await AsyncStorage.getItem('@draftCadastro');
+    if (dadosSalvos) {
+      const { name, birthDate, email, password, isChecked } = JSON.parse(dadosSalvos);
+      setName(name);
+      setBirthDate(birthDate);
+      setEmail(email);
+      setPassword(password);
+      setIsChecked(!!isChecked); // força a conversão em booleano
+    }
+  };
+  carregarDadosSalvos();
+}, []);
+
+useEffect(() => {
+  const salvarRascunho = async () => {
+    const dados = { name, birthDate, email, password, isChecked };
+    await AsyncStorage.setItem('@draftCadastro', JSON.stringify(dados));
+  };
+  salvarRascunho();
+}, [name, birthDate, email, password, isChecked]);
 
 
     return (
@@ -167,19 +177,30 @@ export default function Register() {
                     />
                     <View style={{ marginLeft: 12 }}>
                         <Text style={{ color: '#4A4A4A', fontFamily: 'Manrope', fontSize: 14 }}>Declaro que li e concordo com:</Text>
-                        <TouchableOpacity onPress={() => router.replace("/terms/terms")}>
-                            <Text style={{ textDecorationLine: 'underline', color: '#4A4A4A', fontFamily: 'Manrope', fontSize: 14, fontWeight: '700' }}>Termo de uso e Política de Privacidade</Text>
+                        <TouchableOpacity onPress={async () => {
+                            const dados = { name, birthDate, email, password, isChecked }; // ✅ Agora salva também o checkbox
+                            await AsyncStorage.setItem('@draftCadastro', JSON.stringify(dados));
+                            router.push('/terms/terms');
+                        }}>
+                            <Text style={styles.checkboxLink}>
+                                Termo de uso e Política de Privacidade
+                            </Text>
                         </TouchableOpacity>
                     </View>
                 </View>
 
                 <View style={{ marginTop: 60, marginBottom: 60 }}>
-                    <Button title="Avançar" onPress={() => {if (validateForm()) {handleRegister();}}}/>
+                    {/* Aqui só chama handleAvancar */}
+                    <Button title="Avançar" onPress={handleAvancar}/>
                 </View>
 
                 <View style={styles.loginContainer}>
                     <Text style={styles.loginText}>Já possui uma conta?</Text>
-                    <TouchableOpacity onPress={() => router.replace("/auth/login")}>
+                    <TouchableOpacity onPress={async () => {
+                        // Limpa o rascunho ao sair do cadastro e ir para login
+                        await AsyncStorage.removeItem('@draftCadastro');
+                        router.replace("/auth/login");
+                    }}>
                         <Text style={styles.loginLink}>Clique aqui</Text>
                     </TouchableOpacity>
                 </View>
@@ -216,14 +237,14 @@ const styles = StyleSheet.create({
         color: '#4A4A4A',
         fontFamily: 'Manrope',
         fontSize: 14,
-        fontWeight: '600',
+        fontWeight: '500',
     },
     checkboxLink: {
         textDecorationLine: 'underline',
         color: '#4A4A4A',
         fontFamily: 'Manrope',
         fontSize: 16,
-        fontWeight: '700',
+        fontWeight: '600',
     },
     loginContainer: {
         alignItems: 'center',
@@ -242,6 +263,6 @@ const styles = StyleSheet.create({
         color: '#4A4A4A',
         fontFamily: 'Manrope',
         fontSize: 16,
-        fontWeight: '700',
+        fontWeight: '600',
     },
-})
+});

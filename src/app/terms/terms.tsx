@@ -106,7 +106,7 @@ return(
                            <Text style={styles.TextLong}>Em caso de dúvidas ou solicitações, entre em contato com a equipe pelo                           e-mail:<Text style={{ color: '#517CEA', textDecorationLine: "underline" }}>oinkofinancas@gmail.com</Text></Text>
                         
                          <View style={{alignItems:"center", marginTop: 30, marginBottom: 30}}>
-                            <Button title="Li e Concordo" onPress={() => router.replace("/auth/register")}></Button> 
+                            <Button title="Li e Concordo" onPress={() => router.back()} />
                           </View>                 
                         </View>
                         <View style={{height:30}}></View>

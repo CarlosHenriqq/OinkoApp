@@ -21,15 +21,19 @@ import { API_BASE_URL, ENDPOINTS } from "../../config/api";
 
 WebBrowser.maybeCompleteAuthSession();
 
-
 export default function Login() {
-
   const { user } = useUser();
   const [isLoading, setIsLoading] = useState(false);
   const googleOAuth = useOAuth({ strategy: "oauth_google" });
   const router = useRouter();
+
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
+
+  // Estados para erros nos inputs
+  const [emailError, setEmailError] = useState('');
+  const [senhaError, setSenhaError] = useState('');
+
   const [googleLoginSuccess, setGoogleLoginSuccess] = useState(false);
   const [toastVisivel, setToastVisivel] = useState(false);
   const [tipo, setTipo] = useState<'sucesso' | 'erro'>('sucesso');
@@ -40,14 +44,13 @@ export default function Login() {
     setTipo(tipoAlerta);
     setToastVisivel(true);
     setTimeout(() => {
-        setToastVisivel(false);
+      setToastVisivel(false);
     }, 3000);
   }
 
   function esconderToast() {
     setToastVisivel(false);
   }
-
 
   // Quando login via Google ocorrer
   useEffect(() => {
@@ -58,9 +61,27 @@ export default function Login() {
         const userId = user.id;
         const userEmail = user.emailAddresses[0].emailAddress;
 
+<<<<<<< HEAD
         const prevEmail = await AsyncStorage.getItem("email");
         if (prevEmail && prevEmail !== userEmail) {
           await AsyncStorage.removeItem("fotoPerfil");
+=======
+          const prevEmail = await AsyncStorage.getItem('email');
+          if (prevEmail && prevEmail !== userEmail) {
+            await AsyncStorage.removeItem('fotoPerfil');
+          }
+
+          await AsyncStorage.setItem('userName', userName);
+          await AsyncStorage.setItem('userId', userId);
+          await AsyncStorage.setItem('email', userEmail);
+          await AsyncStorage.setItem('token', ''); // ou token do Clerk se desejar
+
+          router.replace('/auth/registerFinance');
+        } catch (e) {
+          console.error('Erro ao salvar dados do usuário Google:', e);
+        } finally {
+          setGoogleLoginSuccess(false);
+>>>>>>> dc042305f9fb21ed99635f740fbf5132e1b2bd7f
         }
 
         await AsyncStorage.setItem("userName", userName);
@@ -97,46 +118,34 @@ export default function Login() {
   }
 
   async function handleLogin() {
-    setIsLoading(true);
-    try {
-      const response = await axios.post(`${API_BASE_URL}${ENDPOINTS.LOGIN}`, { email, senha });
-      const userName = response.data.usuario.nome;
-      const userId = response.data.usuario.id;
-      const renda = response.data.usuario.renda;
+  // Limpar erros antes de tentar login
+  setEmailError('');
+  setSenhaError('');
+  setIsLoading(true);
 
-      const prevEmail = await AsyncStorage.getItem('email');
-      console.log(prevEmail, email)
-      if (prevEmail && prevEmail !== email) {
-        // Usuário mudou, limpa a foto
-        await AsyncStorage.removeItem('fotoPerfil');
-      }
+  try {
+    const response = await axios.post(`${API_BASE_URL}${ENDPOINTS.LOGIN}`, { email, senha });
+    // ... código do sucesso ...
+  } catch (error: any) {
+    console.error('Erro ao fazer login:', error);
 
-      await AsyncStorage.setItem('userName', userName);
-      await AsyncStorage.setItem('userId', userId.toString());
-      await AsyncStorage.setItem('token', response.data.token);
-      await AsyncStorage.setItem('email', email);
-
-      if (renda != null) {
-        await AsyncStorage.setItem('renda', renda.toString());
-      } else {
-        await AsyncStorage.removeItem('renda');
-        router.replace("/auth/registerFinance")
-      }
-
-      router.replace('/pages/userDash');
-    } catch (error: any) {
-        console.error('Erro ao fazer login:', error);
-
-        // Evita mostrar erro técnico no toast
-        if (error.response?.status === 401) {
-            mostrarToast('E-mail ou senha inválidos.', 'erro');
-        } else if (error.message === 'Network Error') {
-            mostrarToast('Erro de conexão. Verifique sua internet.', 'erro');
-        } else {
-            mostrarToast('Erro inesperado ao tentar login.', 'erro');
-        }
+    if (error.response?.status === 401) {
+      setEmailError('E-mail ou senha inválidos');
+      setSenhaError('');
+      // Limpar erro após 5 segundos
+      setTimeout(() => {
+        setEmailError('');
+      }, 5000);
+    } else if (error.message === 'Network Error') {
+      mostrarToast('Erro de conexão. Verifique sua internet.', 'erro');
+    } else {
+      mostrarToast('Erro inesperado ao tentar login.', 'erro');
     }
+  } finally {
+    setIsLoading(false);
   }
+}
+
 
   useEffect(() => {
     WebBrowser.warmUpAsync();
@@ -160,7 +169,7 @@ export default function Login() {
           icon="mail-outline"
           value={email}
           onChangeText={setEmail}
-          error=""
+          error={emailError}  // aqui passa o erro
         />
         <Input
           placeholder="Senha"
@@ -168,12 +177,12 @@ export default function Login() {
           isPassword
           value={senha}
           onChangeText={setSenha}
-          error=''
+          error={senhaError} // aqui passa o erro
         />
       </View>
 
       <View style={styles.buttonWrapper}>
-        <Button title="Acessar" onPress={handleLogin} />
+        <Button title="Acessar" onPress={handleLogin} disabled={isLoading} />
       </View>
 
       <View style={styles.separatorContainer}>
@@ -196,17 +205,16 @@ export default function Login() {
           <Text style={[styles.link, { marginLeft: 4 }]}>Clique aqui</Text>
         </TouchableOpacity>
       </View>
+
       <ToastAlerta
-                visivel={toastVisivel}
-                tipo={tipo}
-                mensagem={mensagem}
-                aoFechar={esconderToast}
-            />
+        visivel={toastVisivel}
+        tipo={tipo}
+        mensagem={mensagem}
+        aoFechar={esconderToast}
+      />
     </KeyboardAvoidingView>
   );
-
 }
-
 
 const styles = StyleSheet.create({
   container: {
@@ -268,7 +276,7 @@ const styles = StyleSheet.create({
     color: "#4A4A4A",
     fontFamily: "Manrope",
     fontSize: 16,
-    fontWeight: "700",
+    fontWeight: "600",
   },
   registerContainer: {
     marginBottom: 65,
@@ -282,4 +290,4 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "500",
   },
-})
+});
