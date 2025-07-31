@@ -27,7 +27,7 @@ export default function RecoverPassword() {
         email,
         code: codigo
       });
-      AsyncStorage.setItem('emailRecover', email)
+      await AsyncStorage.setItem('emailRecover', email);
       if (response.data.valido) {
         router.push('/recover/changePassword');
       } else {
@@ -70,11 +70,8 @@ export default function RecoverPassword() {
         </Text>
       </View>
 
-
-     
       <View style={{ marginTop: 60 }}>
         <OTPInput onCodeFilled={setCodigo} />
-
       </View>
 
       <View style={{ marginTop: 10 }}>
@@ -86,7 +83,8 @@ export default function RecoverPassword() {
       </View>
 
       <View style={styles.buttonContainer}>
-        <Button title="Continuar" onPress={() => router.replace("/recover/changePassword")} />
+        {/* Agora chama a função de validação */}
+        <Button title="Continuar" onPress={handleValidarCodigo} />
       </View>
 
       <View style={styles.linkContainer}>
