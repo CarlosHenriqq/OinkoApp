@@ -1,5 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
+import { router } from "expo-router";
 import { useEffect, useState } from "react";
 import {
   Alert,
@@ -14,6 +15,7 @@ import BotaoComConfirmacao from "../../components/buttonConfirm";
 import EditarFotoPerfil from "../../components/EditPhoto";
 import HeaderProfile from "../../components/headerProfile";
 import InputRenda from "../../components/inputRenda";
+import ToastAlerta from "../../components/toast";
 import { API_BASE_URL, ENDPOINTS } from "../config/api";
 
 export default function ProfileEdit() {
@@ -32,12 +34,13 @@ export default function ProfileEdit() {
   const mostrarToast = (mensagem: string, tipo: 'sucesso' | 'erro') => {
   setMensagem(mensagem);
   setTipo(tipo);
-  setToastVisivel(true); // <- esse set deve funcionar normalmente
-  setTimeout(() => setToastVisivel(false), 3000);
+  setToastVisivel(true); 
+  
 };
 
   function esconderToast() {
     setToastVisivel(false);
+    router.replace('/pages/profile')
   }
 useEffect(() => {
   console.log('toastVisivel agora é:', toastVisivel);
@@ -136,10 +139,11 @@ async function handleSalvar() {
         usuario_id: userId,
         nova_senha: senhaNova,
       });
-      setToastVisivel(true)
+     
       mostrarToast('Sucesso, Perfil e senha atualizados com sucesso!', 'sucesso');
+      console.log('agr ficou', toastVisivel)
     } else {
-      setToastVisivel(true)
+     console.log('agr ficou', toastVisivel)
       mostrarToast("Sucesso, perfil atualizado com sucesso!", 'sucesso');
     }
   } catch (error) {
@@ -155,7 +159,7 @@ async function handleSalvar() {
   }, []);
 
   return (
-    <>
+    
     <KeyboardAvoidingView
       style={{ flex: 1 }}
       behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -247,28 +251,24 @@ async function handleSalvar() {
         
 
           <View style={{ height: 80, marginTop: 30 }}>
-            <BotaoComConfirmacao onConfirm={handleSalvar} />
+            <BotaoComConfirmacao
+  onConfirm={async () => {
+    console.log('Botão de confirmação pressionado');
+    await handleSalvar(); // aqui está a navegação e toast
+  }}
+/>
           </View>
         </View>
       </ScrollView>
-       
+       <ToastAlerta
+  visivel={toastVisivel}
+  tipo={tipo}
+  mensagem={mensagem}
+  aoFechar={esconderToast}
+/>
     </KeyboardAvoidingView>
-    {toastVisivel && (
-  <View style={{
-    position: 'absolute',
-    bottom: 50,
-    left: 20,
-    right: 20,
-    backgroundColor: tipo === 'sucesso' ? '#4CAF50' : '#F44336',
-    padding: 15,
-    borderRadius: 10,
-    zIndex: 9999,
-  }}>
-    <Text style={{ color: 'white', textAlign: 'center', fontWeight: 'bold' }}>{mensagem}</Text>
-  </View>
-)}
+  
 
-                  </>
   );
 }
 

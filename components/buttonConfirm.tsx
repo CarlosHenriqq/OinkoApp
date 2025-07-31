@@ -1,4 +1,3 @@
-import { router } from 'expo-router';
 import { useState } from 'react';
 import { Dimensions, Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
@@ -10,11 +9,11 @@ const scaled = (size: number) => size * scale;
 export default function BotaoComConfirmacao({ onConfirm }) {
   const [modalVisible, setModalVisible] = useState(false);
 
-  function handleConfirmar() {
-    setModalVisible(false);
-    if (onConfirm) onConfirm();
-    router.replace("/pages/profile");
-  }
+ function handleConfirmar() {
+  setModalVisible(false);
+  if (onConfirm) onConfirm(); // quem chama decide o que fazer
+}
+
 
   return (
     <>
