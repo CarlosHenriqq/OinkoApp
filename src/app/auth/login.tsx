@@ -95,52 +95,34 @@ export default function Login() {
   }
 
   async function handleLogin() {
-    // Limpar erros antes de tentar login
-    setEmailError('');
-    setSenhaError('');
-    setIsLoading(true);
+  // Limpar erros antes de tentar login
+  setEmailError('');
+  setSenhaError('');
+  setIsLoading(true);
 
-    try {
-      const response = await axios.post(`${API_BASE_URL}${ENDPOINTS.LOGIN}`, { email, senha });
-      const userName = response.data.usuario.nome;
-      const userId = response.data.usuario.id;
-      const renda = response.data.usuario.renda;
+  try {
+    const response = await axios.post(`${API_BASE_URL}${ENDPOINTS.LOGIN}`, { email, senha });
+    // ... código do sucesso ...
+  } catch (error: any) {
+    console.error('Erro ao fazer login:', error);
 
-      const prevEmail = await AsyncStorage.getItem('email');
-      if (prevEmail && prevEmail !== email) {
-        await AsyncStorage.removeItem('fotoPerfil');
-      }
-
-      await AsyncStorage.setItem('userName', userName);
-      await AsyncStorage.setItem('userId', userId.toString());
-      await AsyncStorage.setItem('token', response.data.token);
-      await AsyncStorage.setItem('email', email);
-
-      if (renda != null) {
-        await AsyncStorage.setItem('renda', renda.toString());
-      } else {
-        await AsyncStorage.removeItem('renda');
-        router.replace("/auth/registerFinance");
-        return;
-      }
-
-      router.replace('/pages/userDash');
-    } catch (error: any) {
-      console.error('Erro ao fazer login:', error);
-
-      if (error.response?.status === 401) {
-        // mostra erro abaixo do input de email (pode ajustar para ambos)
-        setEmailError('E-mail ou senha inválidos');
-        setSenhaError('');
-      } else if (error.message === 'Network Error') {
-        mostrarToast('Erro de conexão. Verifique sua internet.', 'erro');
-      } else {
-        mostrarToast('Erro inesperado ao tentar login.', 'erro');
-      }
-    } finally {
-      setIsLoading(false);
+    if (error.response?.status === 401) {
+      setEmailError('E-mail ou senha inválidos');
+      setSenhaError('');
+      // Limpar erro após 5 segundos
+      setTimeout(() => {
+        setEmailError('');
+      }, 5000);
+    } else if (error.message === 'Network Error') {
+      mostrarToast('Erro de conexão. Verifique sua internet.', 'erro');
+    } else {
+      mostrarToast('Erro inesperado ao tentar login.', 'erro');
     }
+  } finally {
+    setIsLoading(false);
   }
+}
+
 
   useEffect(() => {
     WebBrowser.warmUpAsync();
