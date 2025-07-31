@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import { router } from "expo-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Alert, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import StepIndicator from 'react-native-step-indicator';
 import { Button } from "../../../components/botao";
@@ -15,6 +15,10 @@ export default function RegisterFinance() {
     renda: '',
     categorias: '',
   });
+  const [renda, setRenda] = useState('');
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
   const customStyles = {
     stepIndicatorSize: 20,
     currentStepIndicatorSize: 24,
@@ -59,13 +63,10 @@ export default function RegisterFinance() {
     "Assinaturas": 139,
     "Alimentação": 145,
     "Moradia": 102,
-    "Cartão de crédito": 190,
+    "Cartão de Crédito": 190,
     "Contas do dia a dia": 202,
     "Outros": 91,
   };
-
-  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
-
 
   function formatCurrency(value: string) {
     const cleanValue = value.replace(/\D/g, '');
@@ -90,60 +91,7 @@ export default function RegisterFinance() {
       }
     }
   }
-  const [renda, setRenda] = useState('');
 
-
-  async function handleRegisterFinance() {
-    if (!validateForm()) return;
-    try {
-
-
-      let userIdStr = await AsyncStorage.getItem('userId');
-      let userId = userIdStr ? Number(userIdStr) : 'null';
-
-      let nome = await AsyncStorage.getItem('userName') || '';
-      let email = await AsyncStorage.getItem('email') || '';
-      const dataNascimento = null; // ajustar se desejar solicitar antes
-
-      if (!userId) {
-        // Cria usuário no banco caso venha do Clerk (Google)
-        const response = await axios.post(`${API_BASE_URL}${ENDPOINTS.REGISTER}`, {
-          nome,
-          email,
-          senha: '', // senha vazia pois é login social
-          data_nascimento: dataNascimento,
-        });
-
-        userId = response.data.id;
-        await AsyncStorage.setItem('userId', userId.toString());
-      }
-
-      const cleanRenda = Number(renda.replace(/\D/g, ''));
-
-      await axios.post(`${API_BASE_URL}${ENDPOINTS.REGISTER_FINANCE}`, {
-        usuario_id: userId,
-        renda: cleanRenda,
-        categorias: selectedCategories,
-      });
-
-      await AsyncStorage.setItem('renda', cleanRenda.toString());
-      await AsyncStorage.removeItem('fotoPerfil');
-      await AsyncStorage.removeItem('localFotoPerfil');
-
-      Alert.alert('Sucesso', 'Informações financeiras salvas com sucesso!');
-
-      // Checar se nome ou email estão vazios, indicando necessidade de completar perfil
-      if (!nome || !email) {
-        router.replace('/profileEdit');
-      } else {
-        router.replace('/pages/userDash');
-      }
-
-    } catch (error) {
-      console.error(error);
-      Alert.alert('Erro', 'Erro ao salvar informações. Tente novamente.');
-    }
-  }
   const validateForm = () => {
     let isValid = true;
     const newErrors = { ...errors };
@@ -164,6 +112,99 @@ export default function RegisterFinance() {
     return isValid;
   }
 
+  async function handleRegisterFinance() {
+    if (!validateForm()) return;
+
+    try {
+      const draftFinanceiro = {
+        renda,
+        selectedCategories,
+      };
+      await AsyncStorage.setItem('@draftFinanceiro', JSON.stringify(draftFinanceiro));
+
+      const draftCadastroStr = await AsyncStorage.getItem('@draftCadastro');
+      if (!draftCadastroStr) {
+        Alert.alert('Erro', 'Dados pessoais não encontrados. Por favor, volte e preencha os dados pessoais.');
+        router.replace('/auth/register');
+        return;
+      }
+      const draftCadastro = JSON.parse(draftCadastroStr);
+
+      const dataNascimentoSemBarra = draftCadastro.birthDate.replace(/\D/g, '');
+      const cleanRenda = Number(renda.replace(/\D/g, ''));
+
+      let userIdStr = await AsyncStorage.getItem('userId');
+      let response;
+
+      if (!userIdStr) {
+        // Só cria usuário via POST se ainda não existir
+        response = await axios.post(`${API_BASE_URL}${ENDPOINTS.REGISTER}`, {
+          nome: draftCadastro.name,
+          data_nascimento: dataNascimentoSemBarra,
+          email: draftCadastro.email,
+          senha: draftCadastro.password,
+        });
+        userIdStr = response.data.id.toString();
+        await AsyncStorage.setItem('userId', userIdStr);
+      }
+
+      // Salva dados financeiros
+      await axios.post(`${API_BASE_URL}${ENDPOINTS.REGISTER_FINANCE}`, {
+        usuario_id: Number(userIdStr),
+        renda: cleanRenda,
+        categorias: selectedCategories,
+      });
+
+      await AsyncStorage.removeItem('@draftCadastro');
+      await AsyncStorage.removeItem('@draftFinanceiro');
+      await AsyncStorage.removeItem('fotoPerfil');
+      await AsyncStorage.removeItem('localFotoPerfil');
+
+      Alert.alert('Sucesso', 'Cadastro finalizado com sucesso!');
+      router.replace('/pages/userDash');
+
+    } catch (error) {
+      console.error(error);
+      Alert.alert('Erro', 'Erro ao salvar informações. Tente novamente.');
+    }
+  }
+
+  // Carregar rascunho na inicialização
+  useEffect(() => {
+    const loadDraftFinanceiro = async () => {
+      try {
+        const draftFinanceiroStr = await AsyncStorage.getItem('@draftFinanceiro');
+        if (draftFinanceiroStr) {
+          const draftFinanceiro = JSON.parse(draftFinanceiroStr);
+          if (draftFinanceiro.renda) setRenda(draftFinanceiro.renda);
+          if (draftFinanceiro.selectedCategories) setSelectedCategories(draftFinanceiro.selectedCategories);
+        }
+      } catch (error) {
+        console.error('Erro ao carregar rascunho financeiro:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    loadDraftFinanceiro();
+  }, []);
+
+  // Salvar rascunho somente se tiver dados (evita salvar vazio)
+  useEffect(() => {
+    const salvarRascunhoFinanceiro = async () => {
+      if (renda || selectedCategories.length > 0) {
+        const draftFinanceiro = {
+          renda,
+          selectedCategories,
+        };
+        await AsyncStorage.setItem('@draftFinanceiro', JSON.stringify(draftFinanceiro));
+      }
+    };
+    salvarRascunhoFinanceiro();
+  }, [renda, selectedCategories]);
+
+  if (isLoading) {
+    return <Text style={{ textAlign: 'center', marginTop: 50, fontSize: 16 }}>Carregando informações...</Text>;
+  }
 
   return (
     <View style={{ backgroundColor: '#E0E8F9', flex: 1 }}>
@@ -171,7 +212,7 @@ export default function RegisterFinance() {
         <StepIndicator
           customStyles={customStyles}
           currentPosition={1}
-          labels={["Dados pessoais", "Dados financeiros"]}
+          labels={labels}
           stepCount={2}
         />
       </View>
@@ -188,7 +229,9 @@ export default function RegisterFinance() {
             error={errors.renda} />
         </View>
         <View style={{ marginBottom: 25 }}>
-          <Text style={{ color: '#4A4A4A', fontSize: 20, fontFamily: 'Manrope', fontWeight: "500", maxWidth: 336, textAlign: 'center' }}>Quais dessas categorias fazem parte do seu mês? <Text style={{ fontWeight: 'bold' }}>Escolha até 7   </Text></Text>
+          <Text style={{ color: '#4A4A4A', fontSize: 20, fontFamily: 'Manrope', fontWeight: "500", maxWidth: 336, textAlign: 'center' }}>
+            Quais dessas categorias fazem parte do seu mês? <Text style={{ fontWeight: 'bold' }}>Escolha até 7 </Text>
+          </Text>
         </View>
         <View style={{ paddingBottom: 20 }}>
           {categorias.map((row, idx) => (
@@ -198,9 +241,7 @@ export default function RegisterFinance() {
                 flexDirection: 'row',
                 justifyContent: 'space-between',
                 gap: 13,
-
               }}
-
             >
               {row.map((cat) => (
                 <InputCategoria
@@ -218,10 +259,10 @@ export default function RegisterFinance() {
               ))}
             </View>
           ))}
-          {errors ? <Text style={styles.errorText}>{errors.categorias}</Text> : null}
+          {errors.categorias ? <Text style={styles.errorText}>{errors.categorias}</Text> : null}
         </View>
         <View style={{ marginTop: 25, marginBottom: 25 }}>
-          <Button title='Finalizar' onPress={() => { if (validateForm()) { handleRegisterFinance() }; }} />
+          <Button title='Finalizar' onPress={() => { if (validateForm()) { handleRegisterFinance(); } }} />
         </View>
       </View>
 

@@ -95,6 +95,6 @@ const styles = StyleSheet.create({
     color: '#4A4A4A',
     fontFamily: 'Manrope',
     fontSize: 16,
-    fontWeight:"700",
+    fontWeight:"600",
   },
 });
