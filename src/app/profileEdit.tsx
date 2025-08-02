@@ -1,7 +1,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
-import { router } from "expo-router";
-import { useEffect, useState } from "react";
+import { router, useFocusEffect } from "expo-router";
+import { useCallback, useState } from "react";
 import {
   Alert,
   KeyboardAvoidingView,
@@ -32,19 +32,18 @@ export default function ProfileEdit() {
   const [mensagem, setMensagem] = useState('');
 
   const mostrarToast = (mensagem: string, tipo: 'sucesso' | 'erro') => {
-  setMensagem(mensagem);
-  setTipo(tipo);
-  setToastVisivel(true); 
-  
-};
+    setMensagem(mensagem);
+    setTipo(tipo);
+    setToastVisivel(true);
+
+  };
 
   function esconderToast() {
     setToastVisivel(false);
     router.replace('/pages/profile')
   }
-useEffect(() => {
-  console.log('toastVisivel agora é:', toastVisivel);
-}, [toastVisivel]);
+
+
 
 
   // Formata data 'yyyy-mm-dd' para 'dd/mm/yyyy'
@@ -73,21 +72,33 @@ useEffect(() => {
   }
 
   async function carregarUsuario() {
+
     try {
       const userId = await AsyncStorage.getItem("userId");
-      if (userId) {
+      const clerkId = await AsyncStorage.getItem('clerk_id');
+      console.log("userId:", userId, "clerkId:", clerkId);
+
+      if (userId || clerkId) {
         const response = await axios.get(`${API_BASE_URL}${ENDPOINTS.USER_INFO}`, {
-          headers: { usuario_id: userId },
+          headers: {
+            usuario_id: userId,
+            clerk_id: clerkId
+          },
         });
 
-        const { nome, email, dt_nasc, image_url } = response.data;
+
         console.log(response.data);
-        setNomeUser(nome);
-        setEmail(email);
-        setDataNascimento(formatDateFromString(dt_nasc));
+        setNomeUser(response.data.nome);
+        setEmail(response.data.email);
+        if (response.data.dt_nasc) {
+          setDataNascimento(formatDateFromString(response.data.dt_nasc));
+        } else {
+          setDataNascimento("");
+        }
+
 
         // Atualiza estado da imagem com URL completa
-        setImageUrl(image_url);
+        setImageUrl(response.data.image_url);
       }
     } catch (error) {
       console.error("Erro ao carregar usuário no perfil:", error);
@@ -102,64 +113,71 @@ useEffect(() => {
 
   const [loading, setLoading] = useState(false);
 
-async function handleSalvar() {
-  if (loading) return; // evita chamada duplicada
-  setLoading(true);
-  try {
-    const userId = await AsyncStorage.getItem("userId");
-    if (!userId) {
-      setLoading(false);
-      return;
-    }
+  async function handleSalvar() {
+    if (loading) return; // evita chamada duplicada
+    setLoading(true);
+    try {
+      const userId = await AsyncStorage.getItem("userId");
+      const clerkId = await AsyncStorage.getItem('clerk_id');
 
-    const dataFormatada = dataNascimento.replace(/\D/g, "");
-
-    await axios.put(`${API_BASE_URL}${ENDPOINTS.UPDATE_USER}`, {
-      usuario_id: userId,
-      nome: nomeUser,
-      email,
-      data_nascimento: dataFormatada,
-    });
-
-    await AsyncStorage.setItem("userName", nomeUser);
-
-    if (senhaAtual && senhaNova) {
-      const verifyResponse = await axios.post(`${API_BASE_URL}/auth/verificarSenha`, {
-        usuario_id: userId,
-        senha: senhaAtual,
-      });
-
-      if (!verifyResponse.data.valida) {
-        Alert.alert("Erro", "Senha atual incorreta.");
+      if (!userId && !clerkId) {
         setLoading(false);
         return;
       }
 
-      await axios.put(`${API_BASE_URL}/auth/alterarSenha`, {
+      const dataFormatada = dataNascimento.replace(/\D/g, "");
+
+      await axios.put(`${API_BASE_URL}${ENDPOINTS.UPDATE_USER}`, {
         usuario_id: userId,
-        nova_senha: senhaNova,
+        clerk_id: clerkId,
+        nome: nomeUser,
+        email,
+        data_nascimento: dataFormatada,
       });
-     
-      mostrarToast('Sucesso, Perfil e senha atualizados com sucesso!', 'sucesso');
-      console.log('agr ficou', toastVisivel)
-    } else {
-     console.log('agr ficou', toastVisivel)
-      mostrarToast("Sucesso, perfil atualizado com sucesso!", 'sucesso');
+
+      await AsyncStorage.setItem("userName", nomeUser);
+
+      if (senhaAtual && senhaNova) {
+        const verifyResponse = await axios.post(`${API_BASE_URL}/auth/verificarSenha`, {
+          usuario_id: userId,
+          senha: senhaAtual,
+        });
+
+        if (!verifyResponse.data.valida) {
+          Alert.alert("Erro", "Senha atual incorreta.");
+          setLoading(false);
+          return;
+        }
+
+        await axios.put(`${API_BASE_URL}/auth/alterarSenha`, {
+          usuario_id: userId,
+          nova_senha: senhaNova,
+        });
+
+        mostrarToast('Sucesso, Perfil e senha atualizados!', 'sucesso');
+        console.log('agr ficou', toastVisivel)
+      } else {
+        console.log('agr ficou', toastVisivel)
+        mostrarToast("Sucesso, perfil atualizado!", 'sucesso');
+      }
+    } catch (error) {
+      mostrarToast("Erro ao atualizar perfil", 'erro');
+    } finally {
+      setLoading(false);
     }
-  } catch (error) {
-    mostrarToast("Erro ao atualizar perfil", 'erro');
-  } finally {
-    setLoading(false);
   }
-}
 
 
-  useEffect(() => {
-    carregarUsuario();
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      console.log("Tela ProfileEdit em foco, carregando usuário");
+      carregarUsuario();
+    }, [])
+  );
+
 
   return (
-    
+
     <KeyboardAvoidingView
       style={{ flex: 1 }}
       behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -190,7 +208,7 @@ async function handleSalvar() {
             />
 
             <InputRenda
-              placeholder={dataNascimento ? dataNascimento : "06/04/2024"}
+              placeholder={dataNascimento ? dataNascimento : "00/01/0001"}
               icon="calendar-outline"
               keyboardType="numeric"
               maxLength={10}
@@ -248,26 +266,26 @@ async function handleSalvar() {
               error=""
             />
           </View>
-        
+
 
           <View style={{ height: 80, marginTop: 30 }}>
             <BotaoComConfirmacao
-  onConfirm={async () => {
-    console.log('Botão de confirmação pressionado');
-    await handleSalvar(); // aqui está a navegação e toast
-  }}
-/>
+              onConfirm={async () => {
+                console.log('Botão de confirmação pressionado');
+                await handleSalvar(); // aqui está a navegação e toast
+              }}
+            />
           </View>
         </View>
       </ScrollView>
-       <ToastAlerta
-  visivel={toastVisivel}
-  tipo={tipo}
-  mensagem={mensagem}
-  aoFechar={esconderToast}
-/>
+      <ToastAlerta
+        visivel={toastVisivel}
+        tipo={tipo}
+        mensagem={mensagem}
+        aoFechar={esconderToast}
+      />
     </KeyboardAvoidingView>
-  
+
 
   );
 }

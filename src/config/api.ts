@@ -13,6 +13,9 @@ export const ENDPOINTS = {
   EXTRATO: '/expenses/extract/extrato',
   GASTOS_DELETE: '/controller/deleteGasto',
   GASTOS_UPDATE: '/controller/updateGasto',
-  VALIDATE_RESET_CODE: '/auth/recoverPassword',
+  RECOVER_PASSWORD_SEND_CODE: '/auth/recoverPassword/forgot',
+  RECOVER_PASSWORD_VALIDATE_CODE: '/auth/recoverPassword/verify',
+  RECOVER_PASSWORD_RESET: '/auth/recoverPassword/reset',
+
   UPLOAD_PICTURE: '/upload/upload-foto'
 };

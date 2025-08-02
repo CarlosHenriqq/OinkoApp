@@ -52,9 +52,12 @@ export default function UserDash() {
   }
   async function buscarGasto() {
     const userId = await AsyncStorage.getItem('userId');
+    const clerkId =  await AsyncStorage.getItem('clerk_id');
     try {
       const response = await axios.get(`${API_BASE_URL}${ENDPOINTS.GASTOS}/total`, {
-        headers: { usuario_id: userId }
+        headers: { usuario_id: userId,
+          clerk_id: clerkId
+         }
       });
       if (response.data?.total != null) {
         const valorFormatado = Number(response.data.total).toFixed(2).replace('.', ',');
@@ -69,9 +72,12 @@ export default function UserDash() {
   }
   async function buscarGastosPorCategoria() {
     const userId = await AsyncStorage.getItem('userId');
+    const clerkId =  await AsyncStorage.getItem('clerk_id');
     try {
       const response = await axios.get(`${API_BASE_URL}${ENDPOINTS.GASTOS}/totalPCategoria`, {
-        headers: { usuario_id: userId }
+        headers: { usuario_id: userId,
+          clerk_id: clerkId
+         }
       });
       setGastosPorCategoria(response.data);
     } catch (error) {
@@ -79,24 +85,28 @@ export default function UserDash() {
     }
   }
   async function buscarUserInfo() {
-    const userId = await AsyncStorage.getItem('userId');
+    const userId = await AsyncStorage.getItem('userId')
+    const clerkId = await AsyncStorage.getItem('clerk_id');
 
     try {
       const response = await axios.get(`${API_BASE_URL}${ENDPOINTS.USER_INFO}`, {
-        headers: { usuario_id: userId }
+        headers: {
+          usuario_id: userId,
+          clerk_id: clerkId
+        }
       });
       console.log(response.data); // contém id, nome, email, renda
       setRenda(response.data.renda)
       const nomeCompleto = response.data.nome
-       if (nomeCompleto) {
-      const primeiro = nomeCompleto.split(' ')[0];
-      setPrimeiroNome(primeiro);
-    }
+      if (nomeCompleto) {
+        const primeiro = nomeCompleto.split(' ')[0];
+        setPrimeiroNome(primeiro);
+      }
     } catch (error) {
       console.error('Erro ao buscar user info:', error);
     }
   }
-  
+
   useEffect(() => {
     buscarUserInfo();
     buscarGasto();
@@ -138,13 +148,13 @@ export default function UserDash() {
   const gastoNum = parseFloat(typeof gasto === 'string' ? gasto.replace(',', '.') : gasto ?? 0);
   const rendaRestante = Math.max(rendaNum - gastoNum, 0);
   const dadosGrafico =
-  gastosPorCategoria.length > 0
-    ? gastosPorCategoria.map((gasto) => ({
+    gastosPorCategoria.length > 0
+      ? gastosPorCategoria.map((gasto) => ({
         value: parseFloat(gasto.total),
         color: categoriaCores[gasto.nome],
         text: gasto.nome,
       }))
-    : [
+      : [
         {
           value: rendaNum,
           color: '#a8a8a8ff',
@@ -152,14 +162,14 @@ export default function UserDash() {
         },
       ];
 
-// Adiciona a fatia da renda restante caso existam gastos
-if (gastosPorCategoria.length > 0 && rendaNum > 0) {
-  dadosGrafico.push({
-    value: rendaRestante,
-    color: '#a8a8a8ff',
-    text: 'Disponível',
-  });
-}
+  // Adiciona a fatia da renda restante caso existam gastos
+  if (gastosPorCategoria.length > 0 && rendaNum > 0) {
+    dadosGrafico.push({
+      value: rendaRestante,
+      color: '#a8a8a8ff',
+      text: 'Disponível',
+    });
+  }
 
   return (
     <ScrollView contentContainerStyle={{ flexGrow: 1 }} bounces={false} overScrollMode="never">
@@ -203,7 +213,7 @@ if (gastosPorCategoria.length > 0 && rendaNum > 0) {
           sectionAutoFocus={false}
           centerLabelComponent={() => (
             <View style={{ alignItems: 'center' }}>
-              <Text style={{ fontSize: 22, fontFamily: 'Manrope', fontWeight: 'bold' , color:'#4a4a4a'}}>Total</Text>
+              <Text style={{ fontSize: 22, fontFamily: 'Manrope', fontWeight: 'bold', color: '#4a4a4a' }}>Total</Text>
               <Text style={{ fontSize: 18, fontFamily: 'Manrope' }}>R${renda}</Text>
             </View>
           )}
@@ -242,7 +252,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 15,
     marginBottom: 20,
-    
+
   },
   greetingText: {
     fontFamily: 'Manrope',
@@ -274,7 +284,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 3,
     elevation: 3,
-    
+
   },
   expenseLabel: {
     fontFamily: 'Manrope',

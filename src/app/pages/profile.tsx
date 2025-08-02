@@ -3,14 +3,7 @@ import axios from "axios";
 import * as FileSystem from "expo-file-system";
 import { router, useFocusEffect } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
-import {
-  Dimensions,
-  Image,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
+import { Dimensions, Image, ScrollView, StyleSheet, Text, View } from "react-native";
 import PerflPadrao from '../../../assets/images/cabeca.svg';
 import { ButtonMenor } from "../../../components/botaoMenor";
 import BotaoComConfirmacao from "../../../components/buttonConfirm";
@@ -52,18 +45,23 @@ export default function Profile() {
   const [fotoUri, setFotoUri] = useState<string | null>(null);
   const [nomeUser, setNomeUser] = useState("");
   const [email, setEmail] = useState("");
+  const [isLoading, setIsLoading] = useState(true); // novo estado loading
 
   useEffect(() => {
-    carregarUsuario();
+    carregarDados();
   }, []);
 
   useFocusEffect(
     useCallback(() => {
-      console.log('montada');
-      carregarUsuario();
-      carregarCategoriasSelecionadas();
+      carregarDados();
     }, [])
   );
+
+  async function carregarDados() {
+    setIsLoading(true);
+    await Promise.all([carregarUsuario(), carregarCategoriasSelecionadas()]);
+    setIsLoading(false);
+  }
 
   function handleToggleCategory(category: string) {
     if (selectedCategories.includes(category)) {
@@ -93,99 +91,81 @@ export default function Profile() {
 
   async function carregarUsuario() {
     try {
-      const usuarioSalvo = await AsyncStorage.getItem('usuarioPerfil');
-      if (usuarioSalvo) {
-        const data = JSON.parse(usuarioSalvo);
-        setNomeUser(data.nome);
-        setEmail(data.email);
-        setRenda(formatMoney((data.renda * 100).toString()));
+      const userId = await AsyncStorage.getItem("userId");
+      const clerkId = await AsyncStorage.getItem("clerk_id");
 
-        const urlCompleta = data.image_url
-          ? data.image_url.startsWith('/')
-            ? `${API_BASE_URL.replace(/\/$/, '')}${data.image_url}`
-            : data.image_url
-          : null;
-
-        if (urlCompleta) {
-          // Tenta carregar imagem do cache local primeiro
-          const localPath = await AsyncStorage.getItem('localFotoPerfil');
-          if (localPath) {
-            const info = await FileSystem.getInfoAsync(localPath);
-            if (info.exists) {
-              setFotoUri(localPath);
-            } else {
-              await AsyncStorage.removeItem('localFotoPerfil');
-              await baixarESalvarImagem(urlCompleta);
-            }
-          } else {
-            await baixarESalvarImagem(urlCompleta);
-          }
-        }
+      if (!userId && !clerkId) {
+        // sem usuário autenticado, limpa dados
+        setNomeUser("");
+        setEmail("");
+        setRenda("");
+        setFotoUri(null);
+        return;
       }
 
-      const userId = await AsyncStorage.getItem('userId');
-      if (userId) {
-        const response = await axios.get(`${API_BASE_URL}${ENDPOINTS.USER_INFO}`, {
-          headers: { usuario_id: userId }
-        });
+      const response = await axios.get(`${API_BASE_URL}${ENDPOINTS.USER_INFO}`, {
+        headers: { usuario_id: userId, clerk_id: clerkId },
+      });
 
-        const { nome, email, renda, image_url } = response.data;
-        setNomeUser(nome);
-        setEmail(email);
-        setRenda(renda !== null ? formatMoney((renda * 100).toString()) : '');
+      const { nome, email, renda, image_url } = response.data;
 
-        const urlCompleta = image_url
-          ? image_url.startsWith('/')
-            ? `${API_BASE_URL.replace(/\/$/, '')}${image_url}`
-            : image_url
-          : null;
+      setNomeUser(nome);
+      setEmail(email);
+      setRenda(renda !== null ? formatMoney((renda * 100).toString()) : "");
 
-        if (urlCompleta) {
-          const localPath = await AsyncStorage.getItem('localFotoPerfil');
-          if (localPath) {
-            const info = await FileSystem.getInfoAsync(localPath);
-            if (info.exists) {
-              setFotoUri(localPath);
-            } else {
-              await AsyncStorage.removeItem('localFotoPerfil');
-              await baixarESalvarImagem(urlCompleta);
-            }
+      if (image_url) {
+        const urlCompleta = image_url.startsWith("/")
+          ? `${API_BASE_URL.replace(/\/$/, "")}${image_url}`
+          : image_url;
+
+        const localPath = await AsyncStorage.getItem("localFotoPerfil");
+        if (localPath) {
+          const info = await FileSystem.getInfoAsync(localPath);
+          if (info.exists) {
+            setFotoUri(localPath);
           } else {
+            await AsyncStorage.removeItem("localFotoPerfil");
             await baixarESalvarImagem(urlCompleta);
           }
+        } else {
+          await baixarESalvarImagem(urlCompleta);
         }
-
-        await AsyncStorage.setItem('usuarioPerfil', JSON.stringify(response.data));
+      } else {
+        setFotoUri(null);
       }
+
+      await AsyncStorage.setItem("usuarioPerfil", JSON.stringify(response.data));
     } catch (error) {
-      console.error('Erro ao carregar usuário no perfil:', error);
+      console.error("Erro ao carregar usuário no perfil:", error);
     }
   }
 
   async function baixarESalvarImagem(url: string) {
     try {
-      const localFileUri = FileSystem.documentDirectory + 'fotoPerfil.jpg';
+      const localFileUri = FileSystem.documentDirectory + "fotoPerfil.jpg";
       const downloadResumable = FileSystem.createDownloadResumable(url, localFileUri);
       await downloadResumable.downloadAsync();
-      await AsyncStorage.setItem('localFotoPerfil', localFileUri);
+      await AsyncStorage.setItem("localFotoPerfil", localFileUri);
       setFotoUri(localFileUri);
     } catch (error) {
-      console.error('Erro ao baixar imagem:', error);
-      setFotoUri(url); // fallback para url direta
+      console.error("Erro ao baixar imagem:", error);
+      setFotoUri(url); // fallback para URL direta
     }
   }
 
   async function carregarCategoriasSelecionadas() {
     try {
-      const userId = await AsyncStorage.getItem('userId');
-      console.log(userId);
-      if (userId) {
+      const userId = await AsyncStorage.getItem("userId");
+      const clerkId = await AsyncStorage.getItem("clerk_id");
+
+      if (userId || clerkId) {
         const response = await axios.get(`${API_BASE_URL}${ENDPOINTS.CATEGORIA_POR_USUARIO}`, {
-          headers: { usuario_id: userId }
+          headers: { usuario_id: userId, clerk_id: clerkId },
         });
-        const categoriasSelecionadas = response.data.map(cat => cat.nome); // deve vir como ['Pets', 'Saúde', ...]
+        const categoriasSelecionadas = response.data.map((cat) => cat.nome); // ['Pets', 'Saúde', ...]
         setSelectedCategories(categoriasSelecionadas);
-        console.log(categoriasSelecionadas);
+      } else {
+        setSelectedCategories([]);
       }
     } catch (error) {
       console.error("Erro ao carregar categorias selecionadas:", error);
@@ -195,22 +175,33 @@ export default function Profile() {
   async function handleSalvarFinanceiro() {
     try {
       const userId = await AsyncStorage.getItem("userId");
-      if (!userId) {
+      const clerkId = await AsyncStorage.getItem("clerk_id");
+      if (!userId && !clerkId) {
         alert("Usuário não autenticado");
         return;
       }
 
       const data = {
         usuario_id: userId,
+        clerk_id: clerkId,
         renda: renda ? Number(renda.replace(/\D/g, "")) : 0,
         categorias: selectedCategories,
       };
 
       await axios.post(`${API_BASE_URL}${ENDPOINTS.REGISTER_FINANCE}`, data);
+      alert("Informações financeiras salvas com sucesso!");
     } catch (error) {
       console.error("Erro ao atualizar financeiro:", error);
       alert("Erro ao salvar. Tente novamente.");
     }
+  }
+
+  if (isLoading) {
+    return (
+      <View style={[styles.Background, { justifyContent: "center" }]}>
+        <Text style={{ textAlign: "center", fontSize: 18 }}>Carregando informações...</Text>
+      </View>
+    );
   }
 
   return (
@@ -219,15 +210,12 @@ export default function Profile() {
         <HeaderProfile showLogoutButton />
 
         <View style={styles.PhotoContainer}>
-  {fotoUri && typeof fotoUri === 'string' && (fotoUri.startsWith('file://') || fotoUri.startsWith('http')) ? (
-    <Image
-      source={{ uri: fotoUri }}
-      style={styles.Photo}
-    />
-  ) : (
-    <PerflPadrao width={120} height={120} />
-  )}
-</View>
+          {fotoUri && typeof fotoUri === "string" && (fotoUri.startsWith("file://") || fotoUri.startsWith("http")) ? (
+            <Image source={{ uri: fotoUri }} style={styles.Photo} />
+          ) : (
+            <PerflPadrao width={120} height={120} />
+          )}
+        </View>
 
         <View style={[styles.Card, { marginTop: 5 }]}>
           <Text style={styles.Label}>Informações pessoais</Text>

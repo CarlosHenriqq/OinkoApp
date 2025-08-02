@@ -1,6 +1,7 @@
 import { useOAuth, useUser } from "@clerk/clerk-expo";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
+import { makeRedirectUri } from "expo-auth-session";
 import { useRouter } from "expo-router";
 import * as WebBrowser from 'expo-web-browser';
 import { useEffect, useState } from "react";
@@ -21,19 +22,21 @@ import { API_BASE_URL, ENDPOINTS } from "../../config/api";
 
 WebBrowser.maybeCompleteAuthSession();
 
+
 export default function Login() {
+
   const { user } = useUser();
   const [isLoading, setIsLoading] = useState(false);
-  const googleOAuth = useOAuth({ strategy: "oauth_google" });
+  const googleOAuth = useOAuth({
+  strategy: "oauth_google",
+  redirectUrl: makeRedirectUri({
+    useProxy: true,
+    projectNameForProxy: "@carloshenriqque/Oinko" // <-- isso é essencial!
+  })
+});
   const router = useRouter();
-
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
-
-  // Estados para erros nos inputs
-  const [emailError, setEmailError] = useState('');
-  const [senhaError, setSenhaError] = useState('');
-
   const [googleLoginSuccess, setGoogleLoginSuccess] = useState(false);
   const [toastVisivel, setToastVisivel] = useState(false);
   const [tipo, setTipo] = useState<'sucesso' | 'erro'>('sucesso');
@@ -43,8 +46,9 @@ export default function Login() {
     setMensagem(texto);
     setTipo(tipoAlerta);
     setToastVisivel(true);
+    
     setTimeout(() => {
-      setToastVisivel(false);
+        setToastVisivel(false);
     }, 3000);
   }
 
@@ -52,51 +56,38 @@ export default function Login() {
     setToastVisivel(false);
   }
 
+
   // Quando login via Google ocorrer
   useEffect(() => {
   async function saveGoogleUser() {
-    if (googleLoginSuccess && user?.emailAddresses?.[0]) {
+    if (googleLoginSuccess && user) {
       try {
         const userName = user.fullName || "Usuário";
-        const userId = user.id;
-        const userEmail = user.emailAddresses[0].emailAddress;
+        const clerk_id = user.id || "";
+        const userEmail = user.emailAddresses?.[0]?.emailAddress || "";
 
-<<<<<<< HEAD
-        const prevEmail = await AsyncStorage.getItem("email");
+        const prevEmail = await AsyncStorage.getItem('email');
         if (prevEmail && prevEmail !== userEmail) {
-          await AsyncStorage.removeItem("fotoPerfil");
-=======
-          const prevEmail = await AsyncStorage.getItem('email');
-          if (prevEmail && prevEmail !== userEmail) {
-            await AsyncStorage.removeItem('fotoPerfil');
-          }
-
-          await AsyncStorage.setItem('userName', userName);
-          await AsyncStorage.setItem('userId', userId);
-          await AsyncStorage.setItem('email', userEmail);
-          await AsyncStorage.setItem('token', ''); // ou token do Clerk se desejar
-
-          router.replace('/auth/registerFinance');
-        } catch (e) {
-          console.error('Erro ao salvar dados do usuário Google:', e);
-        } finally {
-          setGoogleLoginSuccess(false);
->>>>>>> dc042305f9fb21ed99635f740fbf5132e1b2bd7f
+          await AsyncStorage.removeItem('fotoPerfil');
         }
 
-        await AsyncStorage.setItem("userName", userName);
-        await AsyncStorage.setItem("userId", userId);
-        await AsyncStorage.setItem("email", userEmail);
-        await AsyncStorage.setItem("token", '');
+        await AsyncStorage.setItem('userName', userName);
+        await AsyncStorage.setItem('clerk_id', clerk_id);
+        await AsyncStorage.setItem('email', userEmail);
+        await AsyncStorage.setItem('token', '');
 
-        // Aguarda leve delay para evitar race condition
-        setTimeout(() => {
-          router.replace("/auth/registerFinance");
-        }, 500);
+        // SALVAR draftCadastro para RegisterFinance
+        const draftCadastro = {
+          name: userName,
+          email: userEmail,
+          birthDate: '', // se tiver dado de nascimento, coloque aqui
+          password: '',  // pode ser vazio, ou senhas são tratadas em outro lugar
+        };
+        await AsyncStorage.setItem('@draftCadastro', JSON.stringify(draftCadastro));
 
+        router.replace('/auth/registerFinance');
       } catch (e) {
-        console.error("Erro ao salvar dados do usuário Google:", e);
-        mostrarToast("Erro ao salvar dados do Google", "erro");
+        console.error('Erro ao salvar dados do usuário Google:', e);
       } finally {
         setGoogleLoginSuccess(false);
       }
@@ -104,6 +95,7 @@ export default function Login() {
   }
   saveGoogleUser();
 }, [user, googleLoginSuccess]);
+
 
   async function onGoogleSignin() {
     try {
@@ -118,34 +110,46 @@ export default function Login() {
   }
 
   async function handleLogin() {
-  // Limpar erros antes de tentar login
-  setEmailError('');
-  setSenhaError('');
-  setIsLoading(true);
+    setIsLoading(true);
+    try {
+      const response = await axios.post(`${API_BASE_URL}${ENDPOINTS.LOGIN}`, { email, senha });
+      const userName = response.data.usuario.nome;
+      const userId = response.data.usuario.id;
+      const renda = response.data.usuario.renda;
 
-  try {
-    const response = await axios.post(`${API_BASE_URL}${ENDPOINTS.LOGIN}`, { email, senha });
-    // ... código do sucesso ...
-  } catch (error: any) {
-    console.error('Erro ao fazer login:', error);
+      const prevEmail = await AsyncStorage.getItem('email');
+      console.log(prevEmail, email)
+      if (prevEmail && prevEmail !== email) {
+        // Usuário mudou, limpa a foto
+        await AsyncStorage.removeItem('fotoPerfil');
+      }
 
-    if (error.response?.status === 401) {
-      setEmailError('E-mail ou senha inválidos');
-      setSenhaError('');
-      // Limpar erro após 5 segundos
-      setTimeout(() => {
-        setEmailError('');
-      }, 5000);
-    } else if (error.message === 'Network Error') {
-      mostrarToast('Erro de conexão. Verifique sua internet.', 'erro');
-    } else {
-      mostrarToast('Erro inesperado ao tentar login.', 'erro');
+      await AsyncStorage.setItem('userName', userName);
+      await AsyncStorage.setItem('userId', userId.toString());
+      await AsyncStorage.setItem('token', response.data.token);
+      await AsyncStorage.setItem('email', email);
+
+      if (renda != null) {
+        await AsyncStorage.setItem('renda', renda.toString());
+      } else {
+        await AsyncStorage.removeItem('renda');
+        router.replace("/auth/registerFinance")
+      }
+
+      router.replace('/pages/userDash');
+    } catch (error: any) {
+        console.error('Erro ao fazer login:', error);
+
+        // Evita mostrar erro técnico no toast
+        if (error.response?.status === 401) {
+            mostrarToast('E-mail ou senha inválidos.', 'erro');
+        } else if (error.message === 'Network Error') {
+            mostrarToast('Erro de conexão. Verifique sua internet.', 'erro');
+        } else {
+            mostrarToast('Erro inesperado ao tentar login.', 'erro');
+        }
     }
-  } finally {
-    setIsLoading(false);
   }
-}
-
 
   useEffect(() => {
     WebBrowser.warmUpAsync();
@@ -169,7 +173,7 @@ export default function Login() {
           icon="mail-outline"
           value={email}
           onChangeText={setEmail}
-          error={emailError}  // aqui passa o erro
+          error=""
         />
         <Input
           placeholder="Senha"
@@ -177,12 +181,12 @@ export default function Login() {
           isPassword
           value={senha}
           onChangeText={setSenha}
-          error={senhaError} // aqui passa o erro
+          error=''
         />
       </View>
 
       <View style={styles.buttonWrapper}>
-        <Button title="Acessar" onPress={handleLogin} disabled={isLoading} />
+        <Button title="Acessar" onPress={handleLogin} />
       </View>
 
       <View style={styles.separatorContainer}>
@@ -205,16 +209,17 @@ export default function Login() {
           <Text style={[styles.link, { marginLeft: 4 }]}>Clique aqui</Text>
         </TouchableOpacity>
       </View>
-
       <ToastAlerta
-        visivel={toastVisivel}
-        tipo={tipo}
-        mensagem={mensagem}
-        aoFechar={esconderToast}
-      />
+                visivel={toastVisivel}
+                tipo={tipo}
+                mensagem={mensagem}
+                aoFechar={esconderToast}
+            />
     </KeyboardAvoidingView>
   );
+
 }
+
 
 const styles = StyleSheet.create({
   container: {
@@ -290,4 +295,4 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "500",
   },
-});
+})

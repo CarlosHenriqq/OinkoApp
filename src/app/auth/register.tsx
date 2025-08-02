@@ -6,10 +6,12 @@ import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import StepIndicator from 'react-native-step-indicator';
 import { Button } from '../../../components/botao';
 import Input from "../../../components/input";
+import ToastAlerta from '../../../components/toast';
 import { isValidDate, isValidEmail, isValidPassword } from '../../config/mask';
 
 export default function Register() {
 
+    
     const [isChecked, setIsChecked] = useState(false);
     const [name, setName] = useState('');
     const [birthDate, setBirthDate] = useState('');
@@ -21,47 +23,64 @@ export default function Register() {
         email: '',
         password: '',
     });
+    const [toastVisivel, setToastVisivel] = useState(false);
+    const [tipo, setTipo] = useState<'sucesso' | 'erro'>('sucesso');
+    const [mensagem, setMensagem] = useState('');
+
+    function mostrarToast(texto: string, tipoAlerta: 'sucesso' | 'erro') {
+        setMensagem(texto);
+        setTipo(tipoAlerta);
+        setToastVisivel(true);
+
+        setTimeout(() => {
+            setToastVisivel(false);
+        }, 3000);
+    }
+     function esconderToast() {
+    setToastVisivel(false);
+  }
 
     const validateForm = () => {
-      let isValid = true;
-      const newErrors = {...errors};
+        let isValid = true;
+        const newErrors = { ...errors };
 
-      if (!name) {
-        newErrors.name = 'Nome é obrigatório';
-        isValid = false;
-      } else {
-        newErrors.name = '';
-      }
+        if (!name) {
+            newErrors.name = 'Nome é obrigatório';
+            isValid = false;
+        } else {
+            newErrors.name = '';
+        }
 
-      if (!birthDate) {
-        newErrors.birthDate = 'Data de nascimento é obrigatória';
-        isValid = false;
-      } else if (!isValidDate(birthDate)){
-        newErrors.birthDate = 'Data inválida'
-        isValid= false;
-      }else {
-        newErrors.birthDate = '';
-      }
-      if (!email) {
-        newErrors.email = 'E-mail é obrigatório';
-        isValid = false;
-      } else if (!isValidEmail(email)) {
-        newErrors.email = 'E-mail inválido';
-        isValid = false;
-      }else {
-        newErrors.email = '';
-      }
-      if (!password) {
-        newErrors.password = 'Senha é obrigatória';
-        isValid = false;
-      } else if (!isValidPassword(password)) {
-        newErrors.password = 'A senha precisa ter no mínimo 8 caractéres';
-        isValid = false;}
+        if (!birthDate) {
+            newErrors.birthDate = 'Data de nascimento é obrigatória';
+            isValid = false;
+        } else if (!isValidDate(birthDate)) {
+            newErrors.birthDate = 'Data inválida'
+            isValid = false;
+        } else {
+            newErrors.birthDate = '';
+        }
+        if (!email) {
+            newErrors.email = 'E-mail é obrigatório';
+            isValid = false;
+        } else if (!isValidEmail(email)) {
+            newErrors.email = 'E-mail inválido';
+            isValid = false;
+        } else {
+            newErrors.email = '';
+        }
+        if (!password) {
+            newErrors.password = 'Senha é obrigatória';
+            isValid = false;
+        } else if (!isValidPassword(password)) {
+            newErrors.password = 'A senha precisa ter no mínimo 8 caractéres';
+            isValid = false;
+        }
         else {
-        newErrors.password = '';
-      }
-      setErrors(newErrors);
-      return isValid;
+            newErrors.password = '';
+        }
+        setErrors(newErrors);
+        return isValid;
     }
 
     const customStyles = {
@@ -91,16 +110,11 @@ export default function Register() {
     // Nova função só para avançar sem chamar API ainda
     async function handleAvancar() {
         if (!isChecked) {
-            alert('Você precisa aceitar os Termos de Uso.');
+            mostrarToast('Você precisa aceitar os Termos de Uso.', 'erro');
             return;
         }
 
-        const dataNascimentoSemBarra = birthDate.replace(/\D/g, '');
-
-        if (dataNascimentoSemBarra.length !== 8) {
-            alert('Data de nascimento inválida. Use o formato dd/mm/yyyy.');
-            return;
-        }
+        
 
         if (!validateForm()) return;
 
@@ -112,7 +126,7 @@ export default function Register() {
         router.replace('/auth/registerFinance');
     }
 
-    function formatDate(text:string) {
+    function formatDate(text: string) {
         let cleanText = text.replace(/\D/g, '');
         if (cleanText.length > 8) cleanText = cleanText.slice(0, 8);
         if (cleanText.length >= 5) return `${cleanText.slice(0, 2)}/${cleanText.slice(2, 4)}/${cleanText.slice(4)}`;
@@ -120,32 +134,32 @@ export default function Register() {
         return cleanText;
     }
 
-    function handleChangeBirthDate(text:string) {
+    function handleChangeBirthDate(text: string) {
         setBirthDate(formatDate(text));
     }
 
     useEffect(() => {
-  const carregarDadosSalvos = async () => {
-    const dadosSalvos = await AsyncStorage.getItem('@draftCadastro');
-    if (dadosSalvos) {
-      const { name, birthDate, email, password, isChecked } = JSON.parse(dadosSalvos);
-      setName(name);
-      setBirthDate(birthDate);
-      setEmail(email);
-      setPassword(password);
-      setIsChecked(!!isChecked); // força a conversão em booleano
-    }
-  };
-  carregarDadosSalvos();
-}, []);
+        const carregarDadosSalvos = async () => {
+            const dadosSalvos = await AsyncStorage.getItem('@draftCadastro');
+            if (dadosSalvos) {
+                const { name, birthDate, email, password, isChecked } = JSON.parse(dadosSalvos);
+                setName(name);
+                setBirthDate(birthDate);
+                setEmail(email);
+                setPassword(password);
+                setIsChecked(!!isChecked); // força a conversão em booleano
+            }
+        };
+        carregarDadosSalvos();
+    }, []);
 
-useEffect(() => {
-  const salvarRascunho = async () => {
-    const dados = { name, birthDate, email, password, isChecked };
-    await AsyncStorage.setItem('@draftCadastro', JSON.stringify(dados));
-  };
-  salvarRascunho();
-}, [name, birthDate, email, password, isChecked]);
+    useEffect(() => {
+        const salvarRascunho = async () => {
+            const dados = { name, birthDate, email, password, isChecked };
+            await AsyncStorage.setItem('@draftCadastro', JSON.stringify(dados));
+        };
+        salvarRascunho();
+    }, [name, birthDate, email, password, isChecked]);
 
 
     return (
@@ -163,7 +177,7 @@ useEffect(() => {
                 <View style={{ marginBottom: 50 }}>
                     <Text style={styles.title}>Informações Pessoais</Text>
                 </View>
-                <Input placeholder="Como devo te chamar?" icon="person-circle-outline" value={name} onChangeText={setName} error={errors.name}/>
+                <Input placeholder="Como devo te chamar?" icon="person-circle-outline" value={name} onChangeText={setName} error={errors.name} />
                 <Input placeholder="Data de nascimento" icon="calendar-outline" keyboardType="numeric" value={birthDate} onChangeText={handleChangeBirthDate} maxLength={10} error={errors.birthDate} />
                 <Input placeholder="Digite seu e-mail" icon="mail-outline" value={email} onChangeText={setEmail} error={errors.email} />
                 <Input placeholder="Senha" icon="lock-closed-outline" isPassword value={password} onChangeText={setPassword} error={errors.password} />
@@ -191,7 +205,7 @@ useEffect(() => {
 
                 <View style={{ marginTop: 60, marginBottom: 60 }}>
                     {/* Aqui só chama handleAvancar */}
-                    <Button title="Avançar" onPress={handleAvancar}/>
+                    <Button title="Avançar" onPress={handleAvancar} />
                 </View>
 
                 <View style={styles.loginContainer}>
@@ -204,6 +218,12 @@ useEffect(() => {
                         <Text style={styles.loginLink}>Clique aqui</Text>
                     </TouchableOpacity>
                 </View>
+                <ToastAlerta
+                                visivel={toastVisivel}
+                                tipo={tipo}
+                                mensagem={mensagem}
+                                aoFechar={esconderToast}
+                            />
             </View>
         </View>
     );

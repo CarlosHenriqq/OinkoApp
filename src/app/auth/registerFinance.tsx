@@ -2,11 +2,12 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import { router } from "expo-router";
 import { useEffect, useState } from "react";
-import { Alert, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import StepIndicator from 'react-native-step-indicator';
 import { Button } from "../../../components/botao";
 import Input from "../../../components/input";
 import InputCategoria from "../../../components/inputCategoria";
+import ToastAlerta from '../../../components/toast';
 import { API_BASE_URL, ENDPOINTS } from '../../config/api';
 
 export default function RegisterFinance() {
@@ -18,6 +19,29 @@ export default function RegisterFinance() {
   const [renda, setRenda] = useState('');
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+
+  // Novos estados para dados pessoais carregados do AsyncStorage
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [birthDate, setBirthDate] = useState('');
+  const [password, setPassword] = useState('');
+  const [userId, setUserId] = useState<string | null>(null);
+  const [toastVisivel, setToastVisivel] = useState(false);
+  const [tipo, setTipo] = useState<'sucesso' | 'erro'>('sucesso');
+  const [mensagem, setMensagem] = useState('');
+
+  function mostrarToast(texto: string, tipoAlerta: 'sucesso' | 'erro') {
+    setMensagem(texto);
+    setTipo(tipoAlerta);
+    setToastVisivel(true);
+
+    setTimeout(() => {
+      setToastVisivel(false);
+    }, 3000);
+  }
+  function esconderToast() {
+    setToastVisivel(false);
+  }
 
   const customStyles = {
     stepIndicatorSize: 20,
@@ -124,54 +148,54 @@ export default function RegisterFinance() {
 
       const draftCadastroStr = await AsyncStorage.getItem('@draftCadastro');
       if (!draftCadastroStr) {
-        Alert.alert('Erro', 'Dados pessoais não encontrados. Por favor, volte e preencha os dados pessoais.');
+        mostrarToast('Dados não encontrados, por favor tente novamente', 'erro');
         router.replace('/auth/register');
         return;
       }
       const draftCadastro = JSON.parse(draftCadastroStr);
 
-      const dataNascimentoSemBarra = draftCadastro.birthDate.replace(/\D/g, '');
+      const dataNascimentoSemBarra = draftCadastro.birthDate?.replace(/\D/g, '') || '';
       const cleanRenda = Number(renda.replace(/\D/g, ''));
 
-      let userIdStr = await AsyncStorage.getItem('userId');
-      let response;
+      // Aqui pega os dois IDs
+      const userIdStr = await AsyncStorage.getItem('userId');
+      const clerkIdStr = await AsyncStorage.getItem('clerk_id');
 
-      if (!userIdStr) {
-        // Só cria usuário via POST se ainda não existir
-        response = await axios.post(`${API_BASE_URL}${ENDPOINTS.REGISTER}`, {
-          nome: draftCadastro.name,
-          data_nascimento: dataNascimentoSemBarra,
-          email: draftCadastro.email,
-          senha: draftCadastro.password,
-        });
-        userIdStr = response.data.id.toString();
-        await AsyncStorage.setItem('userId', userIdStr);
+      if (!userIdStr && !clerkIdStr) {
+        mostrarToast('Usuário não autenticado, por favor tente novamente', 'erro');
+        router.replace('/auth/login');
+        return;
       }
 
-      // Salva dados financeiros
-      await axios.post(`${API_BASE_URL}${ENDPOINTS.REGISTER_FINANCE}`, {
-        usuario_id: Number(userIdStr),
+      const payload = {
+        usuario_id: userIdStr ? Number(userIdStr) : null,
+        clerk_id: clerkIdStr || null,
+        nome: draftCadastro.name || (await AsyncStorage.getItem('userName')) || null,
+        email: draftCadastro.email || (await AsyncStorage.getItem('email')) || null,
         renda: cleanRenda,
         categorias: selectedCategories,
-      });
+      };
+      console.log('Payload enviado:', payload);
+
+      await axios.post(`${API_BASE_URL}${ENDPOINTS.REGISTER_FINANCE}`, payload);
 
       await AsyncStorage.removeItem('@draftCadastro');
       await AsyncStorage.removeItem('@draftFinanceiro');
       await AsyncStorage.removeItem('fotoPerfil');
       await AsyncStorage.removeItem('localFotoPerfil');
 
-      Alert.alert('Sucesso', 'Cadastro finalizado com sucesso!');
+      mostrarToast('Cadastro realizado com sucesso!', 'sucesso');
       router.replace('/pages/userDash');
-
     } catch (error) {
       console.error(error);
-      Alert.alert('Erro', 'Erro ao salvar informações. Tente novamente.');
+      mostrarToast('Erro ao salvar informações, por favor tente novamente', 'erro');
     }
   }
 
-  // Carregar rascunho na inicialização
+
+  // Carregar rascunho na inicialização e dados do Google se rascunho não existir
   useEffect(() => {
-    const loadDraftFinanceiro = async () => {
+    const loadDraftAndUserData = async () => {
       try {
         const draftFinanceiroStr = await AsyncStorage.getItem('@draftFinanceiro');
         if (draftFinanceiroStr) {
@@ -179,28 +203,37 @@ export default function RegisterFinance() {
           if (draftFinanceiro.renda) setRenda(draftFinanceiro.renda);
           if (draftFinanceiro.selectedCategories) setSelectedCategories(draftFinanceiro.selectedCategories);
         }
+
+        const draftCadastroStr = await AsyncStorage.getItem('@draftCadastro');
+        if (draftCadastroStr) {
+          const draftCadastro = JSON.parse(draftCadastroStr);
+          setName(draftCadastro.name || '');
+          setEmail(draftCadastro.email || '');
+          setBirthDate(draftCadastro.birthDate || '');
+          setPassword(draftCadastro.password || '');
+          setUserId(null);
+        } else {
+          // Se não tem draftCadastro, pega dados do Google do AsyncStorage
+          const userName = await AsyncStorage.getItem('userName');
+          const userEmail = await AsyncStorage.getItem('email');
+          const storedUserId = await AsyncStorage.getItem('userId');
+          if (userName && userEmail && storedUserId) {
+            setName(userName);
+            setEmail(userEmail);
+            setBirthDate('');
+            setPassword('');
+            setUserId(storedUserId);
+          }
+        }
       } catch (error) {
-        console.error('Erro ao carregar rascunho financeiro:', error);
+        console.error('Erro ao carregar dados:', error);
       } finally {
         setIsLoading(false);
       }
     };
-    loadDraftFinanceiro();
-  }, []);
 
-  // Salvar rascunho somente se tiver dados (evita salvar vazio)
-  useEffect(() => {
-    const salvarRascunhoFinanceiro = async () => {
-      if (renda || selectedCategories.length > 0) {
-        const draftFinanceiro = {
-          renda,
-          selectedCategories,
-        };
-        await AsyncStorage.setItem('@draftFinanceiro', JSON.stringify(draftFinanceiro));
-      }
-    };
-    salvarRascunhoFinanceiro();
-  }, [renda, selectedCategories]);
+    loadDraftAndUserData();
+  }, []);
 
   if (isLoading) {
     return <Text style={{ textAlign: 'center', marginTop: 50, fontSize: 16 }}>Carregando informações...</Text>;
@@ -278,6 +311,12 @@ export default function RegisterFinance() {
           Voltar para a tela anterior
         </Text>
       </TouchableOpacity>
+      <ToastAlerta
+                      visivel={toastVisivel}
+                      tipo={tipo}
+                      mensagem={mensagem}
+                      aoFechar={esconderToast}
+                  />
     </View>
   );
 }
