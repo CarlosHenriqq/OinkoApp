@@ -4,7 +4,7 @@ import axios from "axios";
 import { useCallback, useEffect, useState } from 'react';
 import { Dimensions, ScrollView, StyleSheet, Text, View } from "react-native";
 import { PieChart } from 'react-native-gifted-charts';
-import { Alimentacao, Assinaturas, Cartao, Contas, Cuidados, Divida, Educacao, Entretenimento, Moradia, Outros, Pets, Saude, Transporte } from '../../../assets/iconsCategorias';
+import { Alimentacao, Assinaturas, Contas, Cuidados, Divida, Educacao, Entretenimento, Outros, Pets, Saude, Transporte } from '../../../assets/iconsCategorias';
 import Cabeca from "../../../assets/images/cabeca.svg";
 import Moeda from "../../../assets/images/moeda.svg";
 import { Button } from "../../../components/botao";
@@ -33,9 +33,7 @@ export default function UserDash() {
     'Educação': Educacao,
     'Saúde': Saude,
     'Entretenimento': Entretenimento,
-    'Moradia': Moradia,
     'Contas do dia a dia': Contas,
-    'Cartão de crédito': Cartao,
     'Cuidados Pessoais': Cuidados,
     'Outros': Outros,
     'Assinatura': Assinaturas
@@ -137,10 +135,8 @@ export default function UserDash() {
     'Cuidados Pessoais': '#B9A7C3',
     'Educação': '#708BD8',
     'Entretenimento': '#F1997C',
-    'Assinaturas': '#8A38F5',
+    'Assinatura': '#8A38F5',
     'Alimentação': '#E6C48C',
-    'Moradia': '#8C9E6D',
-    'Cartão de crédito': '#8A75A0',
     'Contas do Dia a Dia': '#6F6F6F',
     'Outros': '#D6D0C4',
   };
@@ -213,8 +209,8 @@ export default function UserDash() {
           sectionAutoFocus={false}
           centerLabelComponent={() => (
             <View style={{ alignItems: 'center' }}>
-              <Text style={{ fontSize: 22, fontFamily: 'Manrope', fontWeight: 'bold', color: '#4a4a4a' }}>Total</Text>
-              <Text style={{ fontSize: 18, fontFamily: 'Manrope' }}>R${renda}</Text>
+              <Text style={{ fontSize: 22, fontFamily: 'Manrope', fontWeight: 'normal' , color:'#4a4a4a', textAlign: "center", lineHeight: 23,}}>Renda{'\n'}total</Text>
+              <Text style={{ fontSize: 20, fontFamily: 'Manrope', fontWeight: 'semibold', color:'#4a4a4a', paddingTop: 5, }}>R${renda}</Text>
             </View>
           )}
         />

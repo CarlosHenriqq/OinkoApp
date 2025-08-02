@@ -71,8 +71,7 @@ export default function RegisterFinance() {
     ["Dívidas", "Transporte", "Pets"],
     ["Saúde", "Cuidados Pessoais"],
     ["Educação", "Entretenimento"],
-    ["Assinaturas", "Alimentação"],
-    ["Moradia", "Cartão de crédito"],
+    ["Assinatura", "Alimentação"],
     ["Contas do dia a dia", "Outros"],
   ];
 
@@ -84,10 +83,8 @@ export default function RegisterFinance() {
     "Cuidados Pessoais": 205,
     "Educação": 119,
     "Entretenimento": 175,
-    "Assinaturas": 139,
+    "Assinatura": 139,
     "Alimentação": 145,
-    "Moradia": 102,
-    "Cartão de Crédito": 190,
     "Contas do dia a dia": 202,
     "Outros": 91,
   };
@@ -250,7 +247,7 @@ export default function RegisterFinance() {
         />
       </View>
       <View style={styles.container}>
-        <View style={{ marginBottom: 25, marginTop: 24 }} >
+        <View style={{ marginBottom: 70, marginTop: 24 }} >
           <Text style={{ color: '#4A4A4A', fontSize: 34, fontFamily: 'Manrope', fontWeight: "bold", maxWidth: 230, textAlign: 'center' }}>Informações Financeiras</Text>
         </View>
         <View>
@@ -261,12 +258,12 @@ export default function RegisterFinance() {
             onChangeText={handleChangeRenda}
             error={errors.renda} />
         </View>
-        <View style={{ marginBottom: 25 }}>
+        <View style={{ marginBottom: 20 }}>
           <Text style={{ color: '#4A4A4A', fontSize: 20, fontFamily: 'Manrope', fontWeight: "500", maxWidth: 336, textAlign: 'center' }}>
             Quais dessas categorias fazem parte do seu mês? <Text style={{ fontWeight: 'bold' }}>Escolha até 7 </Text>
           </Text>
         </View>
-        <View style={{ paddingBottom: 20 }}>
+        <View style={{ paddingBottom: 30 }}>
           {categorias.map((row, idx) => (
             <View
               key={idx}
@@ -294,7 +291,7 @@ export default function RegisterFinance() {
           ))}
           {errors.categorias ? <Text style={styles.errorText}>{errors.categorias}</Text> : null}
         </View>
-        <View style={{ marginTop: 25, marginBottom: 25 }}>
+        <View style={{ marginTop: 25, marginBottom: 65 }}>
           <Button title='Finalizar' onPress={() => { if (validateForm()) { handleRegisterFinance(); } }} />
         </View>
       </View>

@@ -9,17 +9,30 @@ import { API_BASE_URL, ENDPOINTS } from "../../config/api";
 
 export default function ForgetPassword() {
   const [email, setEmail] = useState('');
+  const [emailError, setEmailError] = useState('');
+
+  function validarEmail(email: string) {
+    const re = /\S+@\S+\.\S+/;
+    return re.test(email);
+  }
 
   async function handleEnviarCodigo() {
     if (!email) {
-      Alert.alert('Erro', 'Por favor, insira um e-mail válido.');
+      setEmailError('Por favor, insira um e-mail válido.');
       return;
     }
+
+    if (!validarEmail(email)) {
+      setEmailError('Formato de e-mail inválido.');
+      return;
+    }
+
+    setEmailError(''); // limpa erro
 
     try {
       await axios.post(`${API_BASE_URL}${ENDPOINTS.VALIDATE_RESET_CODE}/forgot`, { email });
       Alert.alert('Sucesso', 'Código de recuperação enviado para seu e-mail.');
-      AsyncStorage.setItem('emailForgot', email)
+      await AsyncStorage.setItem('emailForgot', email);
       router.push('/recover/recoverPassword');
     } catch (error) {
       console.error(error);
@@ -31,7 +44,8 @@ export default function ForgetPassword() {
     <View style={styles.container}>
       <View style={styles.textoSenha}>
         <Text style={{ color: '#4A4A4A', fontSize: 34, fontFamily: 'Manrope', fontWeight: "bold", maxWidth: 198, textAlign: 'center', lineHeight: 40 }}>
-          Esqueceu a sua senha?</Text>
+          Esqueceu a sua senha?
+        </Text>
       </View>
 
       <View style={styles.subtitleContainer}>
@@ -42,11 +56,19 @@ export default function ForgetPassword() {
       </View>
 
       <View style={styles.inputContainer}>
-        <Input placeholder="Digite seu E-mail" icon="mail-outline" error="" />
+        <Input
+          placeholder="Digite seu E-mail"
+          icon="mail-outline"
+          value={email}
+          onChangeText={setEmail}
+          error={emailError}
+          keyboardType="email-address"
+          autoCapitalize="none"
+        />
       </View>
 
       <View style={styles.buttonContainer}>
-        <Button title="Continuar" onPress={() => router.replace("/recover/recoverPassword")} />
+        <Button title="Continuar" onPress={handleEnviarCodigo} />
       </View>
 
       <View style={styles.linkContainer}>
@@ -65,7 +87,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#E0E8F9',
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: 24, // espaço lateral para evitar "grudar" na borda
+    paddingHorizontal: 24,
   },
   textoSenha: {
     marginTop: 40,
@@ -100,12 +122,12 @@ const styles = StyleSheet.create({
   inputContainer: {
     marginTop: 70,
     width: '100%',
-    alignItems:"center",
+    alignItems: "center",
   },
   buttonContainer: {
     marginTop: 50,
     width: '100%',
-    alignItems:"center",
+    alignItems: "center",
   },
   linkContainer: {
     marginTop: 220,

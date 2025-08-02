@@ -16,18 +16,21 @@ export default function ChangePassword() {
       Alert.alert('Erro', 'Preencha todos os campos.');
       return;
     }
+
+    if (novaSenha.length < 8) {
+      Alert.alert('Erro', 'A senha deve ter no mínimo 8 caracteres.');
+      return;
+    }
+
     if (novaSenha !== confirmaSenha) {
       Alert.alert('Erro', 'As senhas não conferem.');
       return;
     }
 
     try {
-      const userIdStr = await AsyncStorage.getItem('userId');
-      const userId = userIdStr ? Number(userIdStr) : null;
-      const email = await AsyncStorage.getItem('email');
-
-      if (!userId) {
-        Alert.alert('Erro', 'Usuário não identificado.');
+      const email = await AsyncStorage.getItem('emailForgot');
+      if (!email) {
+        Alert.alert('Erro', 'Email não encontrado.');
         return;
       }
 
@@ -84,7 +87,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#E0E8F9',
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: 20, // único ajuste para garantir que a largura se adapte em telas menores
+    paddingHorizontal: 20,
   },
   textoSenha: {
     marginTop: 40,

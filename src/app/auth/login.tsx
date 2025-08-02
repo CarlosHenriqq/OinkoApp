@@ -41,6 +41,8 @@ export default function Login() {
   const [toastVisivel, setToastVisivel] = useState(false);
   const [tipo, setTipo] = useState<'sucesso' | 'erro'>('sucesso');
   const [mensagem, setMensagem] = useState('');
+   const [emailError, setEmailError] = useState('');
+  const [senhaError, setSenhaError] = useState('');
 
   function mostrarToast(texto: string, tipoAlerta: 'sucesso' | 'erro') {
     setMensagem(texto);
@@ -140,14 +142,19 @@ export default function Login() {
     } catch (error: any) {
         console.error('Erro ao fazer login:', error);
 
-        // Evita mostrar erro técnico no toast
-        if (error.response?.status === 401) {
-            mostrarToast('E-mail ou senha inválidos.', 'erro');
-        } else if (error.message === 'Network Error') {
-            mostrarToast('Erro de conexão. Verifique sua internet.', 'erro');
-        } else {
-            mostrarToast('Erro inesperado ao tentar login.', 'erro');
-        }
+      if (error.response?.status === 401) {
+        setEmailError('E-mail ou senha inválidos');
+        setSenhaError('');
+        setTimeout(() => {
+          setEmailError('');
+        }, 5000);
+      } else if (error.message === 'Network Error') {
+        mostrarToast('Erro de conexão. Verifique sua internet.', 'erro');
+      } else {
+        mostrarToast('Erro inesperado ao tentar login.', 'erro');
+      }
+    } finally {
+      setIsLoading(false);
     }
   }
 
@@ -173,7 +180,7 @@ export default function Login() {
           icon="mail-outline"
           value={email}
           onChangeText={setEmail}
-          error=""
+          error={emailError}
         />
         <Input
           placeholder="Senha"
@@ -181,7 +188,7 @@ export default function Login() {
           isPassword
           value={senha}
           onChangeText={setSenha}
-          error=''
+          error={senhaError}
         />
       </View>
 
@@ -295,4 +302,4 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "500",
   },
-})
+});
