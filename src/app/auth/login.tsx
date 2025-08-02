@@ -54,18 +54,13 @@ export default function Login() {
 
   // Quando login via Google ocorrer
   useEffect(() => {
-  async function saveGoogleUser() {
-    if (googleLoginSuccess && user?.emailAddresses?.[0]) {
-      try {
-        const userName = user.fullName || "Usuário";
-        const userId = user.id;
-        const userEmail = user.emailAddresses[0].emailAddress;
+    async function saveGoogleUser() {
+      if (googleLoginSuccess && user) {
+        try {
+          const userName = user.fullName || "Usuário";
+          const userId = user.id || "";
+          const userEmail = user.emailAddresses?.[0]?.emailAddress || "";
 
-<<<<<<< HEAD
-        const prevEmail = await AsyncStorage.getItem("email");
-        if (prevEmail && prevEmail !== userEmail) {
-          await AsyncStorage.removeItem("fotoPerfil");
-=======
           const prevEmail = await AsyncStorage.getItem('email');
           if (prevEmail && prevEmail !== userEmail) {
             await AsyncStorage.removeItem('fotoPerfil');
@@ -81,29 +76,11 @@ export default function Login() {
           console.error('Erro ao salvar dados do usuário Google:', e);
         } finally {
           setGoogleLoginSuccess(false);
->>>>>>> dc042305f9fb21ed99635f740fbf5132e1b2bd7f
         }
-
-        await AsyncStorage.setItem("userName", userName);
-        await AsyncStorage.setItem("userId", userId);
-        await AsyncStorage.setItem("email", userEmail);
-        await AsyncStorage.setItem("token", '');
-
-        // Aguarda leve delay para evitar race condition
-        setTimeout(() => {
-          router.replace("/auth/registerFinance");
-        }, 500);
-
-      } catch (e) {
-        console.error("Erro ao salvar dados do usuário Google:", e);
-        mostrarToast("Erro ao salvar dados do Google", "erro");
-      } finally {
-        setGoogleLoginSuccess(false);
       }
     }
-  }
-  saveGoogleUser();
-}, [user, googleLoginSuccess]);
+    saveGoogleUser();
+  }, [user, googleLoginSuccess]);
 
   async function onGoogleSignin() {
     try {
