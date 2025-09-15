@@ -1,50 +1,57 @@
-# Welcome to your Expo app 👋
+🐷 Oinko
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+O Oinko é um aplicativo mobile desenvolvido em React Native que ajuda os usuários a controlar e organizar suas finanças pessoais de forma simples e intuitiva.
+A proposta do app é tornar a gestão de gastos acessível, com uma interface amigável e funcionalidades que apoiam o usuário no dia a dia.
 
-## Get started
+✨ Funcionalidades
 
-1. Install dependencies
+📊 Dashboard de gastos com gráficos de visualização.
 
-   ```bash
-   npm install
-   ```
+💸 Cadastro de despesas e receitas com categorias.
 
-2. Start the app
+🔔 Notificações para lembrar de pagamentos importantes.
 
-   ```bash
-   npx expo start
-   ```
+🎨 Modo escuro e acessibilidade (cores adaptadas).
 
-In the output, you'll find options to open the app in a
+📱 Interface responsiva e intuitiva.
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+💾 Armazenamento local com SQLite para persistência dos dados.
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+🛠️ Tecnologias utilizadas
 
-## Get a fresh project
+React Native
 
-When you're ready, run:
+Expo 
 
-```bash
-npm run reset-project
-```
+Expo router para navegações
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+SQLite
 
-## Learn more
+Axios
+ – integração de API 
 
-To learn more about developing your project with Expo, look at the following resources:
+Victory Native
+ ou Recharts
+ – gráficos
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+ 📷 Imagens do aplicativo
+ ![WhatsApp Image 2025-09-15 at 09 05 53](https://github.com/user-attachments/assets/7a2e0dc5-d3fc-417d-8ea1-635e12728ac4)
+![WhatsApp Image 2025-09-15 at 09 06 05](https://github.com/user-attachments/assets/6e32e6b9-7775-42cc-bd32-589a19018efb)
+![WhatsApp Image 2025-09-15 at 09 06 15](https://github.com/user-attachments/assets/fb3954f1-0d7c-4b15-8424-6cf056c27d3f)
+ ![WhatsApp Image 2025-09-15 at 09 06 28](https://github.com/user-attachments/assets/2cf71709-5bc6-4576-baf9-b44e67a2f514)
+ 
 
-## Join the community
+# Clone este repositório
+git clone https://github.com/CarlosHenriqq/OinkoApp
 
-Join our community of developers creating universal apps.
+# Acesse a pasta do projeto
+cd oinkoApp
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+# Instale as dependências
+npm install
+# ou
+yarn install
+
+# Rode o app
+npx expo start
+
