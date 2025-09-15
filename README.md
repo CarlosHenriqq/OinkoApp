@@ -9,10 +9,6 @@ A proposta do app é tornar a gestão de gastos acessível, com uma interface am
 
 💸 Cadastro de despesas e receitas com categorias.
 
-🔔 Notificações para lembrar de pagamentos importantes.
-
-🎨 Modo escuro e acessibilidade (cores adaptadas).
-
 📱 Interface responsiva e intuitiva.
 
 💾 Armazenamento local com SQLite para persistência dos dados.
@@ -31,7 +27,6 @@ Axios
  – integração de API 
 
 Victory Native
- ou Recharts
  – gráficos
 
  📷 Imagens do aplicativo
