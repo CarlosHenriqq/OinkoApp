@@ -1,4 +1,5 @@
 import { ClerkProvider } from '@clerk/clerk-expo';
+import { tokenCache } from '@clerk/clerk-expo/token-cache';
 import { useFonts } from 'expo-font';
 import { Slot } from 'expo-router';
 import { ActivityIndicator, View } from 'react-native';
@@ -22,7 +23,7 @@ export default function Layout() {
 
   // ✅ Correção aqui:
   return (
-    <ClerkProvider publishableKey={PUBLIC_CLERK_PUBLISHABLE_KEY} >
+    <ClerkProvider publishableKey={PUBLIC_CLERK_PUBLISHABLE_KEY} tokenCache={tokenCache} >
       <Slot />
     </ClerkProvider>
   );
